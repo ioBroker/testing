@@ -1,4 +1,6 @@
-import { MockAdapter, createAdapterMock } from "./mockAdapter";
+import { createAdapterMock } from "./mockAdapter";
+export { MockAdapter } from "./mockAdapter"
+export { MockDatabase } from "./mockDatabase";
 import { MockDatabase } from "./mockDatabase";
 export { createAsserts } from "./mockDatabase";
 
