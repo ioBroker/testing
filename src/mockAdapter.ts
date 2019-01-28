@@ -4,11 +4,11 @@ import { stub } from "sinon";
 
 import { promisify, promisifyNoError } from "alcalzone-shared/async";
 import { extend } from "alcalzone-shared/objects";
-import { Equals } from "alcalzone-shared/types";
+import { Equals, Overwrite } from "alcalzone-shared/types";
 import { MockDatabase } from "./mockDatabase";
 
 // IsAny exploits the fact that `any` may or may not be assignable to `never`, whereas all other types are
-type IsAny<T> = Equals<T extends never ? false : true, boolean>;
+export type IsAny<T> = Equals<T extends never ? false : true, boolean>;
 // This rather complicated type extracts all functions from the ioBroker.Adapter interface without including the properties that are `any`
 export type MockableMethods<
 	All = Required<ioBroker.Adapter>,
@@ -22,7 +22,7 @@ export type MockableMethods<
 
 // The mocked adapter interface has all the usual properties, but all methods are replaced with stubs
 // and there are three reset methods
-export type MockAdapter = ioBroker.Adapter & { [K in MockableMethods]: sinon.SinonStub } & {
+export type MockAdapter = Overwrite<ioBroker.Adapter, { [K in MockableMethods]: sinon.SinonStub }> & {
 	resetMock(): void;
 	resetMockHistory(): void;
 	resetMockBehavior(): void;
@@ -333,11 +333,13 @@ export function createAdapterMock(db: MockDatabase) {
 	// The methods implemented above are no stubs, but we claimed they are
 	// Therefore hook them up with a real stub
 	for (const method of implementedMethodsDefaultCallback) {
+		if (method.endsWith("Async")) continue;
+
 		const originalMethod = ret[method]!;
 		const callbackFake = ret[method] = stub();
 		callbackFake.callsFake(originalMethod);
-		const asyncFake = ret[`${method}Async` as keyof ioBroker.Adapter];
-		asyncFake.callsFake(promisify(originalMethod, ret));
+		const asyncFake = stub().callsFake(promisify(originalMethod, ret));
+		ret[`${method}Async` as keyof ioBroker.Adapter] = asyncFake;
 
 		// Prevent the user from changing the stub's behavior
 		callbackFake.returns = dontOverwriteThis;
@@ -346,11 +348,13 @@ export function createAdapterMock(db: MockDatabase) {
 		asyncFake.callsFake = dontOverwriteThis;
 	}
 	for (const method of implementedMethodsNoErrorCallback) {
+		if (method.endsWith("Async")) continue;
+
 		const originalMethod = ret[method]!;
 		const callbackFake = ret[method] = stub();
 		callbackFake.callsFake(originalMethod);
-		const asyncFake = ret[`${method}Async` as keyof ioBroker.Adapter];
-		asyncFake.callsFake(promisifyNoError(originalMethod, ret));
+		const asyncFake = stub().callsFake(promisifyNoError(originalMethod, ret));
+		ret[`${method}Async` as keyof ioBroker.Adapter] = asyncFake;
 
 		// Prevent the user from changing the stub's behavior
 		callbackFake.returns = dontOverwriteThis;

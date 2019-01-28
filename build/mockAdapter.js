@@ -302,11 +302,13 @@ function createAdapterMock(db) {
     // The methods implemented above are no stubs, but we claimed they are
     // Therefore hook them up with a real stub
     for (const method of implementedMethodsDefaultCallback) {
+        if (method.endsWith("Async"))
+            continue;
         const originalMethod = ret[method];
         const callbackFake = ret[method] = sinon_1.stub();
         callbackFake.callsFake(originalMethod);
-        const asyncFake = ret[`${method}Async`];
-        asyncFake.callsFake(async_1.promisify(originalMethod, ret));
+        const asyncFake = sinon_1.stub().callsFake(async_1.promisify(originalMethod, ret));
+        ret[`${method}Async`] = asyncFake;
         // Prevent the user from changing the stub's behavior
         callbackFake.returns = dontOverwriteThis;
         callbackFake.callsFake = dontOverwriteThis;
@@ -314,11 +316,13 @@ function createAdapterMock(db) {
         asyncFake.callsFake = dontOverwriteThis;
     }
     for (const method of implementedMethodsNoErrorCallback) {
+        if (method.endsWith("Async"))
+            continue;
         const originalMethod = ret[method];
         const callbackFake = ret[method] = sinon_1.stub();
         callbackFake.callsFake(originalMethod);
-        const asyncFake = ret[`${method}Async`];
-        asyncFake.callsFake(async_1.promisifyNoError(originalMethod, ret));
+        const asyncFake = sinon_1.stub().callsFake(async_1.promisifyNoError(originalMethod, ret));
+        ret[`${method}Async`] = asyncFake;
         // Prevent the user from changing the stub's behavior
         callbackFake.returns = dontOverwriteThis;
         callbackFake.callsFake = dontOverwriteThis;
