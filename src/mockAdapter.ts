@@ -56,6 +56,9 @@ const implementedMethods = ([] as string[])
 	.concat(...implementedMethodsNoErrorCallback)
 	;
 
+/**
+ * Creates an adapter mock that is connected to a given database mock
+ */
 export function createAdapterMock(db: MockDatabase) {
 	const ret = {
 		name: "test",

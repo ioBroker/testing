@@ -149,6 +149,16 @@ export class MockDatabase {
 	}
 }
 
+/**
+ * Returns a collection of predefined assertions to be used in unit tests
+ * Those include assertions for:
+ * * State exists
+ * * State has a certain value, ack flag, object property
+ * * Object exists
+ * * Object has a certain common or native part
+ * @param db The mock database to operate on
+ * @param adapter The mock adapter to operate on
+ */
 export function createAsserts(db: MockDatabase, adapter: MockAdapter) {
 	function normalizeID(prefix: string, suffix?: string) {
 		let id = `${prefix}${suffix ? "." + suffix : ""}`;

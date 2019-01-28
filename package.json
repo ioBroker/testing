@@ -2,9 +2,12 @@
   "name": "@iobroker/testing",
   "version": "0.0.1",
   "description": "Shared utilities for adapter and module testing in ioBroker",
-  "main": "index.js",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -p tsconfig.json --watch"
   },
   "repository": {
     "type": "git",
