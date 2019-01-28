@@ -3,7 +3,7 @@
 import { Equals } from "alcalzone-shared/types";
 import { MockDatabase } from "./mockDatabase";
 declare type IsAny<T> = Equals<T extends never ? false : true, boolean>;
-declare type MockableMethods<All = Required<ioBroker.Adapter>, NoAny = {
+export declare type MockableMethods<All = Required<ioBroker.Adapter>, NoAny = {
     [K in keyof All]: IsAny<All[K]> extends true ? never : All[K] extends Function ? K : never;
 }> = NoAny[keyof NoAny];
 export declare type MockAdapter = ioBroker.Adapter & {

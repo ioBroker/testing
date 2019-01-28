@@ -10,15 +10,15 @@ import { MockDatabase } from "./mockDatabase";
 // IsAny exploits the fact that `any` may or may not be assignable to `never`, whereas all other types are
 type IsAny<T> = Equals<T extends never ? false : true, boolean>;
 // This rather complicated type extracts all functions from the ioBroker.Adapter interface without including the properties that are `any`
-type MockableMethods<
+export type MockableMethods<
 	All = Required<ioBroker.Adapter>,
-	NoAny = { 
-		[K in keyof All]: 
-			IsAny<All[K]> extends true ? never
-			: All[K] extends Function ? K
-			: never
-		}
-> = NoAny[keyof NoAny];
+	NoAny = {
+		[K in keyof All]:
+		IsAny<All[K]> extends true ? never
+		: All[K] extends Function ? K
+		: never
+	}
+	> = NoAny[keyof NoAny];
 
 // The mocked adapter interface has all the usual properties, but all methods are replaced with stubs
 // and there are three reset methods
@@ -309,7 +309,7 @@ export function createAdapterMock(db: MockDatabase) {
 
 		formatValue: stub(),
 		formatDate: stub(),
-	
+
 		resetMockHistory() {
 			// reset Adapter
 			doResetHistory(ret);
@@ -372,7 +372,7 @@ function doResetHistory(parent: Record<string, any>) {
 function doResetBehavior(parent: Record<string, any>) {
 	for (const prop of Object.keys(parent)) {
 		if (implementedMethods.indexOf(prop) > -1 || (
-			prop.endsWith("Async") && implementedMethods.indexOf(prop.substr(1))) > -1
+			prop.endsWith("Async") && implementedMethods.indexOf(prop.slice(0, -5))) > -1
 		) continue;
 		const val = parent[prop];
 		if (val && typeof val.resetBehavior === "function") val.resetBehavior();

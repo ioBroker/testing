@@ -337,7 +337,7 @@ function doResetHistory(parent) {
 }
 function doResetBehavior(parent) {
     for (const prop of Object.keys(parent)) {
-        if (implementedMethods.indexOf(prop) > -1 || (prop.endsWith("Async") && implementedMethods.indexOf(prop.substr(1))) > -1)
+        if (implementedMethods.indexOf(prop) > -1 || (prop.endsWith("Async") && implementedMethods.indexOf(prop.slice(0, -5))) > -1)
             continue;
         const val = parent[prop];
         if (val && typeof val.resetBehavior === "function")
