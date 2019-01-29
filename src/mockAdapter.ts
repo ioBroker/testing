@@ -15,14 +15,19 @@ export type MockableMethods<
 	NoAny = {
 		[K in keyof All]:
 		IsAny<All[K]> extends true ? never
-		: All[K] extends Function ? K
+		: All[K] extends ((...args: any[]) => void) ? K
 		: never
 	}
 	> = NoAny[keyof NoAny];
 
 // The mocked adapter interface has all the usual properties, but all methods are replaced with stubs
-// and there are three reset methods
 export type MockAdapter = Overwrite<ioBroker.Adapter, { [K in MockableMethods]: sinon.SinonStub }> & {
+	readyHandler: ioBroker.ReadyHandler | undefined;
+	objectChangeHandler: ioBroker.ObjectChangeHandler | undefined;
+	stateChangeHandler: ioBroker.StateChangeHandler | undefined;
+	messageHandler: ioBroker.MessageHandler | undefined;
+	unloadHandler: ioBroker.UnloadHandler | undefined;
+
 	resetMock(): void;
 	resetMockHistory(): void;
 	resetMockBehavior(): void;
@@ -59,12 +64,12 @@ const implementedMethods = ([] as string[])
 /**
  * Creates an adapter mock that is connected to a given database mock
  */
-export function createAdapterMock(db: MockDatabase) {
+export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.AdapterOptions> = {}) {
 	const ret = {
-		name: "test",
+		name: options.name || "test",
 		host: "testhost",
-		instance: 0,
-		namespace: "test.0",
+		instance: options.instance || 0,
+		namespace: `${options.name || "test"}.${options.instance || 0}`,
 		config: {},
 		common: {},
 		systemConfig: null,
@@ -119,7 +124,7 @@ export function createAdapterMock(db: MockDatabase) {
 		getAdapterObjects: ((callback: (objects: Record<string, ioBroker.Object>) => void) => {
 			callback(db.getObjects(`${ret.namespace}.*`));
 		}) as sinon.SinonStub,
-		extendObject: ((id: string, obj: ioBroker.PartialObject, callback: ioBroker.ExtendObjectCallback) => {
+		extendObject: ((id: string, obj: ioBroker.PartialObject, callback?: ioBroker.ExtendObjectCallback) => {
 			if (!id.startsWith(ret.namespace)) id = ret.namespace + "." + id;
 			const existing = db.getObject(id) || {};
 			const target = extend({}, existing, obj) as ioBroker.Object;
@@ -139,7 +144,7 @@ export function createAdapterMock(db: MockDatabase) {
 			// tslint:disable-next-line:prefer-const
 			let [pattern, type] = args as any as [string, ioBroker.ObjectType];
 			const lastArg = args[args.length - 1];
-			const callback: ioBroker.GetObjectsCallback = typeof lastArg === "function" ? lastArg : undefined;
+			const callback: ioBroker.GetObjectsCallback | undefined = typeof lastArg === "function" ? lastArg : undefined;
 			if (typeof callback === "function") callback(null, db.getObjects(pattern, type));
 		}) as sinon.SinonStub,
 		setForeignObject: ((id: string, obj: ioBroker.Object, callback?: ioBroker.SetObjectCallback) => {
@@ -154,7 +159,7 @@ export function createAdapterMock(db: MockDatabase) {
 				ret.setObject(id, obj, callback);
 			}
 		}) as sinon.SinonStub,
-		extendForeignObject: ((id: string, obj: ioBroker.PartialObject, callback: ioBroker.ExtendObjectCallback) => {
+		extendForeignObject: ((id: string, obj: ioBroker.PartialObject, callback?: ioBroker.ExtendObjectCallback) => {
 			const target = db.getObject(id) || {} as ioBroker.Object;
 			Object.assign(target, obj);
 			db.publishObject(target);
@@ -167,9 +172,9 @@ export function createAdapterMock(db: MockDatabase) {
 		}) as sinon.SinonStub,
 
 		setState: ((...args: any[] /* id: string, state: any, ack?: boolean */) => {
-			let [id, state, ack] = args as any as [string, any, boolean];
+			let [id, state, ack] = args as any as [string, any, boolean?];
 			const lastArg = args[args.length - 1];
-			const callback: ioBroker.SetStateCallback = typeof lastArg === "function" ? lastArg : undefined;
+			const callback: ioBroker.SetStateCallback | undefined = typeof lastArg === "function" ? lastArg : undefined;
 			if (typeof ack !== "boolean") ack = false;
 
 			if (!id.startsWith(ret.namespace)) id = ret.namespace + "." + id;
@@ -183,9 +188,9 @@ export function createAdapterMock(db: MockDatabase) {
 			if (typeof callback === "function") callback(null, id);
 		}) as sinon.SinonStub,
 		setStateChanged: ((...args: any[] /* id: string, state: any, ack?: boolean */) => {
-			let [id, state, ack] = args as any as [string, any, boolean];
+			let [id, state, ack] = args as any as [string, any, boolean?];
 			const lastArg = args[args.length - 1];
-			const callback: ioBroker.SetStateCallback = typeof lastArg === "function" ? lastArg : undefined;
+			const callback: ioBroker.SetStateCallback | undefined = typeof lastArg === "function" ? lastArg : undefined;
 			if (typeof ack !== "boolean") ack = false;
 
 			if (state != null && typeof state === "object") {
@@ -201,9 +206,9 @@ export function createAdapterMock(db: MockDatabase) {
 		}) as sinon.SinonStub,
 		setForeignState: ((...args: any[] /* id: string, state: any, ack?: boolean */) => {
 			// tslint:disable-next-line:prefer-const
-			let [id, state, ack] = args as any as [string, any, boolean];
+			let [id, state, ack] = args as any as [string, any, boolean?];
 			const lastArg = args[args.length - 1];
-			const callback: ioBroker.SetStateCallback = typeof lastArg === "function" ? lastArg : undefined;
+			const callback: ioBroker.SetStateCallback | undefined = typeof lastArg === "function" ? lastArg : undefined;
 			if (typeof ack !== "boolean") ack = false;
 
 			if (state != null && typeof state === "object") {
@@ -216,9 +221,9 @@ export function createAdapterMock(db: MockDatabase) {
 		}) as sinon.SinonStub,
 		setForeignStateChanged: ((...args: any[] /* id: string, state: any, ack?: boolean */) => {
 			// tslint:disable-next-line:prefer-const
-			let [id, state, ack] = args as any as [string, any, boolean];
+			let [id, state, ack] = args as any as [string, any, boolean?];
 			const lastArg = args[args.length - 1];
-			const callback: ioBroker.SetStateCallback = typeof lastArg === "function" ? lastArg : undefined;
+			const callback: ioBroker.SetStateCallback | undefined = typeof lastArg === "function" ? lastArg : undefined;
 			if (typeof ack !== "boolean") ack = false;
 
 			if (state != null && typeof state === "object") {
@@ -310,6 +315,38 @@ export function createAdapterMock(db: MockDatabase) {
 		formatValue: stub(),
 		formatDate: stub(),
 
+		readyHandler: options.ready,
+		messageHandler: options.message,
+		objectChangeHandler: options.objectChange,
+		stateChangeHandler: options.stateChange,
+		unloadHandler: options.unload,
+
+		// EventEmitter methods
+		on: stub().callsFake((event: string, handler: (...args: any[]) => void) => {
+			// Remember the event handlers so we can call them on demand
+			switch (event) {
+				case "ready":
+					ret.readyHandler = handler;
+					break;
+				case "message":
+					ret.messageHandler = handler;
+					break;
+				case "objectChange":
+					ret.objectChangeHandler = handler;
+					break;
+				case "stateChange":
+					ret.stateChangeHandler = handler;
+					break;
+				case "unload":
+					ret.unloadHandler = handler;
+					break;
+			}
+		}),
+		// TODO: Do we need those?
+		// removeListener: stub(),
+		// removeAllListeners: stub(),
+
+		// Mock-specific methods
 		resetMockHistory() {
 			// reset Adapter
 			doResetHistory(ret);
@@ -335,7 +372,7 @@ export function createAdapterMock(db: MockDatabase) {
 	for (const method of implementedMethodsDefaultCallback) {
 		if (method.endsWith("Async")) continue;
 
-		const originalMethod = ret[method]!;
+		const originalMethod = ret[method];
 		const callbackFake = ret[method] = stub();
 		callbackFake.callsFake(originalMethod);
 		const asyncFake = stub().callsFake(promisify(originalMethod, ret));
@@ -350,7 +387,7 @@ export function createAdapterMock(db: MockDatabase) {
 	for (const method of implementedMethodsNoErrorCallback) {
 		if (method.endsWith("Async")) continue;
 
-		const originalMethod = ret[method]!;
+		const originalMethod = ret[method];
 		const callbackFake = ret[method] = stub();
 		callbackFake.callsFake(originalMethod);
 		const asyncFake = stub().callsFake(promisifyNoError(originalMethod, ret));

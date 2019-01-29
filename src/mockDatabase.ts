@@ -69,8 +69,8 @@ export class MockDatabase {
 		this.objects.delete(typeof objOrID === "string" ? objOrID : objOrID._id!);
 	}
 
-	public publishState(id: string, state: Partial<ioBroker.State>) {
-		if (typeof id !== "string") throw new Error("The id must be given!");
+	public publishState(id: string, state: Partial<ioBroker.State> | null | undefined) {
+		// if (typeof id !== "string") throw new Error("The id must be given!");
 		if (state == null) {
 			this.deleteState(id);
 			return;

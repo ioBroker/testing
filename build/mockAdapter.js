@@ -33,12 +33,12 @@ const implementedMethods = []
 /**
  * Creates an adapter mock that is connected to a given database mock
  */
-function createAdapterMock(db) {
+function createAdapterMock(db, options = {}) {
     const ret = {
-        name: "test",
+        name: options.name || "test",
         host: "testhost",
-        instance: 0,
-        namespace: "test.0",
+        instance: options.instance || 0,
+        namespace: `${options.name || "test"}.${options.instance || 0}`,
         config: {},
         common: {},
         systemConfig: null,
@@ -280,6 +280,36 @@ function createAdapterMock(db) {
         chmodFile: sinon_1.stub(),
         formatValue: sinon_1.stub(),
         formatDate: sinon_1.stub(),
+        readyHandler: options.ready,
+        messageHandler: options.message,
+        objectChangeHandler: options.objectChange,
+        stateChangeHandler: options.stateChange,
+        unloadHandler: options.unload,
+        // EventEmitter methods
+        on: sinon_1.stub().callsFake((event, handler) => {
+            // Remember the event handlers so we can call them on demand
+            switch (event) {
+                case "ready":
+                    ret.readyHandler = handler;
+                    break;
+                case "message":
+                    ret.messageHandler = handler;
+                    break;
+                case "objectChange":
+                    ret.objectChangeHandler = handler;
+                    break;
+                case "stateChange":
+                    ret.stateChangeHandler = handler;
+                    break;
+                case "unload":
+                    ret.unloadHandler = handler;
+                    break;
+            }
+        }),
+        // TODO: Do we need those?
+        // removeListener: stub(),
+        // removeAllListeners: stub(),
+        // Mock-specific methods
         resetMockHistory() {
             // reset Adapter
             doResetHistory(ret);
