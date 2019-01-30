@@ -1,14 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const mockAdapter_1 = require("./mockAdapter");
-var mockDatabase_1 = require("./mockDatabase");
-exports.MockDatabase = mockDatabase_1.MockDatabase;
-const mockDatabase_2 = require("./mockDatabase");
-var mockDatabase_3 = require("./mockDatabase");
-exports.createAsserts = mockDatabase_3.createAsserts;
-/** Creates a new set of mocks, including a mock database and a mock adapter */
+const mockAdapter_1 = require("./lib/mocks/mockAdapter");
+const mockDatabase_1 = require("./lib/mocks/mockDatabase");
+var mockDatabase_2 = require("./lib/mocks/mockDatabase");
+exports.MockDatabase = mockDatabase_2.MockDatabase;
+exports.createAsserts = mockDatabase_2.createAsserts;
+var startMockAdapter_1 = require("./lib/startMockAdapter");
+exports.startMockAdapter = startMockAdapter_1.startMockAdapter;
+/**
+ * Creates a new set of mocks, including a mock database and a mock adapter.
+ * For actual adapter tests, you need to use `startMockAdapter` instead.
+ */
 function createMocks() {
-    const databaseMock = new mockDatabase_2.MockDatabase();
+    const databaseMock = new mockDatabase_1.MockDatabase();
     const adapterMock = mockAdapter_1.createAdapterMock(databaseMock);
     return {
         database: databaseMock,

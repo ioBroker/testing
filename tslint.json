@@ -22,7 +22,8 @@
 		"no-bitwise": false,
 		"max-classes-per-file": false,
 		"quotemark": [true, "double", "avoid-escape"],
-		"no-console": false
+		"no-console": false,
+		"prefer-const": false
 	},
 	"linterOptions": {
 		"exclude": []

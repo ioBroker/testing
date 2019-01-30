@@ -141,8 +141,7 @@ export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.Ad
 			callback(null, db.getObject(id));
 		}) as sinon.SinonStub,
 		getForeignObjects: ((...args: any[] /*pattern: string, type: ioBroker.ObjectType */) => {
-			// tslint:disable-next-line:prefer-const
-			let [pattern, type] = args as any as [string, ioBroker.ObjectType];
+			const [pattern, type] = args as any as [string, ioBroker.ObjectType];
 			const lastArg = args[args.length - 1];
 			const callback: ioBroker.GetObjectsCallback | undefined = typeof lastArg === "function" ? lastArg : undefined;
 			if (typeof callback === "function") callback(null, db.getObjects(pattern, type));
@@ -375,7 +374,7 @@ export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.Ad
 		const originalMethod = ret[method];
 		const callbackFake = ret[method] = stub();
 		callbackFake.callsFake(originalMethod);
-		const asyncFake = stub().callsFake(promisify(originalMethod, ret));
+		const asyncFake = stub().callsFake(promisify<any>(originalMethod, ret));
 		ret[`${method}Async` as keyof ioBroker.Adapter] = asyncFake;
 
 		// Prevent the user from changing the stub's behavior
@@ -390,7 +389,7 @@ export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.Ad
 		const originalMethod = ret[method];
 		const callbackFake = ret[method] = stub();
 		callbackFake.callsFake(originalMethod);
-		const asyncFake = stub().callsFake(promisifyNoError(originalMethod, ret));
+		const asyncFake = stub().callsFake(promisifyNoError<any>(originalMethod, ret));
 		ret[`${method}Async` as keyof ioBroker.Adapter] = asyncFake;
 
 		// Prevent the user from changing the stub's behavior

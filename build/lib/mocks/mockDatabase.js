@@ -2,7 +2,7 @@
 // tslint:disable:unified-signatures
 Object.defineProperty(exports, "__esModule", { value: true });
 const objects_1 = require("alcalzone-shared/objects");
-const str2regex_1 = require("./lib/str2regex");
+const str2regex_1 = require("../str2regex");
 const objectTemplate = Object.freeze({
     type: "state",
     common: { name: "an object" },

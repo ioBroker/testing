@@ -114,8 +114,7 @@ function createAdapterMock(db, options = {}) {
             callback(null, db.getObject(id));
         }),
         getForeignObjects: ((...args /*pattern: string, type: ioBroker.ObjectType */) => {
-            // tslint:disable-next-line:prefer-const
-            let [pattern, type] = args;
+            const [pattern, type] = args;
             const lastArg = args[args.length - 1];
             const callback = typeof lastArg === "function" ? lastArg : undefined;
             if (typeof callback === "function")
