@@ -7,6 +7,8 @@ exports.MockDatabase = mockDatabase_2.MockDatabase;
 exports.createAsserts = mockDatabase_2.createAsserts;
 var startMockAdapter_1 = require("./lib/startMockAdapter");
 exports.startMockAdapter = startMockAdapter_1.startMockAdapter;
+var tests_1 = require("./tests");
+exports.tests = tests_1.tests;
 /**
  * Creates a new set of mocks, including a mock database and a mock adapter.
  * For actual adapter tests, you need to use `startMockAdapter` instead.
