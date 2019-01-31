@@ -91,7 +91,7 @@ function loadModuleInHarness(moduleFilename, options = {}) {
     originalJsLoader = replaceJsLoader((module, filename) => {
         // If we want to replace some modules with mocks, we need to change the module's require function
         if (typeguards_1.isObject(options.mockedModules)) {
-            module.require = createMockRequire(module.require, options.mockedModules, filename);
+            module.require = createMockRequire(module.require.bind(module), options.mockedModules, filename);
         }
         if (options.fakeNotRequired && path.normalize(filename) === path.normalize(moduleFilename)) {
             module.parent = null;

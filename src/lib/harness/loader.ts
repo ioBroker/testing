@@ -92,7 +92,7 @@ export function loadModuleInHarness(moduleFilename: string, options: HarnessOpti
 	originalJsLoader = replaceJsLoader((module: any, filename: string) => {
 		// If we want to replace some modules with mocks, we need to change the module's require function
 		if (isObject(options.mockedModules)) {
-			module.require = createMockRequire(module.require, options.mockedModules, filename);
+			module.require = createMockRequire(module.require.bind(module), options.mockedModules, filename);
 		}
 		if (options.fakeNotRequired && path.normalize(filename) === path.normalize(moduleFilename)) {
 			module.parent = null;
