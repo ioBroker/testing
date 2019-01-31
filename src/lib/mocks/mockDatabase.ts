@@ -42,7 +42,7 @@ export class MockDatabase {
 		this.objects.set(obj._id!, completeObject);
 	}
 	public publishObjects(...objects: ioBroker.PartialObject[]) {
-		objects.forEach(this.publishObject);
+		objects.forEach(this.publishObject.bind(this));
 	}
 	public publishStateObjects(...objects: ioBroker.PartialObject[]) {
 		objects

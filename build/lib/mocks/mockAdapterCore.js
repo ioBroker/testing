@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mockAdapter_1 = require("./mockAdapter");
-function mockAdapterCore(database, onAdapterCreated) {
+function mockAdapterCore(database, options = {}) {
     /**
      * The root directory of JS-Controller
      * If this has to exist in the test, the user/tester has to take care of it!
@@ -12,9 +12,10 @@ function mockAdapterCore(database, onAdapterCreated) {
         return {};
     }
     const adapterConstructor = function (nameOrOptions) {
-        const options = typeof nameOrOptions === "string" ? { name: nameOrOptions } : nameOrOptions;
-        const ret = mockAdapter_1.createAdapterMock(database, options);
-        onAdapterCreated(ret);
+        const createAdapterMockOptions = typeof nameOrOptions === "string" ? { name: nameOrOptions } : nameOrOptions;
+        const ret = mockAdapter_1.createAdapterMock(database, createAdapterMockOptions);
+        if (typeof options.onAdapterCreated === "function")
+            options.onAdapterCreated(ret);
         return ret;
     };
     return {

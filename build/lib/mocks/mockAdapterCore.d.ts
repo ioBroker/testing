@@ -5,7 +5,10 @@ interface MockAdapterConstructor {
     new (nameOrOptions: string | ioBroker.AdapterOptions): MockAdapter;
     (nameOrOptions: string | ioBroker.AdapterOptions): MockAdapter;
 }
-export declare function mockAdapterCore(database: MockDatabase, onAdapterCreated: (adapter: MockAdapter) => void): {
+export interface MockAdapterCoreOptions {
+    onAdapterCreated?: (adapter: MockAdapter) => void;
+}
+export declare function mockAdapterCore(database: MockDatabase, options?: MockAdapterCoreOptions): {
     controllerDir: string;
     getConfig: () => Record<string, any>;
     Adapter: MockAdapterConstructor;

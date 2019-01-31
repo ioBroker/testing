@@ -284,6 +284,13 @@ function createAdapterMock(db, options = {}) {
         objectChangeHandler: options.objectChange,
         stateChangeHandler: options.stateChange,
         unloadHandler: options.unload,
+        terminate: sinon_1.stub().callsFake((reason) => {
+            // Terminates execution by
+            const err = new Error(`Adapter.terminate was called${reason ? `with reason: "${reason}"` : ""}!`);
+            // @ts-ignore
+            err.terminateReason = reason || "no reason given!";
+            throw err;
+        }),
         // EventEmitter methods
         on: sinon_1.stub().callsFake((event, handler) => {
             // Remember the event handlers so we can call them on demand

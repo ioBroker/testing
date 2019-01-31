@@ -6,7 +6,11 @@ interface MockAdapterConstructor {
 	(nameOrOptions: string | ioBroker.AdapterOptions): MockAdapter;
 }
 
-export function mockAdapterCore(database: MockDatabase, onAdapterCreated: (adapter: MockAdapter) => void) {
+export interface MockAdapterCoreOptions {
+	onAdapterCreated?: (adapter: MockAdapter) => void;
+}
+
+export function mockAdapterCore(database: MockDatabase, options: MockAdapterCoreOptions = {}) {
 
 	/**
 	 * The root directory of JS-Controller
@@ -20,9 +24,9 @@ export function mockAdapterCore(database: MockDatabase, onAdapterCreated: (adapt
 	}
 
 	const adapterConstructor = function(this: MockAdapter | void, nameOrOptions: string | ioBroker.AdapterOptions) {
-		const options = typeof nameOrOptions === "string" ? { name: nameOrOptions } : nameOrOptions;
-		const ret = createAdapterMock(database, options);
-		onAdapterCreated(ret);
+		const createAdapterMockOptions = typeof nameOrOptions === "string" ? { name: nameOrOptions } : nameOrOptions;
+		const ret = createAdapterMock(database, createAdapterMockOptions);
+		if (typeof options.onAdapterCreated === "function") options.onAdapterCreated(ret);
 		return ret;
 	} as MockAdapterConstructor;
 

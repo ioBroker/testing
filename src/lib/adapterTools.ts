@@ -29,10 +29,28 @@ export function adapterShouldSupportCompactMode(dirOrIoPack: string | Record<str
  * @param adapterDir The directory the adapter resides in
  */
 export function locateAdapterMainFile(adapterDir: string): string {
-	const dirOrIoPack = loadIoPackage(adapterDir);
-	const mainFile = typeof dirOrIoPack.common.main === "string"
-		? dirOrIoPack.common.main
+	const ioPackage = loadIoPackage(adapterDir);
+	const mainFile = typeof ioPackage.common.main === "string"
+		? ioPackage.common.main
 		: "main.js";
 
 	return path.join(adapterDir, mainFile);
+}
+
+/**
+ * Locates an adapter's config to populate the `adapter.config` object with
+ * @param adapterDir The directory the adapter resides in
+ */
+export function loadAdapterConfig(adapterDir: string): Record<string, any> {
+	const ioPackage = loadIoPackage(adapterDir);
+	return ioPackage.native || {};
+}
+
+/**
+ * Loads the instanceObjects for an adapter from its `io-package.json`
+ * @param adapterDir The directory the adapter resides in
+ */
+export function loadInstanceObjects(adapterDir: string): ioBroker.Object[] {
+	const ioPackage = loadIoPackage(adapterDir);
+	return ioPackage.instanceObjects || [];
 }

@@ -1,5 +1,11 @@
+/// <reference types="iobroker" />
 import { MockAdapter } from "./mocks/mockAdapter";
 import { MockDatabase } from "./mocks/mockDatabase";
+export interface StartMockAdapterOptions {
+    compact?: boolean;
+    config?: Record<string, any>;
+    instanceObjects?: ioBroker.Object[];
+}
 /**
  * Starts an adapter by executing its main file in a controlled offline environment.
  * The JS-Controller is replaced by mocks for the adapter and Objects and States DB, so
@@ -8,9 +14,10 @@ import { MockDatabase } from "./mocks/mockDatabase";
  * It returns an instance of the mocked adapter class and the database, so you can perform further tests.
  *
  * @param adapterMainFile The main file of the adapter to start. Must be a full path.
- * @param compactMode Whether to start the adapter in compact mode or not
  */
-export declare function startMockAdapter(adapterMainFile: string, compactMode?: boolean): Promise<{
+export declare function startMockAdapter(adapterMainFile: string, options?: StartMockAdapterOptions): Promise<{
     databaseMock: MockDatabase;
     adapterMock: MockAdapter;
+    processExitCode: number | undefined;
+    terminateReason: string | undefined;
 }>;

@@ -23,7 +23,8 @@
 		"max-classes-per-file": false,
 		"quotemark": [true, "double", "avoid-escape"],
 		"no-console": false,
-		"prefer-const": false
+		"prefer-const": false,
+		"no-unused-expression": false
 	},
 	"linterOptions": {
 		"exclude": []

@@ -39,7 +39,7 @@ class MockDatabase {
         this.objects.set(obj._id, completeObject);
     }
     publishObjects(...objects) {
-        objects.forEach(this.publishObject);
+        objects.forEach(this.publishObject.bind(this));
     }
     publishStateObjects(...objects) {
         objects

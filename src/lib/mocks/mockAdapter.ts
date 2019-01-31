@@ -320,6 +320,14 @@ export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.Ad
 		stateChangeHandler: options.stateChange,
 		unloadHandler: options.unload,
 
+		terminate: stub().callsFake((reason?: string) => {
+			// Terminates execution by
+			const err = new Error(`Adapter.terminate was called${reason ? `with reason: "${reason}"` : ""}!`);
+			// @ts-ignore
+			err.terminateReason = reason || "no reason given!";
+			throw err;
+		}),
+
 		// EventEmitter methods
 		on: stub().callsFake((event: string, handler: (...args: any[]) => void) => {
 			// Remember the event handlers so we can call them on demand
