@@ -10,6 +10,7 @@ import { MockDatabase } from "./mockDatabase";
 // IsAny exploits the fact that `any` may or may not be assignable to `never`, whereas all other types are
 export type IsAny<T> = Equals<T extends never ? false : true, boolean>;
 // This rather complicated type extracts all functions from the ioBroker.Adapter interface without including the properties that are `any`
+// It basically is `getObject | setObject | ...`
 export type MockableMethods<
 	All = Required<ioBroker.Adapter>,
 	NoAny = {
