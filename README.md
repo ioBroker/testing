@@ -1,13 +1,18 @@
 # @iobroker/testing
 
-This repo provides utilities for "offline" (without a running JS-Controller) testing of adapters and other ioBroker-related modules. It contains the following:
+This repo provides utilities for testing of ioBroker adapters and other ioBroker-related modules. It supports:
+* **Unit tests** using mocks (without a running JS-Controller)
+* **Integration tests** that test against a running JS-Controller instance.
+
+The unit tests are realized using the following tools that are provided by this module:
 * A mock database which implements the most basic functionality of `ioBroker`'s Objects and States DB by operating on `Map` objects.
 * A mock `Adapter` that is connected to the mock database. It implements basic functionality of the real `Adapter` class, but only operates on the mock database.
-* Predefined unit tests using `mocha` and `chai` to be used in every adapter.
+
+Predefined methods for both unit and integration tests are exported.
 
 ## Usage
 
-### Basic adapter startup test (offline)
+### Adapter startup (Unit test)
 Run the following snippet in a `mocha` test file to test the adapter startup process against a mock database.
 If the adapter supports compact mode, that is tested aswell.
 ```ts
@@ -22,8 +27,8 @@ const nobleMock = {
 }
 
 // Run tests
-tests.offline.adapterStartup(path.join(__dirname, ".."), {
-    //                       ~~~~~~~~~~~~~~~~~~~~~~~~~
+tests.unit.adapterStartup(path.join(__dirname, ".."), {
+    //                    ~~~~~~~~~~~~~~~~~~~~~~~~~
     // This should be the adapter's root directory
 
     // If the adapter may call process.exit during startup, define here which exit codes are allowed.
@@ -39,7 +44,18 @@ tests.offline.adapterStartup(path.join(__dirname, ".."), {
 });
 ```
 
-### Basic adapter startup test (with live JS-Controller)
+### Validating package files (package.json, io-package.json, ...)
+```ts
+const path = require("path");
+const { tests } = require("@iobroker/testing");
+
+// Run tests
+tests.packageFiles(path.join(__dirname, ".."));
+//                 ~~~~~~~~~~~~~~~~~~~~~~~~~
+// This should be the adapter's root directory
+```
+
+### Adapter startup (Integration test)
 **TODO:** This is not supported yet and has to be converted from the existing tests.
 The syntax will probably look very similar to the offline tests:
 ```ts
@@ -47,8 +63,8 @@ const path = require("path");
 const { tests } = require("@iobroker/testing");
 
 // Run tests
-tests.live.adapterStartup(path.join(__dirname, ".."), {
-    //                    ~~~~~~~~~~~~~~~~~~~~~~~~~
+tests.integration.adapterStartup(path.join(__dirname, ".."), {
+    //                           ~~~~~~~~~~~~~~~~~~~~~~~~~
     // This should be the adapter's root directory
 
     // If the adapter may call process.exit during startup, define here which exit codes are allowed.
@@ -59,7 +75,7 @@ tests.live.adapterStartup(path.join(__dirname, ".."), {
 ```
 
 
-### Build your own tests (offline)
+### Build your own unit tests
 Take a look at `src/lib/startMockAdapter.ts` to get an idea how to test the adapter against a mock database with all the necessary objects in place.
 
 **TODO:** An API for simplified usage is in the works.

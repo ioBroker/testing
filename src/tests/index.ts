@@ -1,7 +1,9 @@
-import { testAdapterStartupOffline } from "./offline/adapterStartup";
+import { validatePackageFiles } from "./package/packageFiles";
+import { testAdapterStartupWithMocks } from "./unit/adapterStartup";
 
 export const tests = {
-	offline: {
-		adapterStartup: testAdapterStartupOffline,
+	unit: {
+		adapterStartup: testAdapterStartupWithMocks,
 	},
+	packageFiles: validatePackageFiles,
 };

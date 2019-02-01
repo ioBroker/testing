@@ -1,6 +1,8 @@
-import { testAdapterStartupOffline } from "./offline/adapterStartup";
+import { validatePackageFiles } from "./package/packageFiles";
+import { testAdapterStartupWithMocks } from "./unit/adapterStartup";
 export declare const tests: {
-    offline: {
-        adapterStartup: typeof testAdapterStartupOffline;
+    unit: {
+        adapterStartup: typeof testAdapterStartupWithMocks;
     };
+    packageFiles: typeof validatePackageFiles;
 };

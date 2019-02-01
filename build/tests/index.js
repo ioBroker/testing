@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const adapterStartup_1 = require("./offline/adapterStartup");
+const packageFiles_1 = require("./package/packageFiles");
+const adapterStartup_1 = require("./unit/adapterStartup");
 exports.tests = {
-    offline: {
-        adapterStartup: adapterStartup_1.testAdapterStartupOffline,
+    unit: {
+        adapterStartup: adapterStartup_1.testAdapterStartupWithMocks,
     },
+    packageFiles: packageFiles_1.validatePackageFiles,
 };
