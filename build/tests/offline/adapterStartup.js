@@ -33,6 +33,7 @@ function testAdapterStartupOffline(adapterDir, options = {}) {
             const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, {
                 config: adapterConfig,
                 instanceObjects,
+                additionalMockedModules: options.additionalMockedModules,
             });
             assertValidExitCode(options.allowedExitCodes || [0], processExitCode);
             // TODO: Test that the unload callback is called
@@ -43,6 +44,7 @@ function testAdapterStartupOffline(adapterDir, options = {}) {
                     compact: true,
                     config: adapterConfig,
                     instanceObjects,
+                    additionalMockedModules: options.additionalMockedModules,
                 });
                 // In compact mode, only "adapter.terminate" may be called
                 chai_1.expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;

@@ -1,6 +1,5 @@
 /// <reference types="node" />
-import Module from "module";
-export declare function createMockRequire(originalRequire: NodeRequire, mocks: Record<string, any>, relativeToFile?: string): (filename: string) => any;
+export declare function createMockRequire(originalRequire: NodeRequire, mocks: Record<string, NodeModule>, relativeToFile?: string): (filename: string) => any;
 /**
  * Monkey-patches module code before executing it by wrapping it in an IIFE whose arguments are modified (proxied) globals
  * @param code The code to monkey patch
@@ -18,8 +17,8 @@ export declare function replaceJsLoader(loaderFunction: NodeExtensions[string]):
  */
 export declare function restoreJsLoader(originalJsLoader: NodeExtensions[string]): void;
 export interface HarnessOptions {
-    /** Mocks for loaded modules */
-    mockedModules?: Record<string, Module>;
+    /** Mocks for loaded modules. This should be a dictionary of module name to module.exports */
+    mockedModules?: Record<string, any>;
     /** Whether the main module should believe that it was not required */
     fakeNotRequired?: boolean;
     /** Patches for global objects like `process` */

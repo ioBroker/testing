@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -8,6 +11,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeguards_1 = require("alcalzone-shared/typeguards");
+const module_1 = __importDefault(require("module"));
 const path = __importStar(require("path"));
 function createMockRequire(originalRequire, mocks, relativeToFile) {
     let relativeToDir;
@@ -25,6 +29,14 @@ function createMockRequire(originalRequire, mocks, relativeToFile) {
     };
 }
 exports.createMockRequire = createMockRequire;
+/**
+ * Creates a module that is loaded instead of another one with the same name
+ */
+function createMockModule(id, mocks) {
+    const ret = new module_1.default(id);
+    ret.exports = mocks;
+    return ret;
+}
 /**
  * Builds a proxy around a global object with the given properties or methods
  * proxied to their given replacements
@@ -91,7 +103,11 @@ function loadModuleInHarness(moduleFilename, options = {}) {
     originalJsLoader = replaceJsLoader((module, filename) => {
         // If we want to replace some modules with mocks, we need to change the module's require function
         if (typeguards_1.isObject(options.mockedModules)) {
-            module.require = createMockRequire(module.require.bind(module), options.mockedModules, filename);
+            const mockModules = {};
+            for (const mod of Object.keys(options.mockedModules)) {
+                mockModules[mod] = createMockModule(mod, options.mockedModules[mod]);
+            }
+            module.require = createMockRequire(module.require.bind(module), mockModules, filename);
         }
         if (options.fakeNotRequired && path.normalize(filename) === path.normalize(moduleFilename)) {
             module.parent = null;

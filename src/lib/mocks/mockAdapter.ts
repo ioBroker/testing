@@ -323,7 +323,7 @@ export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.Ad
 
 		terminate: stub().callsFake((reason?: string) => {
 			// Terminates execution by
-			const err = new Error(`Adapter.terminate was called${reason ? `with reason: "${reason}"` : ""}!`);
+			const err = new Error(`Adapter.terminate was called${reason ? ` with reason: "${reason}"` : ""}!`);
 			// @ts-ignore
 			err.terminateReason = reason || "no reason given!";
 			throw err;

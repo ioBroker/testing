@@ -9,23 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chai_1 = require("chai");
-const module_1 = __importDefault(require("module"));
 const loader_1 = require("./harness/loader");
 const mockAdapterCore_1 = require("./mocks/mockAdapterCore");
 const mockDatabase_1 = require("./mocks/mockDatabase");
-/**
- * Creates a module that is loaded instead of another one with the same name
- */
-function createMockModule(id, mocks) {
-    const ret = new module_1.default(id);
-    ret.exports = mocks;
-    return ret;
-}
 /**
  * Starts an adapter by executing its main file in a controlled offline environment.
  * The JS-Controller is replaced by mocks for the adapter and Objects and States DB, so
@@ -53,16 +41,12 @@ function startMockAdapter(adapterMainFile, options = {}) {
             },
         });
         // Replace the following modules with mocks
-        const mockedModules = {
-            "@iobroker/adapter-core": createMockModule("@iobroker/adapter-core", adapterCoreMock),
-        };
+        const mockedModules = Object.assign({}, options.additionalMockedModules, { "@iobroker/adapter-core": adapterCoreMock });
         // If the adapter supports compact mode and should be executed in "normal" mode,
         // we need to trick it into thinking it was not required
         const fakeNotRequired = !options.compact;
         // Make process.exit() test-safe
-        const globalPatches = {
-            process: { exit: loader_1.fakeProcessExit },
-        };
+        const globalPatches = { process: { exit: loader_1.fakeProcessExit } };
         // Load the adapter file into the test harness and capture it's module.exports
         const mainFileExport = loader_1.loadModuleInHarness(adapterMainFile, {
             mockedModules,
@@ -96,6 +80,10 @@ function startMockAdapter(adapterMainFile, options = {}) {
                 }
                 else if (typeof anyError.terminateReason === "string") {
                     terminateReason = anyError.terminateReason;
+                    if (!options.compact) {
+                        // in non-compact mode, adapter.terminate calls process.exit(11)
+                        processExitCode = 11;
+                    }
                 }
                 else {
                     // This error was not meant for us, pass it through

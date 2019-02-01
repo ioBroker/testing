@@ -8,19 +8,12 @@ import { MockAdapter } from "./mocks/mockAdapter";
 import { mockAdapterCore } from "./mocks/mockAdapterCore";
 import { MockDatabase } from "./mocks/mockDatabase";
 
-/**
- * Creates a module that is loaded instead of another one with the same name
- */
-function createMockModule(id: string, mocks: Record<string, any>) {
-	const ret = new Module(id);
-	ret.exports = mocks;
-	return ret;
-}
-
 export interface StartMockAdapterOptions {
 	compact?: boolean;
 	config?: Record<string, any>;
 	instanceObjects?: ioBroker.Object[];
+	/** Mocks for loaded modules. This should be a dictionary of module name to module.exports */
+	additionalMockedModules?: Record<string, any>;
 }
 
 /**
@@ -51,15 +44,14 @@ export async function startMockAdapter(adapterMainFile: string, options: StartMo
 
 	// Replace the following modules with mocks
 	const mockedModules = {
-		"@iobroker/adapter-core": createMockModule("@iobroker/adapter-core", adapterCoreMock),
+		...options.additionalMockedModules,
+		"@iobroker/adapter-core": adapterCoreMock,
 	};
 	// If the adapter supports compact mode and should be executed in "normal" mode,
 	// we need to trick it into thinking it was not required
 	const fakeNotRequired = !options.compact;
 	// Make process.exit() test-safe
-	const globalPatches = {
-		process: { exit: fakeProcessExit },
-	};
+	const globalPatches = { process: { exit: fakeProcessExit } };
 
 	// Load the adapter file into the test harness and capture it's module.exports
 	const mainFileExport = loadModuleInHarness(adapterMainFile, {
@@ -92,6 +84,10 @@ export async function startMockAdapter(adapterMainFile: string, options: StartMo
 				processExitCode = anyError.processExitCode;
 			} else if (typeof anyError.terminateReason === "string") {
 				terminateReason = anyError.terminateReason;
+				if (!options.compact) {
+					// in non-compact mode, adapter.terminate calls process.exit(11)
+					processExitCode = 11;
+				}
 			} else {
 				// This error was not meant for us, pass it through
 				throw e;

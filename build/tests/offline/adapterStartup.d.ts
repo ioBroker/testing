@@ -1,5 +1,7 @@
+import { StartMockAdapterOptions } from "../../lib/startMockAdapter";
 export interface TestAdapterStartupOptions {
     allowedExitCodes?: number[];
+    additionalMockedModules?: StartMockAdapterOptions["additionalMockedModules"];
 }
 /**
  * Tests the adapter startup in offline mode (with mocks, no JS-Controller)

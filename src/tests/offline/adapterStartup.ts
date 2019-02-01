@@ -3,10 +3,11 @@
 
 import { expect } from "chai";
 import { adapterShouldSupportCompactMode, loadAdapterConfig, loadInstanceObjects, locateAdapterMainFile } from "../../lib/adapterTools";
-import { startMockAdapter } from "../../lib/startMockAdapter";
+import { startMockAdapter, StartMockAdapterOptions } from "../../lib/startMockAdapter";
 
 export interface TestAdapterStartupOptions {
 	allowedExitCodes?: number[];
+	additionalMockedModules?: StartMockAdapterOptions["additionalMockedModules"];
 }
 
 /**
@@ -34,6 +35,7 @@ export function testAdapterStartupOffline(adapterDir: string, options: TestAdapt
 			const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(mainFilename, {
 				config: adapterConfig,
 				instanceObjects,
+				additionalMockedModules: options.additionalMockedModules,
 			});
 			assertValidExitCode(options.allowedExitCodes || [0], processExitCode);
 			// TODO: Test that the unload callback is called
@@ -45,6 +47,7 @@ export function testAdapterStartupOffline(adapterDir: string, options: TestAdapt
 					compact: true,
 					config: adapterConfig,
 					instanceObjects,
+					additionalMockedModules: options.additionalMockedModules,
 				});
 				// In compact mode, only "adapter.terminate" may be called
 				expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;

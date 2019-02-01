@@ -286,7 +286,7 @@ function createAdapterMock(db, options = {}) {
         unloadHandler: options.unload,
         terminate: sinon_1.stub().callsFake((reason) => {
             // Terminates execution by
-            const err = new Error(`Adapter.terminate was called${reason ? `with reason: "${reason}"` : ""}!`);
+            const err = new Error(`Adapter.terminate was called${reason ? ` with reason: "${reason}"` : ""}!`);
             // @ts-ignore
             err.terminateReason = reason || "no reason given!";
             throw err;

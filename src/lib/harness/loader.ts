@@ -2,7 +2,7 @@ import { isObject } from "alcalzone-shared/typeguards";
 import Module from "module";
 import * as path from "path";
 
-export function createMockRequire(originalRequire: NodeRequire, mocks: Record<string, any>, relativeToFile?: string) {
+export function createMockRequire(originalRequire: NodeRequire, mocks: Record<string, NodeModule>, relativeToFile?: string) {
 	let relativeToDir: string | undefined;
 	if (relativeToFile != undefined) {
 		relativeToDir = path.dirname(relativeToFile);
@@ -15,6 +15,15 @@ export function createMockRequire(originalRequire: NodeRequire, mocks: Record<st
 		if (filename in mocks) return mocks[filename].exports;
 		return originalRequire(filename);
 	};
+}
+
+/**
+ * Creates a module that is loaded instead of another one with the same name
+ */
+function createMockModule(id: string, mocks: Record<string, any>) {
+	const ret = new Module(id);
+	ret.exports = mocks;
+	return ret;
 }
 
 /**
@@ -76,8 +85,8 @@ export function restoreJsLoader(originalJsLoader: NodeExtensions[string]) {
 }
 
 export interface HarnessOptions {
-	/** Mocks for loaded modules */
-	mockedModules?: Record<string, Module>;
+	/** Mocks for loaded modules. This should be a dictionary of module name to module.exports */
+	mockedModules?: Record<string, any>;
 	/** Whether the main module should believe that it was not required */
 	fakeNotRequired?: boolean;
 	/** Patches for global objects like `process` */
@@ -92,7 +101,11 @@ export function loadModuleInHarness(moduleFilename: string, options: HarnessOpti
 	originalJsLoader = replaceJsLoader((module: any, filename: string) => {
 		// If we want to replace some modules with mocks, we need to change the module's require function
 		if (isObject(options.mockedModules)) {
-			module.require = createMockRequire(module.require.bind(module), options.mockedModules, filename);
+			const mockModules: Record<string, any> = { };
+			for (const mod of Object.keys(options.mockedModules)) {
+				mockModules[mod] = createMockModule(mod, options.mockedModules[mod]);
+			}
+			module.require = createMockRequire(module.require.bind(module), mockModules, filename);
 		}
 		if (options.fakeNotRequired && path.normalize(filename) === path.normalize(moduleFilename)) {
 			module.parent = null;
