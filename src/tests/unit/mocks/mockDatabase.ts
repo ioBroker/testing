@@ -1,7 +1,7 @@
 // tslint:disable:unified-signatures
 
 import { composeObject, extend } from "alcalzone-shared/objects";
-import { str2regex } from "../str2regex";
+import { str2regex } from "../../../lib/str2regex";
 import { MockAdapter } from "./mockAdapter";
 
 const objectTemplate = Object.freeze({

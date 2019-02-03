@@ -12,7 +12,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const chai_1 = require("chai");
 const adapterTools_1 = require("../../lib/adapterTools");
-const startMockAdapter_1 = require("../../lib/startMockAdapter");
+const startMockAdapter_1 = require("./harness/startMockAdapter");
 /**
  * Tests the adapter startup in offline mode (with mocks, no JS-Controller)
  * This is meant to be executed in a mocha context.

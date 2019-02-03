@@ -1,10 +1,10 @@
-import { createAdapterMock } from "./lib/mocks/mockAdapter";
-export { MockAdapter } from "./lib/mocks/mockAdapter";
+import { createAdapterMock } from "./tests/unit/mocks/mockAdapter";
+export { MockAdapter } from "./tests/unit/mocks/mockAdapter";
 
-import { MockDatabase } from "./lib/mocks/mockDatabase";
-export { MockDatabase, createAsserts } from "./lib/mocks/mockDatabase";
+import { MockDatabase } from "./tests/unit/mocks/mockDatabase";
+export { MockDatabase, createAsserts } from "./tests/unit/mocks/mockDatabase";
 
-export { startMockAdapter } from "./lib/startMockAdapter";
+export { startMockAdapter } from "./tests/unit/harness/startMockAdapter";
 
 export { tests } from "./tests";
 

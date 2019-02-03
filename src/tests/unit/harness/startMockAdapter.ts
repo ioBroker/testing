@@ -2,11 +2,10 @@
 // tslint:disable:no-unused-expression
 
 import { expect } from "chai";
-import Module from "module";
-import { fakeProcessExit, loadModuleInHarness } from "./harness/loader";
-import { MockAdapter } from "./mocks/mockAdapter";
-import { mockAdapterCore } from "./mocks/mockAdapterCore";
-import { MockDatabase } from "./mocks/mockDatabase";
+import { MockAdapter } from "../mocks/mockAdapter";
+import { mockAdapterCore } from "../mocks/mockAdapterCore";
+import { MockDatabase } from "../mocks/mockDatabase";
+import { fakeProcessExit, loadModuleInHarness } from "./loader";
 
 export interface StartMockAdapterOptions {
 	compact?: boolean;

@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const mockAdapter_1 = require("./lib/mocks/mockAdapter");
-const mockDatabase_1 = require("./lib/mocks/mockDatabase");
-var mockDatabase_2 = require("./lib/mocks/mockDatabase");
+const mockAdapter_1 = require("./tests/unit/mocks/mockAdapter");
+const mockDatabase_1 = require("./tests/unit/mocks/mockDatabase");
+var mockDatabase_2 = require("./tests/unit/mocks/mockDatabase");
 exports.MockDatabase = mockDatabase_2.MockDatabase;
 exports.createAsserts = mockDatabase_2.createAsserts;
-var startMockAdapter_1 = require("./lib/startMockAdapter");
+var startMockAdapter_1 = require("./tests/unit/harness/startMockAdapter");
 exports.startMockAdapter = startMockAdapter_1.startMockAdapter;
 var tests_1 = require("./tests");
 exports.tests = tests_1.tests;

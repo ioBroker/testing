@@ -1,6 +1,6 @@
 /// <reference types="iobroker" />
-import { MockAdapter } from "../tests/unit/mocks/mockAdapter";
-import { MockDatabase } from "../tests/unit/mocks/mockDatabase";
+import { MockAdapter } from "./mocks/mockAdapter";
+import { MockDatabase } from "./mocks/mockDatabase";
 export interface StartMockAdapterOptions {
     compact?: boolean;
     config?: Record<string, any>;

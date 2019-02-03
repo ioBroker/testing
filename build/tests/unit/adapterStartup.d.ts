@@ -1,4 +1,4 @@
-import { StartMockAdapterOptions } from "../../lib/startMockAdapter";
+import { StartMockAdapterOptions } from "./harness/startMockAdapter";
 export interface TestAdapterStartupOptions {
     allowedExitCodes?: number[];
     additionalMockedModules?: StartMockAdapterOptions["additionalMockedModules"];

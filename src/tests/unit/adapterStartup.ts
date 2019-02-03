@@ -3,7 +3,7 @@
 
 import { expect } from "chai";
 import { adapterShouldSupportCompactMode, loadAdapterConfig, loadInstanceObjects, locateAdapterMainFile } from "../../lib/adapterTools";
-import { startMockAdapter, StartMockAdapterOptions } from "../../lib/startMockAdapter";
+import { startMockAdapter, StartMockAdapterOptions } from "./harness/startMockAdapter";
 
 export interface TestAdapterStartupOptions {
 	allowedExitCodes?: number[];

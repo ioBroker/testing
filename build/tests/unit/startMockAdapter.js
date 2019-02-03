@@ -11,9 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chai_1 = require("chai");
-const loader_1 = require("../tests/unit/harness/loader");
-const mockAdapterCore_1 = require("../tests/unit/mocks/mockAdapterCore");
-const mockDatabase_1 = require("../tests/unit/mocks/mockDatabase");
+const loader_1 = require("./harness/loader");
+const mockAdapterCore_1 = require("./mocks/mockAdapterCore");
+const mockDatabase_1 = require("./mocks/mockDatabase");
 /**
  * Starts an adapter by executing its main file in a controlled offline environment.
  * The JS-Controller is replaced by mocks for the adapter and Objects and States DB, so
