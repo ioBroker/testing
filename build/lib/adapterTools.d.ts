@@ -1,5 +1,10 @@
 /// <reference types="iobroker" />
 /**
+ * Loads an adapter's package.json
+ * @param adapterDir The directory the adapter resides in
+ */
+export declare function loadNpmPackage(adapterDir: string): Record<string, any>;
+/**
  * Loads an adapter's io-package.json
  * @param adapterDir The directory the adapter resides in
  */
@@ -29,3 +34,5 @@ export declare function loadAdapterConfig(adapterDir: string): Record<string, an
  * @param adapterDir The directory the adapter resides in
  */
 export declare function loadInstanceObjects(adapterDir: string): ioBroker.Object[];
+/** Returns the branded name of "iobroker" */
+export declare function getAppName(adapterDir: string): string;

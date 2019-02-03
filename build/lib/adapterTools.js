@@ -10,6 +10,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable:unified-signatures
 const path = __importStar(require("path"));
 /**
+ * Loads an adapter's package.json
+ * @param adapterDir The directory the adapter resides in
+ */
+function loadNpmPackage(adapterDir) {
+    return require(path.join(adapterDir, "package.json"));
+}
+exports.loadNpmPackage = loadNpmPackage;
+/**
  * Loads an adapter's io-package.json
  * @param adapterDir The directory the adapter resides in
  */
@@ -53,3 +61,9 @@ function loadInstanceObjects(adapterDir) {
     return ioPackage.instanceObjects || [];
 }
 exports.loadInstanceObjects = loadInstanceObjects;
+/** Returns the branded name of "iobroker" */
+function getAppName(adapterDir) {
+    const npmPackage = loadNpmPackage(adapterDir);
+    return npmPackage.name.split(".")[0] || "iobroker";
+}
+exports.getAppName = getAppName;

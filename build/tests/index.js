@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const packageFiles_1 = require("./package/packageFiles");
+const packageFiles_1 = require("./packageFiles");
 const adapterStartup_1 = require("./unit/adapterStartup");
 exports.tests = {
     unit: {

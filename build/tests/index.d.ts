@@ -1,4 +1,4 @@
-import { validatePackageFiles } from "./package/packageFiles";
+import { validatePackageFiles } from "./packageFiles";
 import { testAdapterStartupWithMocks } from "./unit/adapterStartup";
 export declare const tests: {
     unit: {

@@ -2,6 +2,14 @@
 import * as path from "path";
 
 /**
+ * Loads an adapter's package.json
+ * @param adapterDir The directory the adapter resides in
+ */
+export function loadNpmPackage(adapterDir: string): Record<string, any> {
+	return require(path.join(adapterDir, "package.json"));
+}
+
+/**
  * Loads an adapter's io-package.json
  * @param adapterDir The directory the adapter resides in
  */
@@ -53,4 +61,10 @@ export function loadAdapterConfig(adapterDir: string): Record<string, any> {
 export function loadInstanceObjects(adapterDir: string): ioBroker.Object[] {
 	const ioPackage = loadIoPackage(adapterDir);
 	return ioPackage.instanceObjects || [];
+}
+
+/** Returns the branded name of "iobroker" */
+export function getAppName(adapterDir: string): string {
+	const npmPackage = loadNpmPackage(adapterDir);
+	return npmPackage.name.split(".")[0] || "iobroker";
 }

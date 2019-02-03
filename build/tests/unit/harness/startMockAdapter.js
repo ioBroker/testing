@@ -21,7 +21,7 @@ const loader_1 = require("./loader");
  * This method may throw (or reject) if something goes wrong during the adapter startup.
  * It returns an instance of the mocked adapter class and the database, so you can perform further tests.
  *
- * @param adapterMainFile The main file of the adapter to start. Must be a full path.
+ * @param adapterMainFile The main file of the adapter to start. Must be an absolute path.
  */
 function startMockAdapter(adapterMainFile, options = {}) {
     return __awaiter(this, void 0, void 0, function* () {
