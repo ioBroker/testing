@@ -115,7 +115,7 @@ class ControllerSetup {
             debug("Installing newest JS-Controller from github...");
             // First npm install the JS-Controller into the correct directory
             const installUrl = `https://github.com/${this.appName}/${this.appName}.js-controller/tarball/master`;
-            const installResult = yield executeCommand_1.executeCommand("npm", ["i", installUrl], {
+            const installResult = yield executeCommand_1.executeCommand("npm", ["i", installUrl, "--save"], {
                 cwd: this.testDir,
             });
             if (installResult.exitCode !== 0)
