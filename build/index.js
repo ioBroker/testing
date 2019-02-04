@@ -9,6 +9,7 @@ var startMockAdapter_1 = require("./tests/unit/harness/startMockAdapter");
 exports.startMockAdapter = startMockAdapter_1.startMockAdapter;
 var tests_1 = require("./tests");
 exports.tests = tests_1.tests;
+exports.IntegrationTestHarness = tests_1.IntegrationTestHarness;
 /**
  * Creates a new set of mocks, including a mock database and a mock adapter.
  * For actual adapter tests, you need to use `startMockAdapter` instead.

@@ -36,3 +36,7 @@ export declare function loadAdapterConfig(adapterDir: string): Record<string, an
 export declare function loadInstanceObjects(adapterDir: string): ioBroker.Object[];
 /** Returns the branded name of "iobroker" */
 export declare function getAppName(adapterDir: string): string;
+/** Returns the name of an adapter without the prefix */
+export declare function getAdapterName(adapterDir: string): string;
+/** Returns the full name of an adapter, including the prefix */
+export declare function getAdapterFullName(adapterDir: string): string;

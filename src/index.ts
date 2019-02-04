@@ -6,7 +6,7 @@ export { MockDatabase, createAsserts } from "./tests/unit/mocks/mockDatabase";
 
 export { startMockAdapter } from "./tests/unit/harness/startMockAdapter";
 
-export { tests } from "./tests";
+export { tests, IntegrationTestHarness } from "./tests";
 
 /**
  * Creates a new set of mocks, including a mock database and a mock adapter.

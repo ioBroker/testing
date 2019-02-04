@@ -1,6 +1,8 @@
 import { isArray, isObject } from "alcalzone-shared/typeguards";
 import { spawn, SpawnOptions } from "child_process";
 
+const isWindows = /^win/.test(process.platform);
+
 export interface ExecuteCommandOptions {
 	/** Whether the executed command should be logged to the stdout. Default: false */
 	logCommandExecution: boolean;
@@ -54,6 +56,12 @@ export function executeCommand(command: string, argsOrOptions?: string[] | Parti
 		windowsHide: true,
 	};
 	if (options.cwd != null) spawnOptions.cwd = options.cwd;
+
+	// Fix npm / node executable paths on Windows
+	if (isWindows) {
+		if (command === "npm") command += ".cmd";
+		else if (command === "node") command += ".exe";
+	}
 
 	if (options.logCommandExecution == null) options.logCommandExecution = false;
 	if (options.logCommandExecution) {

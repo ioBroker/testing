@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const child_process_1 = require("child_process");
+const isWindows = /^win/.test(process.platform);
 function executeCommand(command, argsOrOptions, options) {
     let args;
     if (typeguards_1.isArray(argsOrOptions)) {
@@ -26,6 +27,13 @@ function executeCommand(command, argsOrOptions, options) {
     };
     if (options.cwd != null)
         spawnOptions.cwd = options.cwd;
+    // Fix npm / node executable paths on Windows
+    if (isWindows) {
+        if (command === "npm")
+            command += ".cmd";
+        else if (command === "node")
+            command += ".exe";
+    }
     if (options.logCommandExecution == null)
         options.logCommandExecution = false;
     if (options.logCommandExecution) {

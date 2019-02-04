@@ -29,7 +29,7 @@ export function testAdapterStartupWithMocks(adapterDir: string, options: TestAda
 		);
 	}
 
-	describe(`Test the adapter startup (in a mocked environment) => `, () => {
+	describe(`Test the adapter startup (in a mocked environment)`, () => {
 
 		it("The adapter starts in normal mode", async () => {
 			const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(mainFilename, {

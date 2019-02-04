@@ -1,0 +1,147 @@
+// process.env.DEBUG = "testing:*";
+
+// Add debug logging for tests
+import debugModule from "debug";
+
+import { wait } from "alcalzone-shared/async";
+import * as os from "os";
+import * as path from "path";
+import { getAdapterName, getAppName } from "../../lib/adapterTools";
+import { AdapterSetup } from "./lib/adapterSetup";
+import { ControllerSetup } from "./lib/controllerSetup";
+import { DBConnection } from "./lib/dbConnection";
+import { TestHarness } from "./lib/harness";
+
+export interface TestAdapterOptions {
+	allowedExitCodes?: (number | string)[];
+	waitBeforeStartupSuccess?: number;
+	/** Allows you to define additional tests */
+	defineAdditionalTests?: (getHarness: () => TestHarness) => void;
+}
+
+export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}) {
+
+	const appName = getAppName(adapterDir);
+	const adapterName = getAdapterName(adapterDir);
+	const testDir = path.join(os.tmpdir(), `test-${appName}.${adapterName}`);
+
+	let harness: TestHarness;
+	const dbConnection = new DBConnection(appName, testDir);
+	const controllerSetup = new ControllerSetup(adapterDir, testDir, dbConnection);
+
+	console.log();
+	console.log(`Running tests in ${testDir}`);
+	console.log();
+
+	describe(`Test the adapter (in a live environment)`, () => {
+
+		let objectsBackup: any;
+		let statesBackup: any;
+
+		before(async function() {
+			// Installation may take a while
+			this.timeout(600000);
+
+			if (await controllerSetup.isJsControllerRunning()) {
+				throw new Error("JS-Controller is already running! Stop it for the first test run and try again!");
+			}
+
+			await controllerSetup.prepareTestDir();
+
+			// Install JS-Controller if it is not yet installed
+			if (!await controllerSetup.isJsControllerInstalled()) {
+				await controllerSetup.installJsController();
+			} else {
+				// It is already installed - Call setup first again
+				await controllerSetup.setupJsController();
+			}
+
+			// Prepare/clean the databases and config
+			await controllerSetup.setupSystemConfig();
+			await controllerSetup.disableAdminInstances();
+
+			// Make sure the adapter in the test dir is up to date and known to JS-Controller
+			const adapterSetup = new AdapterSetup(adapterDir, testDir, dbConnection);
+			await adapterSetup.copyAdapterFilesToTestDir();
+			await adapterSetup.deleteOldInstances();
+			await adapterSetup.addAdapterInstance();
+
+			// Create a copy of the databases that we can restore later
+			({ objects: objectsBackup, states: statesBackup } = await dbConnection.readDB());
+
+		});
+
+		beforeEach(async () => {
+
+			// Clean up before every single test
+			await Promise.all([
+				controllerSetup.clearDBDir(),
+				controllerSetup.clearLogDir(),
+				dbConnection.writeDB(objectsBackup, statesBackup),
+			]);
+
+			// Create a new test harness
+			harness = new TestHarness(adapterDir, testDir);
+
+			// Enable the adapter and set its loglevel to debug
+			await harness.changeAdapterConfig(appName, testDir, adapterName, {
+				common: {
+					enabled: true,
+					loglevel: "debug",
+				},
+			});
+
+			// Start the controller instance
+			await harness.startController();
+
+			// And enable the sendTo emulation
+			await harness.enableSendTo();
+		});
+
+		afterEach(async function() {
+			// Stopping the processes may take a while
+			this.timeout(10000);
+			// Stop the controller again
+			await harness.stopController();
+
+			harness.removeAllListeners();
+		});
+
+		it("The adapter starts", function() {
+			this.timeout(60000);
+
+			return new Promise<string>((resolve, reject) => {
+
+				// Register a handler to check the alive state and exit codes
+				harness
+					.on("stateChange", async (id, state) => {
+						if (id === `system.adapter.${adapterName}.0.alive` && state && state.val === true) {
+							// Wait a bit so we can catch errors that do not happen immediately
+							await wait(options.waitBeforeStartupSuccess != undefined ? options.waitBeforeStartupSuccess : 5000);
+							resolve(`The adapter started successfully.`);
+						}
+					})
+					.on("failed", code => {
+						if (
+							options.allowedExitCodes == undefined
+							|| options.allowedExitCodes.indexOf(code) === -1
+						) {
+							reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === "number" ? "code" : "signal"} ${code}`));
+						} else {
+							// This was a valid exit code
+							resolve(`The expected ${typeof code === "number" ? "exit code" : "signal"} ${code} was received.`);
+						}
+					})
+					;
+				harness.startAdapter();
+			}).then(msg => console.log(msg));
+
+		});
+
+		// Call the user's tests
+		if (typeof options.defineAdditionalTests === "function") {
+			options.defineAdditionalTests(() => harness);
+		}
+	});
+
+}

@@ -68,3 +68,15 @@ export function getAppName(adapterDir: string): string {
 	const npmPackage = loadNpmPackage(adapterDir);
 	return npmPackage.name.split(".")[0] || "iobroker";
 }
+
+/** Returns the name of an adapter without the prefix */
+export function getAdapterName(adapterDir: string): string {
+	const ioPackage = loadIoPackage(adapterDir);
+	return ioPackage.common.name;
+}
+
+/** Returns the full name of an adapter, including the prefix */
+export function getAdapterFullName(adapterDir: string): string {
+	const npmPackage = loadNpmPackage(adapterDir);
+	return npmPackage.name;
+}

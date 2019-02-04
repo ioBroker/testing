@@ -28,7 +28,7 @@ function testAdapterStartupWithMocks(adapterDir, options = {}) {
         // Ensure that a valid exit code was returned. By default, only 0 is allowed
         chai_1.expect(allowedExitCodes).contains(exitCode, `process.exit was called with the unexpected exit code ${exitCode}!`);
     }
-    describe(`Test the adapter startup (in a mocked environment) => `, () => {
+    describe(`Test the adapter startup (in a mocked environment)`, () => {
         it("The adapter starts in normal mode", () => __awaiter(this, void 0, void 0, function* () {
             const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, {
                 config: adapterConfig,
