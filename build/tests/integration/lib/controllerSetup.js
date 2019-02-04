@@ -92,6 +92,10 @@ class ControllerSetup {
                 client.destroy();
                 debug(`  => true`);
                 resolve(true);
+            }).on("error", () => {
+                client.destroy();
+                debug(`  => false`);
+                resolve(false);
             });
             setTimeout(() => {
                 // Assume the connection failed after 1 s
