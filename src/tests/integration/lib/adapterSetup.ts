@@ -76,14 +76,19 @@ export class AdapterSetup {
 		debug("Saving the adapter in package.json");
 		const packageJsonPath = path.join(this.testDir, "package.json");
 		const packageJson = await readJSON(packageJsonPath);
-		const relativeDir = path
-			.relative(this.testDir, this.testAdapterDir)
-			.replace("\\\\", "/")
-			;
-		packageJson.dependencies[this.adapterFullName] = `file:${relativeDir}`;
-		await writeJSON(packageJsonPath, packageJson, { spaces: 2 });
+		console.dir(packageJson);
+		if (packageJson && packageJson.dependencies) {
+			const relativeDir = path
+				.relative(this.testDir, this.testAdapterDir)
+				.replace("\\\\", "/")
+				;
+			packageJson.dependencies[this.adapterFullName] = `file:${relativeDir}`;
+			await writeJSON(packageJsonPath, packageJson, { spaces: 2 });
+			debug("  => done!");
+		} else {
+			debug("  => package.json or -dependencies undefined!");
+		}
 
-		debug("  => done!");
 	}
 
 	/**
