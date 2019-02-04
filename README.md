@@ -35,7 +35,7 @@ tests.unit.adapterStartup(path.join(__dirname, ".."), {
     // By default, 0 is ok. Providing this option overrides the default.
     // Make sure to include 0 if other exit codes are allowed aswell.
     allowedExitCodes: [11],
-    
+
     // optionally define which modules should be mocked.
     additionalMockedModules: {
         "noble": nobleMock,
@@ -56,21 +56,43 @@ tests.packageFiles(path.join(__dirname, ".."));
 ```
 
 ### Adapter startup (Integration test)
-**TODO:** This is not supported yet and has to be converted from the existing tests.
-The syntax will probably look very similar to the offline tests:
+Run the following snippet in a `mocha` test file to test the adapter startup process against a real JS-Controller instance:
 ```ts
 const path = require("path");
 const { tests } = require("@iobroker/testing");
 
 // Run tests
-tests.integration.adapterStartup(path.join(__dirname, ".."), {
-    //                           ~~~~~~~~~~~~~~~~~~~~~~~~~
+tests.integration(path.join(__dirname, ".."), {
+    //            ~~~~~~~~~~~~~~~~~~~~~~~~~
     // This should be the adapter's root directory
 
     // If the adapter may call process.exit during startup, define here which exit codes are allowed.
-    // By default, 0 is ok. Providing this option overrides the default.
-    // Make sure to include 0 if other exit codes are allowed aswell.
-    allowedExitCodes: [11]
+    // By default, termination during startup is not allowed.
+    allowedExitCodes: [11],
+
+    // Define your own tests inside defineAdditionalTests
+    // Since the tests are heavily instrumented, you need to create and use a so called "harness" to control the tests.
+    defineAdditionalTests: (getHarness) => {
+
+        describe("Test sendTo()", () => {
+
+            it("Should work", () => {
+                return new Promise(async (resolve) => {
+                    // Create a fresh harness instance each test!
+                    const harness = getHarness();
+                    // Start the adapter and wait until it has started
+                    await harness.startAdapterAndWait();
+
+                    // Perform the actual test:
+                    harness.sendTo("adapter.0", "test", "message", (resp) => {
+                        console.dir(resp);
+                        resolve();
+                    });
+                });
+            });
+
+        })
+    }
 });
 ```
 
