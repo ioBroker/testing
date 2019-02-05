@@ -76,6 +76,9 @@ class AdapterSetup {
                 packageJson.dependencies[`${this.appName}.${dep}`] = "latest";
             }
             yield fs_extra_1.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
+            debug("Deleting old remains of this adapter");
+            if (yield fs_extra_1.pathExists(this.testAdapterDir))
+                yield fs_extra_1.remove(this.testAdapterDir);
             debug("  => done!");
         });
     }

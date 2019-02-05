@@ -214,8 +214,11 @@ export class TestHarness extends EventEmitter {
 		debug("Controller instance stopped");
 	}
 
-	/** Starts the adapter in a separate process and monitors its status */
-	public async startAdapter() {
+	/**
+	 * Starts the adapter in a separate process and monitors its status
+	 * @param env Additional environment variables to set
+	 */
+	public async startAdapter(env: NodeJS.ProcessEnv = {}) {
 		if (this.isAdapterRunning()) throw new Error("The adapter is already running!");
 		else if (this.didAdapterStop()) throw new Error("This test harness has already been used. Please create a new one for each test!");
 
@@ -232,13 +235,18 @@ export class TestHarness extends EventEmitter {
 			spawn(isWindows ? "node.exe" : "node", [mainFileRelative, "--console"], {
 				cwd: this.testAdapterDir,
 				stdio: ["inherit", "inherit", "inherit"],
+				env: {...process.env, ...env},
 			})
 				.on("close", onClose)
 				.on("exit", onClose)
 			;
 	}
 
-	public async startAdapterAndWait() {
+	/**
+	 * Starts the adapter in a separate process and resolves after it has started
+	 * @param env Additional environment variables to set
+	 */
+	public async startAdapterAndWait(env: NodeJS.ProcessEnv = {}) {
 		return new Promise<void>((resolve, reject) => {
 			this
 				.on("stateChange", async (id, state) => {
@@ -249,7 +257,7 @@ export class TestHarness extends EventEmitter {
 				.on("failed", code => {
 					reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === "number" ? "code" : "signal"} ${code}`));
 				})
-				.startAdapter()
+				.startAdapter(env)
 				;
 		});
 	}

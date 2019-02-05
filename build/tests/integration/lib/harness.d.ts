@@ -46,9 +46,16 @@ export declare class TestHarness extends EventEmitter {
     startController(): Promise<void>;
     /** Stops the controller instance (and the adapter if it is running) */
     stopController(): Promise<void>;
-    /** Starts the adapter in a separate process and monitors its status */
-    startAdapter(): Promise<void>;
-    startAdapterAndWait(): Promise<void>;
+    /**
+     * Starts the adapter in a separate process and monitors its status
+     * @param env Additional environment variables to set
+     */
+    startAdapter(env?: NodeJS.ProcessEnv): Promise<void>;
+    /**
+     * Starts the adapter in a separate process and resolves after it has started
+     * @param env Additional environment variables to set
+     */
+    startAdapterAndWait(env?: NodeJS.ProcessEnv): Promise<void>;
     /** Tests if the adapter process is still running */
     isAdapterRunning(): boolean;
     /** Tests if the adapter process has already exited */

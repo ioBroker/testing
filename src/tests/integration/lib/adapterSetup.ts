@@ -1,4 +1,4 @@
-import { copy, pathExists, readJSON, unlink, writeJSON } from "fs-extra";
+import { copy, pathExists, readJSON, unlink, writeJSON, remove } from "fs-extra";
 import * as path from "path";
 import { getAdapterDependencies, getAdapterFullName, getAdapterName, getAppName } from "../../../lib/adapterTools";
 import { executeCommand } from "../../../lib/executeCommand";
@@ -73,6 +73,10 @@ export class AdapterSetup {
 			packageJson.dependencies[`${this.appName}.${dep}`] = "latest";
 		}
 		await writeJSON(packageJsonPath, packageJson, { spaces: 2 });
+
+		debug("Deleting old remains of this adapter");
+		if (await pathExists(this.testAdapterDir)) await remove(this.testAdapterDir);
+
 		debug("  => done!");
 
 	}

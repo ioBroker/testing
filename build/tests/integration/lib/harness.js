@@ -196,8 +196,11 @@ class TestHarness extends events_1.EventEmitter {
             debug("Controller instance stopped");
         });
     }
-    /** Starts the adapter in a separate process and monitors its status */
-    startAdapter() {
+    /**
+     * Starts the adapter in a separate process and monitors its status
+     * @param env Additional environment variables to set
+     */
+    startAdapter(env = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.isAdapterRunning())
                 throw new Error("The adapter is already running!");
@@ -214,12 +217,17 @@ class TestHarness extends events_1.EventEmitter {
                 child_process_1.spawn(isWindows ? "node.exe" : "node", [mainFileRelative, "--console"], {
                     cwd: this.testAdapterDir,
                     stdio: ["inherit", "inherit", "inherit"],
+                    env: Object.assign({}, process.env, env),
                 })
                     .on("close", onClose)
                     .on("exit", onClose);
         });
     }
-    startAdapterAndWait() {
+    /**
+     * Starts the adapter in a separate process and resolves after it has started
+     * @param env Additional environment variables to set
+     */
+    startAdapterAndWait(env = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 this
@@ -231,7 +239,7 @@ class TestHarness extends events_1.EventEmitter {
                     .on("failed", code => {
                     reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === "number" ? "code" : "signal"} ${code}`));
                 })
-                    .startAdapter();
+                    .startAdapter(env);
             });
         });
     }
