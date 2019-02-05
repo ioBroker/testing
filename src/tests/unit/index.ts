@@ -26,18 +26,16 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 		);
 	}
 
+	const adapterConfig = loadAdapterConfig(adapterDir);
+	const instanceObjects = loadInstanceObjects(adapterDir);
+	const supportsCompactMode = adapterShouldSupportCompactMode(adapterDir);
+
 	describe(`Test the adapter (in a mocked environment)`, async () => {
 
 		let mainFilename: string;
-		let adapterConfig: Record<string, any>;
-		let instanceObjects: ioBroker.Object[];
-		let supportsCompactMode: boolean;
 
 		before(async () => {
 			mainFilename = await locateAdapterMainFile(adapterDir);
-			adapterConfig = loadAdapterConfig(adapterDir);
-			instanceObjects = loadInstanceObjects(adapterDir);
-			supportsCompactMode = adapterShouldSupportCompactMode(adapterDir);
 		});
 
 		it("The adapter starts in normal mode", async () => {
@@ -50,7 +48,7 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 			// TODO: Test that the unload callback is called
 		});
 
-		if (supportsCompactMode!) {
+		if (supportsCompactMode) {
 			it("The adapter starts in compact mode", async () => {
 				const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(mainFilename, {
 					compact: true,

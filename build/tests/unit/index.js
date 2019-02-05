@@ -24,16 +24,13 @@ function testAdapterWithMocks(adapterDir, options = {}) {
         // Ensure that a valid exit code was returned. By default, only 0 is allowed
         chai_1.expect(allowedExitCodes).contains(exitCode, `process.exit was called with the unexpected exit code ${exitCode}!`);
     }
+    const adapterConfig = adapterTools_1.loadAdapterConfig(adapterDir);
+    const instanceObjects = adapterTools_1.loadInstanceObjects(adapterDir);
+    const supportsCompactMode = adapterTools_1.adapterShouldSupportCompactMode(adapterDir);
     describe(`Test the adapter (in a mocked environment)`, () => __awaiter(this, void 0, void 0, function* () {
         let mainFilename;
-        let adapterConfig;
-        let instanceObjects;
-        let supportsCompactMode;
         before(() => __awaiter(this, void 0, void 0, function* () {
             mainFilename = yield adapterTools_1.locateAdapterMainFile(adapterDir);
-            adapterConfig = adapterTools_1.loadAdapterConfig(adapterDir);
-            instanceObjects = adapterTools_1.loadInstanceObjects(adapterDir);
-            supportsCompactMode = adapterTools_1.adapterShouldSupportCompactMode(adapterDir);
         }));
         it("The adapter starts in normal mode", () => __awaiter(this, void 0, void 0, function* () {
             const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, {
