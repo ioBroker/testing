@@ -60,7 +60,7 @@ export class AdapterSetup {
 		const tarballPath = path.resolve(this.adapterDir, tarballName);
 		await copy(
 			tarballPath,
-			path.resolve(this.testDir, tarballName),
+			path.resolve(this.testDir, Date.now() + "-" + tarballName),
 		);
 		await unlink(tarballPath);
 
