@@ -1,13 +1,13 @@
+// Add debug logging for tests
+import debugModule from "debug";
+const debug = debugModule("testing:integration:AdapterSetup");
+
 import { copy, pathExists, readJSON, remove, unlink, writeJSON } from "fs-extra";
 import * as path from "path";
 import { getAdapterDependencies, getAdapterFullName, getAdapterName, getAppName } from "../../../lib/adapterTools";
 import { executeCommand } from "../../../lib/executeCommand";
-import { getTestAdapterDir, getTestControllerDir } from "./tools";
-
-// Add debug logging for tests
-import debugModule from "debug";
 import { DBConnection } from "./dbConnection";
-const debug = debugModule("testing:integration:AdapterSetup");
+import { getTestAdapterDir, getTestControllerDir } from "./tools";
 
 export class AdapterSetup {
 

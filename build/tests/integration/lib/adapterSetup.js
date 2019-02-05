@@ -7,6 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -14,18 +17,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+// Add debug logging for tests
+const debug_1 = __importDefault(require("debug"));
+const debug = debug_1.default("testing:integration:AdapterSetup");
 const fs_extra_1 = require("fs-extra");
 const path = __importStar(require("path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
 const executeCommand_1 = require("../../../lib/executeCommand");
 const tools_1 = require("./tools");
-// Add debug logging for tests
-const debug_1 = __importDefault(require("debug"));
-const debug = debug_1.default("testing:integration:AdapterSetup");
 class AdapterSetup {
     constructor(adapterDir, testDir, dbConnection) {
         this.adapterDir = adapterDir;

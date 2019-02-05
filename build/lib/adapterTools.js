@@ -7,6 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -15,6 +18,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// Add debug logging for tests
+const debug_1 = __importDefault(require("debug"));
+const debug = debug_1.default("testing:unit:adapterTools");
 // tslint:disable:unified-signatures
 const fs_extra_1 = require("fs-extra");
 const path = __importStar(require("path"));
@@ -46,18 +52,23 @@ exports.adapterShouldSupportCompactMode = adapterShouldSupportCompactMode;
  */
 function locateAdapterMainFile(adapterDir) {
     return __awaiter(this, void 0, void 0, function* () {
+        debug(`locating adapter main file in ${adapterDir}...`);
         const ioPackage = loadIoPackage(adapterDir);
         // First look for the file defined in io-package.json or use "main.js" as a fallback
         const mainFile = typeof ioPackage.common.main === "string"
             ? ioPackage.common.main
             : "main.js";
         let ret = path.join(adapterDir, mainFile);
-        if (yield fs_extra_1.pathExists(ret))
+        if (yield fs_extra_1.pathExists(ret)) {
+            debug(`  => found ${mainFile}`);
             return ret;
+        }
         // If both don't exist, JS-Controller uses <adapter name>.js as another fallback
         ret = path.join(adapterDir, ioPackage.name + ".js");
-        if (yield fs_extra_1.pathExists(ret))
+        if (yield fs_extra_1.pathExists(ret)) {
+            debug(`  => found ${mainFile}`);
             return ret;
+        }
         throw new Error(`The adapter main file was not found in ${adapterDir}`);
     });
 }

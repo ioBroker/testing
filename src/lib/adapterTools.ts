@@ -1,3 +1,7 @@
+// Add debug logging for tests
+import debugModule from "debug";
+const debug = debugModule("testing:unit:adapterTools");
+
 // tslint:disable:unified-signatures
 import { pathExists } from "fs-extra";
 import * as path from "path";
@@ -38,6 +42,7 @@ export function adapterShouldSupportCompactMode(dirOrIoPack: string | Record<str
  * @param adapterDir The directory the adapter resides in
  */
 export async function locateAdapterMainFile(adapterDir: string) {
+	debug(`locating adapter main file in ${adapterDir}...`);
 	const ioPackage = loadIoPackage(adapterDir);
 
 	// First look for the file defined in io-package.json or use "main.js" as a fallback
@@ -46,11 +51,17 @@ export async function locateAdapterMainFile(adapterDir: string) {
 		: "main.js";
 
 	let ret = path.join(adapterDir, mainFile);
-	if (await pathExists(ret)) return ret;
+	if (await pathExists(ret)) {
+		debug(`  => found ${mainFile}`);
+		return ret;
+	}
 
 	// If both don't exist, JS-Controller uses <adapter name>.js as another fallback
 	ret = path.join(adapterDir, ioPackage.name + ".js");
-	if (await pathExists(ret)) return ret;
+	if (await pathExists(ret)) {
+		debug(`  => found ${mainFile}`);
+		return ret;
+	}
 
 	throw new Error(`The adapter main file was not found in ${adapterDir}`);
 }
