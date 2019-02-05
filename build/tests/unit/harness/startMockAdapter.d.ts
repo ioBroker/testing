@@ -2,8 +2,11 @@
 import { MockAdapter } from "../mocks/mockAdapter";
 import { MockDatabase } from "../mocks/mockDatabase";
 export interface StartMockAdapterOptions {
+    /** Whether the adapter should be started in compact mode */
     compact?: boolean;
+    /** The adapter config */
     config?: Record<string, any>;
+    /** An array of instance objects that should be populated before starting the adapter */
     instanceObjects?: ioBroker.Object[];
     /** Mocks for loaded modules. This should be a dictionary of module name to module.exports */
     additionalMockedModules?: Record<string, any>;

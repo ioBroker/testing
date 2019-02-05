@@ -1,4 +1,4 @@
-import { copy, pathExists, readJSON, unlink, writeJSON, remove } from "fs-extra";
+import { copy, pathExists, readJSON, remove, unlink, writeJSON } from "fs-extra";
 import * as path from "path";
 import { getAdapterDependencies, getAdapterFullName, getAdapterName, getAppName } from "../../../lib/adapterTools";
 import { executeCommand } from "../../../lib/executeCommand";

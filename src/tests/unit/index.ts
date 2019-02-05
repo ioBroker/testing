@@ -5,21 +5,18 @@ import { expect } from "chai";
 import { adapterShouldSupportCompactMode, loadAdapterConfig, loadInstanceObjects, locateAdapterMainFile } from "../../lib/adapterTools";
 import { startMockAdapter, StartMockAdapterOptions } from "./harness/startMockAdapter";
 
-export interface TestAdapterStartupOptions {
+export interface TestAdapterOptions {
 	allowedExitCodes?: number[];
 	additionalMockedModules?: StartMockAdapterOptions["additionalMockedModules"];
+	/** Allows you to define additional tests */
+	defineAdditionalTests?: () => void;
 }
 
 /**
  * Tests the adapter startup in offline mode (with mocks, no JS-Controller)
  * This is meant to be executed in a mocha context.
  */
-export async function testAdapterStartupWithMocks(adapterDir: string, options: TestAdapterStartupOptions = {}) {
-
-	const mainFilename = await locateAdapterMainFile(adapterDir);
-	const adapterConfig = loadAdapterConfig(adapterDir);
-	const instanceObjects = loadInstanceObjects(adapterDir);
-	const supportsCompactMode = adapterShouldSupportCompactMode(adapterDir);
+export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOptions = {}) {
 
 	function assertValidExitCode(allowedExitCodes: number[], exitCode?: number) {
 		if (exitCode == undefined) return;
@@ -29,7 +26,19 @@ export async function testAdapterStartupWithMocks(adapterDir: string, options: T
 		);
 	}
 
-	describe(`Test the adapter startup (in a mocked environment)`, () => {
+	describe(`Test the adapter (in a mocked environment)`, async () => {
+
+		let mainFilename: string;
+		let adapterConfig: Record<string, any>;
+		let instanceObjects: ioBroker.Object[];
+		let supportsCompactMode: boolean;
+
+		before(async () => {
+			mainFilename = await locateAdapterMainFile(adapterDir);
+			adapterConfig = loadAdapterConfig(adapterDir);
+			instanceObjects = loadInstanceObjects(adapterDir);
+			supportsCompactMode = adapterShouldSupportCompactMode(adapterDir);
+		});
 
 		it("The adapter starts in normal mode", async () => {
 			const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(mainFilename, {
@@ -41,7 +50,7 @@ export async function testAdapterStartupWithMocks(adapterDir: string, options: T
 			// TODO: Test that the unload callback is called
 		});
 
-		if (supportsCompactMode) {
+		if (supportsCompactMode!) {
 			it("The adapter starts in compact mode", async () => {
 				const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(mainFilename, {
 					compact: true,
@@ -53,6 +62,11 @@ export async function testAdapterStartupWithMocks(adapterDir: string, options: T
 				expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;
 				// TODO: Test that the unload callback is called (if terminateReason is undefined)
 			});
+		}
+
+		// Call the user's tests
+		if (typeof options.defineAdditionalTests === "function") {
+			options.defineAdditionalTests();
 		}
 
 	});
