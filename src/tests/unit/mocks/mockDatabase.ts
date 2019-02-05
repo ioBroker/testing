@@ -1,6 +1,7 @@
 // tslint:disable:unified-signatures
 
 import { composeObject, extend } from "alcalzone-shared/objects";
+import { isArray } from "alcalzone-shared/typeguards";
 import { str2regex } from "../../../lib/str2regex";
 import { MockAdapter } from "./mockAdapter";
 
@@ -160,8 +161,8 @@ export class MockDatabase {
  * @param adapter The mock adapter to operate on
  */
 export function createAsserts(db: MockDatabase, adapter: MockAdapter) {
-	function normalizeID(prefix: string, suffix?: string) {
-		let id = `${prefix}${suffix ? "." + suffix : ""}`;
+	function normalizeID(id: string | string[]) {
+		if (isArray(id)) id = id.join(".");
 		// Test if this ID is fully qualified
 		if (!/^[a-z0-9\-_]+\.\d+\./.test(id)) {
 			id = adapter.namespace + "." + id;
@@ -169,40 +170,40 @@ export function createAsserts(db: MockDatabase, adapter: MockAdapter) {
 		return id;
 	}
 	const ret = {
-		assertObjectExists(prefix: string, suffix?: string) {
-			const id = normalizeID(prefix, suffix);
+		assertObjectExists(id: string | string[]) {
+			id = normalizeID(id);
 			db.hasObject(id).should.equal(true, `The object "${adapter.namespace}.${id}" does not exist but it was expected to!`);
 		},
-		assertStateExists(prefix: string, suffix?: string) {
-			const id = normalizeID(prefix, suffix);
+		assertStateExists(id: string | string[]) {
+			id = normalizeID(id);
 			db.hasState(id).should.equal(true, `The state "${adapter.namespace}.${id}" does not exist but it was expected to!`);
 		},
-		assertStateHasValue(prefix: string, suffix: string | undefined, value: any) {
-			ret.assertStateProperty(prefix, suffix, "val", value);
+		assertStateHasValue(id: string | string[], value: any) {
+			ret.assertStateProperty(id, "val", value);
 		},
-		assertStateIsAcked(prefix: string, suffix: string | undefined, ack: boolean = true) {
-			ret.assertStateProperty(prefix, suffix, "ack", ack);
+		assertStateIsAcked(id: string | string[], ack: boolean = true) {
+			ret.assertStateProperty(id, "ack", ack);
 		},
-		assertStateProperty(prefix: string, suffix: string | undefined, property: string, value: any) {
-			const id = normalizeID(prefix, suffix);
-			ret.assertStateExists(id, undefined);
+		assertStateProperty(id: string | string[], property: string, value: any) {
+			id = normalizeID(id);
+			ret.assertStateExists(id);
 			db.getState(id)!
 				.should.be.an("object")
 				.that.has.property(property, value)
 				;
 		},
-		assertObjectCommon(prefix: string, suffix: string | undefined, common: ioBroker.ObjectCommon) {
-			const id = normalizeID(prefix, suffix);
-			ret.assertObjectExists(prefix, suffix);
+		assertObjectCommon(id: string | string[], common: ioBroker.ObjectCommon) {
+			id = normalizeID(id);
+			ret.assertObjectExists(id);
 			const dbObj = db.getObject(id)!;
 			dbObj.should.be.an("object")
 				.that.has.property("common");
 			dbObj.common.should.be.an("object")
 				.that.nested.include(common);
 		},
-		assertObjectNative(prefix: string, suffix: string | undefined, native: object) {
-			const id = normalizeID(prefix, suffix);
-			ret.assertObjectExists(prefix, suffix);
+		assertObjectNative(id: string | string[], native: object) {
+			id = normalizeID(id);
+			ret.assertObjectExists(id);
 			const dbObj = db.getObject(id)!;
 			dbObj.should.be.an("object")
 				.that.has.property("native");

@@ -41,11 +41,11 @@ export declare class MockDatabase {
  * @param adapter The mock adapter to operate on
  */
 export declare function createAsserts(db: MockDatabase, adapter: MockAdapter): {
-    assertObjectExists(prefix: string, suffix?: string | undefined): void;
-    assertStateExists(prefix: string, suffix?: string | undefined): void;
-    assertStateHasValue(prefix: string, suffix: string | undefined, value: any): void;
-    assertStateIsAcked(prefix: string, suffix: string | undefined, ack?: boolean): void;
-    assertStateProperty(prefix: string, suffix: string | undefined, property: string, value: any): void;
-    assertObjectCommon(prefix: string, suffix: string | undefined, common: ioBroker.ObjectCommon): void;
-    assertObjectNative(prefix: string, suffix: string | undefined, native: object): void;
+    assertObjectExists(id: string | string[]): void;
+    assertStateExists(id: string | string[]): void;
+    assertStateHasValue(id: string | string[], value: any): void;
+    assertStateIsAcked(id: string | string[], ack?: boolean): void;
+    assertStateProperty(id: string | string[], property: string, value: any): void;
+    assertObjectCommon(id: string | string[], common: ioBroker.ObjectCommon): void;
+    assertObjectNative(id: string | string[], native: object): void;
 };
