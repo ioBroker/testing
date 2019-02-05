@@ -12,6 +12,17 @@ Predefined methods for both unit and integration tests are exported.
 
 ## Usage
 
+### Validating package files (package.json, io-package.json, ...)
+```ts
+const path = require("path");
+const { tests } = require("@iobroker/testing");
+
+// Run tests
+tests.packageFiles(path.join(__dirname, ".."));
+//                 ~~~~~~~~~~~~~~~~~~~~~~~~~
+// This should be the adapter's root directory
+```
+
 ### Adapter startup (Unit test)
 Run the following snippet in a `mocha` test file to test the adapter startup process against a mock database.
 If the adapter supports compact mode, that is tested aswell.
@@ -27,8 +38,8 @@ const nobleMock = {
 }
 
 // Run tests
-tests.unit.adapterStartup(path.join(__dirname, ".."), {
-    //                    ~~~~~~~~~~~~~~~~~~~~~~~~~
+tests.unit(path.join(__dirname, ".."), {
+    //     ~~~~~~~~~~~~~~~~~~~~~~~~~
     // This should be the adapter's root directory
 
     // If the adapter may call process.exit during startup, define here which exit codes are allowed.
@@ -41,18 +52,15 @@ tests.unit.adapterStartup(path.join(__dirname, ".."), {
         "noble": nobleMock,
         "@abandonware/noble": nobleMock,
     }
+
+    // Define your own tests inside defineAdditionalTests
+    defineAdditionalTests() {
+        it("works", () => {
+            // see below how these could look like
+        });
+    }
+
 });
-```
-
-### Validating package files (package.json, io-package.json, ...)
-```ts
-const path = require("path");
-const { tests } = require("@iobroker/testing");
-
-// Run tests
-tests.packageFiles(path.join(__dirname, ".."));
-//                 ~~~~~~~~~~~~~~~~~~~~~~~~~
-// This should be the adapter's root directory
 ```
 
 ### Adapter startup (Integration test)
@@ -72,7 +80,7 @@ tests.integration(path.join(__dirname, ".."), {
 
     // Define your own tests inside defineAdditionalTests
     // Since the tests are heavily instrumented, you need to create and use a so called "harness" to control the tests.
-    defineAdditionalTests: (getHarness) => {
+    defineAdditionalTests(getHarness) {
 
         describe("Test sendTo()", () => {
 
@@ -97,45 +105,85 @@ tests.integration(path.join(__dirname, ".."), {
 ```
 
 
-### Build your own unit tests
-Take a look at `src/lib/startMockAdapter.ts` to get an idea how to test the adapter against a mock database with all the necessary objects in place.
-
-**TODO:** An API for simplified usage is in the works.
-<!--Here's an example how this can be used in a unit test. Note that this will not be the final syntax:
+### Helper functions for your own tests
+Under `utils`, several functions are exposed to use in your own tests:
 ```ts
-import { createMocks, createAsserts } from "@iobroker/testing";
-const { adapter, database } = createMocks();
-const { assertObjectExists } = createAsserts();
+const { utils } = require("@iobroker/testing");
+```
+Currently, only `utils.unit` is defined which contains tools for unit tests:
 
-const { ClassToBeTested } = proxyquire<typeof import("./class-to-be-tested")>("./class-to-be-tested", {
-    "./something-that-uses-adapter": adapter,
+#### createMocks()
+```ts
+const { database, adapter } = utils.unit.createMocks();
+```
+This method creates a mock database and a mock adapter. See below for a more detailed description
+
+#### createAsserts()
+```ts
+const asserts = utils.unit.createAsserts(database, adapter);
+```
+This methods takes a mock database and adapter and creates a set of asserts for your tests. All IDs may either be a string, which is taken literally, or an array of strings which are concatenated with `"."`. If an ID is not fully qualified, the adapter namespace is prepended automatically.
+
+* `assertObjectExists(id: string | string[])` asserts that an object with the given ID exists in the database.
+* `assertStateExists(id: string | string[])` asserts that a state with the given ID exists in the database.
+* `assertStateHasValue(id: string | string[], value: any)` asserts that a state has the given value.
+* `assertStateIsAcked(id: string | string[], ack: boolean = true)` asserts that a state is `ack`ed (or not if `ack === false`).
+* `assertStateProperty(id: string | string[], property: string, value: any)` asserts that one of the state's properties (e.g. `from`) has the given value
+* `assertObjectCommon(id: string | string[], common: ioBroker.ObjectCommon)` asserts that an object's common part includes the given `common` object.
+* `assertObjectNative(id: string | string[], native: object)` asserts that an object's native part includes the given `native` object.
+
+#### MockDatabase
+TODO
+
+#### MockAdapter
+TODO
+
+### Example
+Here's an example how this can be used in a unit test. Note that this will not be the final syntax:
+```ts
+import { tests, utils } from "@iobroker/testing";
+
+// Run tests
+tests.unit(path.join(__dirname, ".."), {
+    //     ~~~~~~~~~~~~~~~~~~~~~~~~~
+    // This should be the adapter's root directory
+
+    // Define your own tests inside defineAdditionalTests
+    defineAdditionalTests() {
+
+        // Create mocks and asserts
+        const { adapter, database } = utils.unit.createMocks();
+        const { assertObjectExists } = utils.unit.createAsserts(database, adapter);
+
+        describe("my test", () => {
+
+            afterEach(() => {
+                // The mocks keep track of all method invocations - reset them after each single test
+                adapter.resetMockHistory();
+                // We want to start each test with a fresh database
+                database.clear();
+            });
+
+            it("works", () => {
+                // Create an object in the fake db we will use in this test
+                const theObject: ioBroker.PartialObject = {
+                    _id: "whatever",
+                    type: "state",
+                    common: {
+                        role: "whatever",
+                    },
+                };
+                mocks.database.publishObject(theObject);
+
+                // Do something that should be tested
+
+                // Assert that the object still exists
+                assertObjectExists(theObject._id);
+            });
+
+        });
+
+    }
 });
+```
 
-describe("class-to-be-tested", () => {
-
-    afterEach(() => {
-        // The mocks keep track of all method invocations - reset those after each single test
-        adapter.resetMockHistory();
-        // We want to start each test with a fresh database
-        database.clear();
-    });
-
-    it("should do something", async () => {
-        const cls = new ClassToBeTested();
-
-        // Create an object in the fake db we will use in this test
-        const theObject: ioBroker.PartialObject = {
-            _id: "whatever",
-            type: "state",
-            common: {
-                role: "whatever",
-            },
-        };
-        mocks.database.publishObject(theObject);
-
-        await cls.doSomething();
-        // Assert that the object still exists
-        assertObjectExists(theObject._id);
-    });
-});
-```-->
