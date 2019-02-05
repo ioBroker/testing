@@ -65,7 +65,7 @@ class AdapterSetup {
                 throw new Error(`Packing the adapter tarball failed!`);
             const tarballName = packResult.stdout.trim();
             const tarballPath = path.resolve(this.adapterDir, tarballName);
-            yield fs_extra_1.copy(tarballPath, path.resolve(this.testDir, Date.now() + "-" + tarballName));
+            yield fs_extra_1.copy(tarballPath, path.resolve(this.testDir, tarballName));
             yield fs_extra_1.unlink(tarballPath);
             // Complete the package.json, so npm can do it's magic
             debug("Saving the adapter in package.json");

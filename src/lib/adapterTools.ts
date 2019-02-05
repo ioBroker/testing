@@ -51,13 +51,15 @@ export async function locateAdapterMainFile(adapterDir: string) {
 		: "main.js";
 
 	let ret = path.join(adapterDir, mainFile);
+	debug(`  => trying ${ret}`);
 	if (await pathExists(ret)) {
 		debug(`  => found ${mainFile}`);
 		return ret;
 	}
 
 	// If both don't exist, JS-Controller uses <adapter name>.js as another fallback
-	ret = path.join(adapterDir, ioPackage.name + ".js");
+	ret = path.join(adapterDir, ioPackage.common.name + ".js");
+	debug(`  => trying ${ret}`);
 	if (await pathExists(ret)) {
 		debug(`  => found ${mainFile}`);
 		return ret;

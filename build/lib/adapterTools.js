@@ -59,12 +59,14 @@ function locateAdapterMainFile(adapterDir) {
             ? ioPackage.common.main
             : "main.js";
         let ret = path.join(adapterDir, mainFile);
+        debug(`  => trying ${ret}`);
         if (yield fs_extra_1.pathExists(ret)) {
             debug(`  => found ${mainFile}`);
             return ret;
         }
         // If both don't exist, JS-Controller uses <adapter name>.js as another fallback
-        ret = path.join(adapterDir, ioPackage.name + ".js");
+        ret = path.join(adapterDir, ioPackage.common.name + ".js");
+        debug(`  => trying ${ret}`);
         if (yield fs_extra_1.pathExists(ret)) {
             debug(`  => found ${mainFile}`);
             return ret;

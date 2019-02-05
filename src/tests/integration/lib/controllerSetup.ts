@@ -62,9 +62,9 @@ export class ControllerSetup {
 		};
 		await writeJSON(path.join(this.testDir, "package.json"), packageJson, {spaces: 2});
 
-		// Delete a possible npmrc (with package-lock disabled), so the installation can be faster
-		const npmrcPath = path.join(this.testDir, ".npmrc");
-		if (await pathExists(npmrcPath)) await unlink(npmrcPath);
+		// Delete a possible package-lock.json as it can mess with future installations
+		const pckLockPath = path.join(this.testDir, "package-lock.json");
+		if (await pathExists(pckLockPath)) await unlink(pckLockPath);
 
 		debug("  => done!");
 	}

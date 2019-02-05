@@ -67,10 +67,10 @@ class ControllerSetup {
                 description: "",
             };
             yield fs_extra_1.writeJSON(path.join(this.testDir, "package.json"), packageJson, { spaces: 2 });
-            // Delete a possible npmrc (with package-lock disabled), so the installation can be faster
-            const npmrcPath = path.join(this.testDir, ".npmrc");
-            if (yield fs_extra_1.pathExists(npmrcPath))
-                yield fs_extra_1.unlink(npmrcPath);
+            // Delete a possible package-lock.json as it can mess with future installations
+            const pckLockPath = path.join(this.testDir, "package-lock.json");
+            if (yield fs_extra_1.pathExists(pckLockPath))
+                yield fs_extra_1.unlink(pckLockPath);
             debug("  => done!");
         });
     }
