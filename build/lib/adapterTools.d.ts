@@ -23,7 +23,7 @@ export declare function adapterShouldSupportCompactMode(adapterDir: string): boo
  * Locates an adapter's main file
  * @param adapterDir The directory the adapter resides in
  */
-export declare function locateAdapterMainFile(adapterDir: string): string;
+export declare function locateAdapterMainFile(adapterDir: string): Promise<string>;
 /**
  * Locates an adapter's config to populate the `adapter.config` object with
  * @param adapterDir The directory the adapter resides in

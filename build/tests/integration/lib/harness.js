@@ -25,7 +25,6 @@ const async_1 = require("alcalzone-shared/async");
 const objects_1 = require("alcalzone-shared/objects");
 const child_process_1 = require("child_process");
 const events_1 = require("events");
-const fs_extra_1 = require("fs-extra");
 const path = __importStar(require("path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
 const dbConnection_1 = require("./dbConnection");
@@ -204,25 +203,20 @@ class TestHarness extends events_1.EventEmitter {
                 throw new Error("The adapter is already running!");
             else if (this.didAdapterStop())
                 throw new Error("This test harness has already been used. Please create a new one for each test!");
-            const mainFileAbsolute = adapterTools_1.locateAdapterMainFile(this.testAdapterDir);
+            const mainFileAbsolute = yield adapterTools_1.locateAdapterMainFile(this.testAdapterDir);
             const mainFileRelative = path.relative(this.testAdapterDir, mainFileAbsolute);
             const onClose = (code, signal) => {
                 this._adapterProcess.removeAllListeners();
                 this._adapterExit = code != undefined ? code : signal;
                 this.emit("failed", this._adapterExit);
             };
-            if (yield fs_extra_1.pathExists(mainFileAbsolute)) {
-                this._adapterProcess =
-                    child_process_1.spawn(isWindows ? "node.exe" : "node", [mainFileRelative, "--console"], {
-                        cwd: this.testAdapterDir,
-                        stdio: ["inherit", "inherit", "inherit"],
-                    })
-                        .on("close", onClose)
-                        .on("exit", onClose);
-            }
-            else {
-                throw new Error(`The adapter main file was not found: ${mainFileRelative}`);
-            }
+            this._adapterProcess =
+                child_process_1.spawn(isWindows ? "node.exe" : "node", [mainFileRelative, "--console"], {
+                    cwd: this.testAdapterDir,
+                    stdio: ["inherit", "inherit", "inherit"],
+                })
+                    .on("close", onClose)
+                    .on("exit", onClose);
         });
     }
     startAdapterAndWait() {

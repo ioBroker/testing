@@ -14,9 +14,9 @@ export interface TestAdapterStartupOptions {
  * Tests the adapter startup in offline mode (with mocks, no JS-Controller)
  * This is meant to be executed in a mocha context.
  */
-export function testAdapterStartupWithMocks(adapterDir: string, options: TestAdapterStartupOptions = {}) {
+export async function testAdapterStartupWithMocks(adapterDir: string, options: TestAdapterStartupOptions = {}) {
 
-	const mainFilename = locateAdapterMainFile(adapterDir);
+	const mainFilename = await locateAdapterMainFile(adapterDir);
 	const adapterConfig = loadAdapterConfig(adapterDir);
 	const instanceObjects = loadInstanceObjects(adapterDir);
 	const supportsCompactMode = adapterShouldSupportCompactMode(adapterDir);

@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -8,6 +16,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // tslint:disable:unified-signatures
+const fs_extra_1 = require("fs-extra");
 const path = __importStar(require("path"));
 /**
  * Loads an adapter's package.json
@@ -36,11 +45,21 @@ exports.adapterShouldSupportCompactMode = adapterShouldSupportCompactMode;
  * @param adapterDir The directory the adapter resides in
  */
 function locateAdapterMainFile(adapterDir) {
-    const ioPackage = loadIoPackage(adapterDir);
-    const mainFile = typeof ioPackage.common.main === "string"
-        ? ioPackage.common.main
-        : "main.js";
-    return path.join(adapterDir, mainFile);
+    return __awaiter(this, void 0, void 0, function* () {
+        const ioPackage = loadIoPackage(adapterDir);
+        // First look for the file defined in io-package.json or use "main.js" as a fallback
+        const mainFile = typeof ioPackage.common.main === "string"
+            ? ioPackage.common.main
+            : "main.js";
+        let ret = path.join(adapterDir, mainFile);
+        if (yield fs_extra_1.pathExists(ret))
+            return ret;
+        // If both don't exist, JS-Controller uses <adapter name>.js as another fallback
+        ret = path.join(adapterDir, ioPackage.name + ".js");
+        if (yield fs_extra_1.pathExists(ret))
+            return ret;
+        throw new Error(`The adapter main file was not found in ${adapterDir}`);
+    });
 }
 exports.locateAdapterMainFile = locateAdapterMainFile;
 /**

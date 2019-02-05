@@ -1,4 +1,5 @@
 // tslint:disable:unified-signatures
+import { pathExists } from "fs-extra";
 import * as path from "path";
 
 /**
@@ -36,13 +37,22 @@ export function adapterShouldSupportCompactMode(dirOrIoPack: string | Record<str
  * Locates an adapter's main file
  * @param adapterDir The directory the adapter resides in
  */
-export function locateAdapterMainFile(adapterDir: string): string {
+export async function locateAdapterMainFile(adapterDir: string) {
 	const ioPackage = loadIoPackage(adapterDir);
+
+	// First look for the file defined in io-package.json or use "main.js" as a fallback
 	const mainFile = typeof ioPackage.common.main === "string"
 		? ioPackage.common.main
 		: "main.js";
 
-	return path.join(adapterDir, mainFile);
+	let ret = path.join(adapterDir, mainFile);
+	if (await pathExists(ret)) return ret;
+
+	// If both don't exist, JS-Controller uses <adapter name>.js as another fallback
+	ret = path.join(adapterDir, ioPackage.name + ".js");
+	if (await pathExists(ret)) return ret;
+
+	throw new Error(`The adapter main file was not found in ${adapterDir}`);
 }
 
 /**

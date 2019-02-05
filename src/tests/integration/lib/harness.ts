@@ -219,7 +219,7 @@ export class TestHarness extends EventEmitter {
 		if (this.isAdapterRunning()) throw new Error("The adapter is already running!");
 		else if (this.didAdapterStop()) throw new Error("This test harness has already been used. Please create a new one for each test!");
 
-		const mainFileAbsolute = locateAdapterMainFile(this.testAdapterDir);
+		const mainFileAbsolute = await locateAdapterMainFile(this.testAdapterDir);
 		const mainFileRelative = path.relative(this.testAdapterDir, mainFileAbsolute);
 
 		const onClose = (code: number, signal: string) => {
@@ -228,18 +228,14 @@ export class TestHarness extends EventEmitter {
 			this.emit("failed", this._adapterExit);
 		};
 
-		if (await pathExists(mainFileAbsolute)) {
-			this._adapterProcess =
-				spawn(isWindows ? "node.exe" : "node", [mainFileRelative, "--console"], {
-					cwd: this.testAdapterDir,
-					stdio: ["inherit", "inherit", "inherit"],
-				})
-					.on("close", onClose)
-					.on("exit", onClose)
-				;
-		} else {
-			throw new Error(`The adapter main file was not found: ${mainFileRelative}`);
-		}
+		this._adapterProcess =
+			spawn(isWindows ? "node.exe" : "node", [mainFileRelative, "--console"], {
+				cwd: this.testAdapterDir,
+				stdio: ["inherit", "inherit", "inherit"],
+			})
+				.on("close", onClose)
+				.on("exit", onClose)
+			;
 	}
 
 	public async startAdapterAndWait() {
@@ -254,7 +250,7 @@ export class TestHarness extends EventEmitter {
 					reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === "number" ? "code" : "signal"} ${code}`));
 				})
 				.startAdapter()
-			;
+				;
 		});
 	}
 
