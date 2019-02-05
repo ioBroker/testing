@@ -1,6 +1,6 @@
-import { copy, ensureDir, pathExists, readdir, readJSON, remove, writeJSON } from "fs-extra";
+import { copy, pathExists, readJSON, unlink, writeJSON } from "fs-extra";
 import * as path from "path";
-import { getAdapterFullName, getAdapterName, getAppName } from "../../../lib/adapterTools";
+import { getAdapterDependencies, getAdapterFullName, getAdapterName, getAppName } from "../../../lib/adapterTools";
 import { executeCommand } from "../../../lib/executeCommand";
 import { getTestAdapterDir, getTestControllerDir } from "./tools";
 
@@ -48,45 +48,32 @@ export class AdapterSetup {
 	/** Copies all adapter files (except a few) to the test directory */
 	public async copyAdapterFilesToTestDir() {
 		debug("Copying adapter files to test directory...");
-		// Make sure the target dir exists and is empty
-		await remove(this.testAdapterDir);
-		await ensureDir(this.testAdapterDir);
 
-		// fs-extra doesn't allow copying a folder into itself, so we need to enum all files/directories to copy
-		const filesToCopy = (await readdir(this.adapterDir))
-			// filter out unwanted files
-			.filter(file => {
-				// Don't copy dotfiles
-				if (/^\./.test(file)) return false;
-				// Don't copy node_modules
-				if (file === "node_modules") return false;
-				// Don't copy the test directory
-				if (path.resolve(this.adapterDir, file) === this.testDir) return false;
-				// Copy everything else
-				return true;
-			});
-		// And copy them one-by-one
-		for (const file of filesToCopy) {
-			await copy(
-				path.resolve(this.adapterDir, file),
-				path.resolve(this.testAdapterDir, file),
-			);
-		}
+		// We install the adapter almost like it would be installed in the real world
+		// Therefore pack it into a tarball and put it in the test dir for installation
+		const packResult = await executeCommand("npm", ["pack", "--loglevel", "silent"], {
+			stdout: "pipe",
+		});
+		if (packResult.exitCode !== 0 || typeof packResult.stdout !== "string") throw new Error(`Packing the adapter tarball failed!`);
 
+		const tarballName = packResult.stdout.trim();
+		const tarballPath = path.resolve(this.adapterDir, tarballName);
+		await copy(
+			tarballPath,
+			path.resolve(this.testDir, tarballName),
+		);
+		await unlink(tarballPath);
+
+		// Complete the package.json, so npm can do it's magic
 		debug("Saving the adapter in package.json");
 		const packageJsonPath = path.join(this.testDir, "package.json");
 		const packageJson = await readJSON(packageJsonPath);
-		if (packageJson && packageJson.dependencies) {
-			const relativeDir = path
-				.relative(this.testDir, this.testAdapterDir)
-				.replace("\\", "/")
-				;
-			packageJson.dependencies[this.adapterFullName] = `file:${relativeDir}`;
-			await writeJSON(packageJsonPath, packageJson, { spaces: 2 });
-			debug("  => done!");
-		} else {
-			debug("  => package.json or -dependencies undefined!");
+		packageJson.dependencies[this.adapterFullName] = `file:./${tarballName}`;
+		for (const dep of getAdapterDependencies(this.adapterDir)) {
+			packageJson.dependencies[`${this.appName}.${dep}`] = "latest";
 		}
+		await writeJSON(packageJsonPath, packageJson, { spaces: 2 });
+		debug("  => done!");
 
 	}
 

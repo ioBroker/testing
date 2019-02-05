@@ -90,3 +90,9 @@ export function getAdapterFullName(adapterDir: string): string {
 	const npmPackage = loadNpmPackage(adapterDir);
 	return npmPackage.name;
 }
+
+/** Reads other ioBroker modules this adapter depends on from io-package.json */
+export function getAdapterDependencies(adapterDir: string): string[] {
+	const ioPackage = loadIoPackage(adapterDir);
+	return ioPackage.common.dependencies || [];
+}

@@ -20,6 +20,7 @@ const async_1 = require("alcalzone-shared/async");
 const os = __importStar(require("os"));
 const path = __importStar(require("path"));
 const adapterTools_1 = require("../../lib/adapterTools");
+const executeCommand_1 = require("../../lib/executeCommand");
 const adapterSetup_1 = require("./lib/adapterSetup");
 const controllerSetup_1 = require("./lib/controllerSetup");
 const dbConnection_1 = require("./lib/dbConnection");
@@ -44,21 +45,21 @@ function testAdapter(adapterDir, options = {}) {
                 if (yield controllerSetup.isJsControllerRunning()) {
                     throw new Error("JS-Controller is already running! Stop it for the first test run and try again!");
                 }
+                const adapterSetup = new adapterSetup_1.AdapterSetup(adapterDir, testDir, dbConnection);
+                // First we need to copy all files and execute an npm install
                 yield controllerSetup.prepareTestDir();
-                // Install JS-Controller if it is not yet installed
-                if (!(yield controllerSetup.isJsControllerInstalled())) {
-                    yield controllerSetup.installJsController();
-                }
-                else {
-                    // It is already installed - Call setup first again
-                    yield controllerSetup.setupJsController();
-                }
+                yield adapterSetup.copyAdapterFilesToTestDir();
+                // Remember if JS-Controller is installed already. If so, we need to call setup first later
+                const wasJsControllerInstalled = yield controllerSetup.isJsControllerInstalled();
+                // Call npm install
+                yield executeCommand_1.executeCommand("npm", ["i", "--production"], {
+                    cwd: testDir,
+                });
                 // Prepare/clean the databases and config
+                if (wasJsControllerInstalled)
+                    yield controllerSetup.setupJsController();
                 yield controllerSetup.setupSystemConfig();
                 yield controllerSetup.disableAdminInstances();
-                // Make sure the adapter in the test dir is up to date and known to JS-Controller
-                const adapterSetup = new adapterSetup_1.AdapterSetup(adapterDir, testDir, dbConnection);
-                yield adapterSetup.copyAdapterFilesToTestDir();
                 yield adapterSetup.deleteOldInstances();
                 yield adapterSetup.addAdapterInstance();
                 // Create a copy of the databases that we can restore later

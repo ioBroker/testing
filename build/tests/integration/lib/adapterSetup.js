@@ -56,43 +56,27 @@ class AdapterSetup {
     copyAdapterFilesToTestDir() {
         return __awaiter(this, void 0, void 0, function* () {
             debug("Copying adapter files to test directory...");
-            // Make sure the target dir exists and is empty
-            yield fs_extra_1.remove(this.testAdapterDir);
-            yield fs_extra_1.ensureDir(this.testAdapterDir);
-            // fs-extra doesn't allow copying a folder into itself, so we need to enum all files/directories to copy
-            const filesToCopy = (yield fs_extra_1.readdir(this.adapterDir))
-                // filter out unwanted files
-                .filter(file => {
-                // Don't copy dotfiles
-                if (/^\./.test(file))
-                    return false;
-                // Don't copy node_modules
-                if (file === "node_modules")
-                    return false;
-                // Don't copy the test directory
-                if (path.resolve(this.adapterDir, file) === this.testDir)
-                    return false;
-                // Copy everything else
-                return true;
+            // We install the adapter almost like it would be installed in the real world
+            // Therefore pack it into a tarball and put it in the test dir for installation
+            const packResult = yield executeCommand_1.executeCommand("npm", ["pack", "--loglevel", "silent"], {
+                stdout: "pipe",
             });
-            // And copy them one-by-one
-            for (const file of filesToCopy) {
-                yield fs_extra_1.copy(path.resolve(this.adapterDir, file), path.resolve(this.testAdapterDir, file));
-            }
+            if (packResult.exitCode !== 0 || typeof packResult.stdout !== "string")
+                throw new Error(`Packing the adapter tarball failed!`);
+            const tarballName = packResult.stdout.trim();
+            const tarballPath = path.resolve(this.adapterDir, tarballName);
+            yield fs_extra_1.copy(tarballPath, path.resolve(this.testDir, tarballName));
+            yield fs_extra_1.unlink(tarballPath);
+            // Complete the package.json, so npm can do it's magic
             debug("Saving the adapter in package.json");
             const packageJsonPath = path.join(this.testDir, "package.json");
             const packageJson = yield fs_extra_1.readJSON(packageJsonPath);
-            if (packageJson && packageJson.dependencies) {
-                const relativeDir = path
-                    .relative(this.testDir, this.testAdapterDir)
-                    .replace("\\", "/");
-                packageJson.dependencies[this.adapterFullName] = `file:${relativeDir}`;
-                yield fs_extra_1.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
-                debug("  => done!");
+            packageJson.dependencies[this.adapterFullName] = `file:./${tarballName}`;
+            for (const dep of adapterTools_1.getAdapterDependencies(this.adapterDir)) {
+                packageJson.dependencies[`${this.appName}.${dep}`] = "latest";
             }
-            else {
-                debug("  => package.json or -dependencies undefined!");
-            }
+            yield fs_extra_1.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
+            debug("  => done!");
         });
     }
     /**

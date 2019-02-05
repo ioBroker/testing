@@ -1,4 +1,4 @@
-import { emptyDir, ensureDir, pathExists, readJSON, writeFile, writeJSON } from "fs-extra";
+import { emptyDir, ensureDir, pathExists, unlink, writeFile, writeJSON } from "fs-extra";
 import { Socket } from "net";
 import * as path from "path";
 import { getAdapterFullName, getAdapterName, getAppName } from "../../../lib/adapterTools";
@@ -20,7 +20,6 @@ export class ControllerSetup {
 		debug("Creating ControllerSetup...");
 
 		this.adapterName = getAdapterName(this.adapterDir);
-		this.adapterFullName = getAdapterFullName(this.adapterDir);
 		this.appName = getAppName(this.adapterDir);
 		this.testAdapterDir = getTestAdapterDir(this.adapterDir, this.testDir);
 		this.testControllerDir = getTestControllerDir(this.appName, this.testDir);
@@ -36,7 +35,6 @@ export class ControllerSetup {
 
 	private appName: string;
 	private adapterName: string;
-	private adapterFullName: string;
 	private testAdapterDir: string;
 	private testControllerDir: string;
 	private testDataDir: string;
@@ -46,14 +44,28 @@ export class ControllerSetup {
 		// Make sure the test dir exists
 		await ensureDir(this.testDir);
 
-		// If there's no package.json in there, call npm --init
-		// Otherwise, npm install will break out from the test directory
-		if (!await pathExists(path.join(this.testDir, "package.json"))) {
-			await executeCommand("npm", ["init", "-y"], {
-				cwd: this.testDir,
-				stdout: "ignore",
-			});
-		}
+		// Write the package.json
+		const packageJson = {
+			name: path.basename(this.testDir),
+			version: "1.0.0",
+			main: "index.js",
+			scripts: {
+				test: "echo \"Error: no test specified\" && exit 1",
+			},
+			keywords: [],
+			author: "",
+			license: "ISC",
+			dependencies: {
+				[`${this.appName}.js-controller`]: `https://github.com/${this.appName}/${this.appName}.js-controller/tarball/master`,
+			},
+			description: "",
+		};
+		await writeJSON(path.join(this.testDir, "package.json"), packageJson, {spaces: 2});
+
+		// Delete a possible npmrc (with package-lock disabled), so the installation can be faster
+		const npmrcPath = path.join(this.testDir, ".npmrc");
+		if (await pathExists(npmrcPath)) await unlink(npmrcPath);
+
 		debug("  => done!");
 	}
 

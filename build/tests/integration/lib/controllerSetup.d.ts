@@ -6,7 +6,6 @@ export declare class ControllerSetup {
     constructor(adapterDir: string, testDir: string, dbConnection: DBConnection);
     private appName;
     private adapterName;
-    private adapterFullName;
     private testAdapterDir;
     private testControllerDir;
     private testDataDir;

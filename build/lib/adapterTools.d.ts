@@ -40,3 +40,5 @@ export declare function getAppName(adapterDir: string): string;
 export declare function getAdapterName(adapterDir: string): string;
 /** Returns the full name of an adapter, including the prefix */
 export declare function getAdapterFullName(adapterDir: string): string;
+/** Reads other ioBroker modules this adapter depends on from io-package.json */
+export declare function getAdapterDependencies(adapterDir: string): string[];

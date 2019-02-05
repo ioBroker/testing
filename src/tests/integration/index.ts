@@ -7,6 +7,7 @@ import { wait } from "alcalzone-shared/async";
 import * as os from "os";
 import * as path from "path";
 import { getAdapterName, getAppName } from "../../lib/adapterTools";
+import { executeCommand } from "../../lib/executeCommand";
 import { AdapterSetup } from "./lib/adapterSetup";
 import { ControllerSetup } from "./lib/controllerSetup";
 import { DBConnection } from "./lib/dbConnection";
@@ -46,23 +47,25 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
 				throw new Error("JS-Controller is already running! Stop it for the first test run and try again!");
 			}
 
-			await controllerSetup.prepareTestDir();
+			const adapterSetup = new AdapterSetup(adapterDir, testDir, dbConnection);
 
-			// Install JS-Controller if it is not yet installed
-			if (!await controllerSetup.isJsControllerInstalled()) {
-				await controllerSetup.installJsController();
-			} else {
-				// It is already installed - Call setup first again
-				await controllerSetup.setupJsController();
-			}
+			// First we need to copy all files and execute an npm install
+			await controllerSetup.prepareTestDir();
+			await adapterSetup.copyAdapterFilesToTestDir();
+
+			// Remember if JS-Controller is installed already. If so, we need to call setup first later
+			const wasJsControllerInstalled = await controllerSetup.isJsControllerInstalled();
+
+			// Call npm install
+			await executeCommand("npm", ["i", "--production"], {
+				cwd: testDir,
+			});
 
 			// Prepare/clean the databases and config
+			if (wasJsControllerInstalled) await controllerSetup.setupJsController();
 			await controllerSetup.setupSystemConfig();
 			await controllerSetup.disableAdminInstances();
 
-			// Make sure the adapter in the test dir is up to date and known to JS-Controller
-			const adapterSetup = new AdapterSetup(adapterDir, testDir, dbConnection);
-			await adapterSetup.copyAdapterFilesToTestDir();
 			await adapterSetup.deleteOldInstances();
 			await adapterSetup.addAdapterInstance();
 

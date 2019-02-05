@@ -98,3 +98,9 @@ function getAdapterFullName(adapterDir) {
     return npmPackage.name;
 }
 exports.getAdapterFullName = getAdapterFullName;
+/** Reads other ioBroker modules this adapter depends on from io-package.json */
+function getAdapterDependencies(adapterDir) {
+    const ioPackage = loadIoPackage(adapterDir);
+    return ioPackage.common.dependencies || [];
+}
+exports.getAdapterDependencies = getAdapterDependencies;

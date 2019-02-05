@@ -34,7 +34,6 @@ class ControllerSetup {
         this.dbConnection = dbConnection;
         debug("Creating ControllerSetup...");
         this.adapterName = adapterTools_1.getAdapterName(this.adapterDir);
-        this.adapterFullName = adapterTools_1.getAdapterFullName(this.adapterDir);
         this.appName = adapterTools_1.getAppName(this.adapterDir);
         this.testAdapterDir = tools_1.getTestAdapterDir(this.adapterDir, this.testDir);
         this.testControllerDir = tools_1.getTestControllerDir(this.appName, this.testDir);
@@ -51,14 +50,27 @@ class ControllerSetup {
             debug("Preparing the test directory...");
             // Make sure the test dir exists
             yield fs_extra_1.ensureDir(this.testDir);
-            // If there's no package.json in there, call npm --init
-            // Otherwise, npm install will break out from the test directory
-            if (!(yield fs_extra_1.pathExists(path.join(this.testDir, "package.json")))) {
-                yield executeCommand_1.executeCommand("npm", ["init", "-y"], {
-                    cwd: this.testDir,
-                    stdout: "ignore",
-                });
-            }
+            // Write the package.json
+            const packageJson = {
+                name: path.basename(this.testDir),
+                version: "1.0.0",
+                main: "index.js",
+                scripts: {
+                    test: "echo \"Error: no test specified\" && exit 1",
+                },
+                keywords: [],
+                author: "",
+                license: "ISC",
+                dependencies: {
+                    [`${this.appName}.js-controller`]: `https://github.com/${this.appName}/${this.appName}.js-controller/tarball/master`,
+                },
+                description: "",
+            };
+            yield fs_extra_1.writeJSON(path.join(this.testDir, "package.json"), packageJson, { spaces: 2 });
+            // Delete a possible npmrc (with package-lock disabled), so the installation can be faster
+            const npmrcPath = path.join(this.testDir, ".npmrc");
+            if (yield fs_extra_1.pathExists(npmrcPath))
+                yield fs_extra_1.unlink(npmrcPath);
             debug("  => done!");
         });
     }
