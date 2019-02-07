@@ -34,9 +34,40 @@ function buildProxy(global: any, mocks: Record<string, any>) {
 	return new Proxy(global, {
 		get: (target, name) => {
 			if (name in mocks) return mocks[name as any];
-			return target[name];
+			const ret = target[name];
+			// Bind original functions to the target to avoid illegal invocation errors
+			if (typeof ret === "function") return ret.bind(target);
+			return ret;
 		},
 	});
+}
+
+/**
+ * Returns true if the source code is intended to run in strict mode. Does not detect
+ * "use strict" if it occurs in a nested function.
+ */
+function detectStrictMode(code: string) {
+	// Taken from rewirejs
+
+	// remove all comments before testing for "use strict"
+	const multiLineComment = /^\s*\/\*.*?\*\//;
+	const singleLineComment = /^\s*\/\/.*?[\r\n]/;
+
+	let singleLine: boolean = false;
+	let multiLine: boolean = false;
+
+	// tslint:disable-next-line: no-conditional-assignment
+	while ((singleLine = singleLineComment.test(code)) || (multiLine = multiLineComment.test(code))) {
+		if (!!singleLine) {
+			code = code.replace(singleLineComment, "");
+		}
+		if (!!multiLine) {
+			code = code.replace(multiLineComment, "");
+		}
+	}
+
+	const strictModeRegex = /^\s*(?:"use strict"|'use strict')[ \t]*(?:[\r\n]|;)/;
+	return strictModeRegex.test(code);
 }
 
 /**
@@ -45,10 +76,8 @@ function buildProxy(global: any, mocks: Record<string, any>) {
  * @param globals A dictionary of globals and their properties to be replaced
  */
 export function monkeyPatchGlobals(code: string, globals: Record<string, Record<string, any>>) {
-	const prefix: string = `"use strict";
-${buildProxy}
-
-((${Object.keys(globals).join(", ")}) => {`;
+	const codeIsStrict = detectStrictMode(code);
+	const prefix: string = `${codeIsStrict ? '"use strict"; ' : ""}((${Object.keys(globals).join(", ")}) => {`;
 	const patchedArguments = Object.keys(globals)
 		.map(glob => {
 			const patchObj = globals[glob];
@@ -56,7 +85,8 @@ ${buildProxy}
 			return `buildProxy(${glob}, {${patches.join(", ")}})`;
 		});
 	const postfix: string = `
-})(${patchedArguments.join(", ")});`;
+})(${patchedArguments.join(", ")});
+${buildProxy}`;
 	return prefix + code + postfix;
 }
 
@@ -101,7 +131,7 @@ export function loadModuleInHarness(moduleFilename: string, options: HarnessOpti
 	originalJsLoader = replaceJsLoader((module: any, filename: string) => {
 		// If we want to replace some modules with mocks, we need to change the module's require function
 		if (isObject(options.mockedModules)) {
-			const mockModules: Record<string, any> = { };
+			const mockModules: Record<string, any> = {};
 			for (const mod of Object.keys(options.mockedModules)) {
 				mockModules[mod] = createMockModule(mod, options.mockedModules[mod]);
 			}

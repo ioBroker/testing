@@ -46,9 +46,36 @@ function buildProxy(global, mocks) {
         get: (target, name) => {
             if (name in mocks)
                 return mocks[name];
-            return target[name];
+            const ret = target[name];
+            // Bind original functions to the target to avoid illegal invocation errors
+            if (typeof ret === "function")
+                return ret.bind(target);
+            return ret;
         },
     });
+}
+/**
+ * Returns true if the source code is intended to run in strict mode. Does not detect
+ * "use strict" if it occurs in a nested function.
+ */
+function detectStrictMode(code) {
+    // Taken from rewirejs
+    // remove all comments before testing for "use strict"
+    const multiLineComment = /^\s*\/\*.*?\*\//;
+    const singleLineComment = /^\s*\/\/.*?[\r\n]/;
+    let singleLine = false;
+    let multiLine = false;
+    // tslint:disable-next-line: no-conditional-assignment
+    while ((singleLine = singleLineComment.test(code)) || (multiLine = multiLineComment.test(code))) {
+        if (!!singleLine) {
+            code = code.replace(singleLineComment, "");
+        }
+        if (!!multiLine) {
+            code = code.replace(multiLineComment, "");
+        }
+    }
+    const strictModeRegex = /^\s*(?:"use strict"|'use strict')[ \t]*(?:[\r\n]|;)/;
+    return strictModeRegex.test(code);
 }
 /**
  * Monkey-patches module code before executing it by wrapping it in an IIFE whose arguments are modified (proxied) globals
@@ -56,10 +83,8 @@ function buildProxy(global, mocks) {
  * @param globals A dictionary of globals and their properties to be replaced
  */
 function monkeyPatchGlobals(code, globals) {
-    const prefix = `"use strict";
-${buildProxy}
-
-((${Object.keys(globals).join(", ")}) => {`;
+    const codeIsStrict = detectStrictMode(code);
+    const prefix = `${codeIsStrict ? '"use strict"; ' : ""}((${Object.keys(globals).join(", ")}) => {`;
     const patchedArguments = Object.keys(globals)
         .map(glob => {
         const patchObj = globals[glob];
@@ -67,7 +92,8 @@ ${buildProxy}
         return `buildProxy(${glob}, {${patches.join(", ")}})`;
     });
     const postfix = `
-})(${patchedArguments.join(", ")});`;
+})(${patchedArguments.join(", ")});
+${buildProxy}`;
     return prefix + code + postfix;
 }
 exports.monkeyPatchGlobals = monkeyPatchGlobals;
