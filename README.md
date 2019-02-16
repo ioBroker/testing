@@ -51,13 +51,23 @@ tests.unit(path.join(__dirname, ".."), {
     additionalMockedModules: {
         "noble": nobleMock,
         "@abandonware/noble": nobleMock,
-    }
+    },
 
     // Define your own tests inside defineAdditionalTests
     defineAdditionalTests() {
         it("works", () => {
             // see below how these could look like
         });
+    },
+
+    // If the startup tests need require specific behavior of the mocks 
+    // or if you are using methods that don't have a default implementation on the mocks,
+    // you can define the behavior here. This method is called before every predefined test
+    defineMockBehavior(database: MockDatabase, adapter: MockAdapter) {
+        // e.g.
+        adapter.objects.rename.callsFake( /* implementation here */ );
+        // or
+        adapter.objects.getUserGroup.returns("a string");
     }
 
 });
