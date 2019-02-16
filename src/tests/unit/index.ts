@@ -4,12 +4,16 @@
 import { expect } from "chai";
 import { adapterShouldSupportCompactMode, loadAdapterConfig, loadInstanceObjects, locateAdapterMainFile } from "../../lib/adapterTools";
 import { startMockAdapter, StartMockAdapterOptions } from "./harness/startMockAdapter";
+import { MockDatabase } from "./mocks/mockDatabase";
+import { MockAdapter } from "./mocks/mockAdapter";
 
 export interface TestAdapterOptions {
 	allowedExitCodes?: number[];
 	additionalMockedModules?: StartMockAdapterOptions["additionalMockedModules"];
 	/** Allows you to define additional tests */
 	defineAdditionalTests?: () => void;
+	/** Allows you to modifiy the behavior of predefined mocks in the predefined methods */
+	defineMockBehavior?: (database: MockDatabase, adapter: MockAdapter) => void;
 }
 
 /**
@@ -43,6 +47,7 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 				config: adapterConfig,
 				instanceObjects,
 				additionalMockedModules: options.additionalMockedModules,
+				defineMockBehavior: options.defineMockBehavior,
 			});
 			assertValidExitCode(options.allowedExitCodes || [0], processExitCode);
 			// TODO: Test that the unload callback is called
@@ -55,6 +60,7 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 					config: adapterConfig,
 					instanceObjects,
 					additionalMockedModules: options.additionalMockedModules,
+					defineMockBehavior: options.defineMockBehavior,
 				});
 				// In compact mode, only "adapter.terminate" may be called
 				expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;

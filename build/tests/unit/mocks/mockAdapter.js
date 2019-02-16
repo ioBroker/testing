@@ -1,35 +1,32 @@
 "use strict";
-// tslint:disable-next-line:no-reference
 Object.defineProperty(exports, "__esModule", { value: true });
 const sinon_1 = require("sinon");
-const async_1 = require("alcalzone-shared/async");
 const objects_1 = require("alcalzone-shared/objects");
-// Define here, which methods are implemented manually, so we can hook them up with a real stub
-const implementedMethodsDefaultCallback = [
-    "getObject",
-    "setObject",
-    "setObjectNotExists",
-    "extendObject",
-    "getForeignObject",
-    "getForeignObjects",
-    "setForeignObject",
-    "setForeignObjectNotExists",
-    "extendForeignObject",
-    "getState",
-    "getStates",
-    "setState",
-    "setStateChanged",
-    "delState",
-    "getForeignState",
-    "setForeignState",
-    "setForeignStateChanged",
-];
-const implementedMethodsNoErrorCallback = [
-    "getAdapterObjects",
-];
-const implementedMethods = []
-    .concat(...implementedMethodsDefaultCallback)
-    .concat(...implementedMethodsNoErrorCallback);
+const tools_1 = require("./tools");
+const mockLogger_1 = require("./mockLogger");
+const mockObjects_1 = require("./mockObjects");
+// Define here which methods were implemented manually, so we can hook them up with a real stub
+// The value describes if and how the async version of the callback is constructed
+const implementedMethods = {
+    getObject: "normal",
+    setObject: "normal",
+    setObjectNotExists: "normal",
+    extendObject: "normal",
+    getForeignObject: "normal",
+    getForeignObjects: "normal",
+    setForeignObject: "normal",
+    setForeignObjectNotExists: "normal",
+    extendForeignObject: "normal",
+    getState: "normal",
+    getStates: "normal",
+    setState: "normal",
+    setStateChanged: "normal",
+    delState: "normal",
+    getForeignState: "normal",
+    setForeignState: "normal",
+    setForeignStateChanged: "normal",
+    getAdapterObjects: "no error",
+};
 /**
  * Creates an adapter mock that is connected to a given database mock
  */
@@ -45,17 +42,10 @@ function createAdapterMock(db, options = {}) {
         adapterDir: "",
         ioPack: {},
         pack: {},
-        log: {
-            info: sinon_1.stub(),
-            warn: sinon_1.stub(),
-            error: sinon_1.stub(),
-            debug: sinon_1.stub(),
-            silly: sinon_1.stub(),
-            level: "info",
-        },
+        log: mockLogger_1.createLoggerMock(),
         version: "any",
         states: {},
-        objects: {},
+        objects: mockObjects_1.createObjectsMock(db),
         connected: true,
         getPort: sinon_1.stub(),
         stop: sinon_1.stub(),
@@ -318,69 +308,22 @@ function createAdapterMock(db, options = {}) {
         // Mock-specific methods
         resetMockHistory() {
             // reset Adapter
-            doResetHistory(ret);
-            // reset Adapter.Log
-            doResetHistory(ret.log);
+            tools_1.doResetHistory(ret);
+            ret.log.resetMockHistory();
+            ret.objects.resetMockHistory();
         },
         resetMockBehavior() {
             // reset Adapter
-            doResetBehavior(ret);
-            // reset Adapter.Log
-            doResetBehavior(ret.log);
+            tools_1.doResetBehavior(ret, implementedMethods);
+            ret.log.resetMockBehavior();
+            ret.objects.resetMockBehavior();
         },
         resetMock() {
             ret.resetMockHistory();
             ret.resetMockBehavior();
         },
     };
-    // promisify methods
-    const dontOverwriteThis = () => { throw new Error("You must not overwrite the behavior of this stub!"); };
-    // The methods implemented above are no stubs, but we claimed they are
-    // Therefore hook them up with a real stub
-    for (const method of implementedMethodsDefaultCallback) {
-        if (method.endsWith("Async"))
-            continue;
-        const originalMethod = ret[method];
-        const callbackFake = ret[method] = sinon_1.stub();
-        callbackFake.callsFake(originalMethod);
-        const asyncFake = sinon_1.stub().callsFake(async_1.promisify(originalMethod, ret));
-        ret[`${method}Async`] = asyncFake;
-        // Prevent the user from changing the stub's behavior
-        callbackFake.returns = dontOverwriteThis;
-        callbackFake.callsFake = dontOverwriteThis;
-        asyncFake.returns = dontOverwriteThis;
-        asyncFake.callsFake = dontOverwriteThis;
-    }
-    for (const method of implementedMethodsNoErrorCallback) {
-        if (method.endsWith("Async"))
-            continue;
-        const originalMethod = ret[method];
-        const callbackFake = ret[method] = sinon_1.stub();
-        callbackFake.callsFake(originalMethod);
-        const asyncFake = sinon_1.stub().callsFake(async_1.promisifyNoError(originalMethod, ret));
-        ret[`${method}Async`] = asyncFake;
-        // Prevent the user from changing the stub's behavior
-        callbackFake.returns = dontOverwriteThis;
-        callbackFake.callsFake = dontOverwriteThis;
-        asyncFake.returns = dontOverwriteThis;
-        asyncFake.callsFake = dontOverwriteThis;
-    }
+    tools_1.stubAndPromisifyImplementedMethods(ret, implementedMethods);
     return ret;
 }
 exports.createAdapterMock = createAdapterMock;
-function doResetHistory(parent) {
-    for (const prop of Object.keys(parent)) {
-        const val = parent[prop];
-        if (val && typeof val.resetHistory === "function")
-            val.resetHistory();
-    }
-}
-function doResetBehavior(parent) {
-    for (const prop of Object.keys(parent)) {
-        if (implementedMethods.indexOf(prop) > -1 || (prop.endsWith("Async") && implementedMethods.indexOf(prop.slice(0, -5))) > -1)
-            continue;
-        const val = parent[prop];
-        if (val && typeof val.resetBehavior === "function")
-            val.resetBehavior();
-    }
-}

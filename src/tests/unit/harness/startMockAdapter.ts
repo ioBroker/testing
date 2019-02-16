@@ -16,6 +16,8 @@ export interface StartMockAdapterOptions {
 	instanceObjects?: ioBroker.Object[];
 	/** Mocks for loaded modules. This should be a dictionary of module name to module.exports */
 	additionalMockedModules?: Record<string, any>;
+	/** Allows you to modifiy the behavior of predefined mocks in the predefined methods */
+	defineMockBehavior?: (database: MockDatabase, adapter: MockAdapter) => void;
 }
 
 /**
@@ -39,6 +41,8 @@ export async function startMockAdapter(adapterMainFile: string, options: StartMo
 	const adapterCoreMock = mockAdapterCore(databaseMock, {
 		onAdapterCreated: mock => {
 			adapterMock = mock;
+			// Give the user the chance to change the mock behavior
+			if (typeof options.defineMockBehavior === "function") options.defineMockBehavior(databaseMock, adapterMock);
 			// If an adapter configuration was given, set it on the mock
 			if (options.config) mock.config = options.config;
 		},

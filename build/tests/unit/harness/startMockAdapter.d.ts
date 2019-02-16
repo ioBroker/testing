@@ -10,6 +10,8 @@ export interface StartMockAdapterOptions {
     instanceObjects?: ioBroker.Object[];
     /** Mocks for loaded modules. This should be a dictionary of module name to module.exports */
     additionalMockedModules?: Record<string, any>;
+    /** Allows you to modifiy the behavior of predefined mocks in the predefined methods */
+    defineMockBehavior?: (database: MockDatabase, adapter: MockAdapter) => void;
 }
 /**
  * Starts an adapter by executing its main file in a controlled offline environment.

@@ -1,28 +1,13 @@
-// tslint:disable-next-line:no-reference
-
 import { stub } from "sinon";
 
-import { promisify, promisifyNoError } from "alcalzone-shared/async";
 import { extend } from "alcalzone-shared/objects";
-import { Equals, Overwrite } from "alcalzone-shared/types";
 import { MockDatabase } from "./mockDatabase";
-
-// IsAny exploits the fact that `any` may or may not be assignable to `never`, whereas all other types are
-export type IsAny<T> = Equals<T extends never ? false : true, boolean>;
-// This rather complicated type extracts all functions from the ioBroker.Adapter interface without including the properties that are `any`
-// It basically is `getObject | setObject | ...`
-export type MockableMethods<
-	All = Required<ioBroker.Adapter>,
-	NoAny = {
-		[K in keyof All]:
-		IsAny<All[K]> extends true ? never
-		: All[K] extends ((...args: any[]) => void) ? K
-		: never
-	}
-	> = NoAny[keyof NoAny];
+import { doResetBehavior, doResetHistory, ImplementedMethodDictionary, Mock, MockableMethods, stubAndPromisifyImplementedMethods } from "./tools";
+import { createLoggerMock, MockLogger } from "./mockLogger";
+import { createObjectsMock, MockObjects } from "./mockObjects";
 
 // The mocked adapter interface has all the usual properties, but all methods are replaced with stubs
-export type MockAdapter = Overwrite<ioBroker.Adapter, { [K in MockableMethods]: sinon.SinonStub }> & {
+export type MockAdapter = Mock<ioBroker.Adapter> & {
 	readyHandler: ioBroker.ReadyHandler | undefined;
 	objectChangeHandler: ioBroker.ObjectChangeHandler | undefined;
 	stateChangeHandler: ioBroker.StateChangeHandler | undefined;
@@ -34,33 +19,28 @@ export type MockAdapter = Overwrite<ioBroker.Adapter, { [K in MockableMethods]: 
 	resetMockBehavior(): void;
 };
 
-// Define here, which methods are implemented manually, so we can hook them up with a real stub
-const implementedMethodsDefaultCallback: MockableMethods[] = [
-	"getObject",
-	"setObject",
-	"setObjectNotExists",
-	"extendObject",
-	"getForeignObject",
-	"getForeignObjects",
-	"setForeignObject",
-	"setForeignObjectNotExists",
-	"extendForeignObject",
-	"getState",
-	"getStates",
-	"setState",
-	"setStateChanged",
-	"delState",
-	"getForeignState",
-	"setForeignState",
-	"setForeignStateChanged",
-];
-const implementedMethodsNoErrorCallback: MockableMethods[] = [
-	"getAdapterObjects",
-];
-const implementedMethods = ([] as string[])
-	.concat(...implementedMethodsDefaultCallback)
-	.concat(...implementedMethodsNoErrorCallback)
-	;
+// Define here which methods were implemented manually, so we can hook them up with a real stub
+// The value describes if and how the async version of the callback is constructed
+const implementedMethods: ImplementedMethodDictionary<ioBroker.Adapter> = {
+	getObject: "normal",
+	setObject: "normal",
+	setObjectNotExists: "normal",
+	extendObject: "normal",
+	getForeignObject: "normal",
+	getForeignObjects: "normal",
+	setForeignObject: "normal",
+	setForeignObjectNotExists: "normal",
+	extendForeignObject: "normal",
+	getState: "normal",
+	getStates: "normal",
+	setState: "normal",
+	setStateChanged: "normal",
+	delState: "normal",
+	getForeignState: "normal",
+	setForeignState: "normal",
+	setForeignStateChanged: "normal",
+	getAdapterObjects: "no error",
+};
 
 /**
  * Creates an adapter mock that is connected to a given database mock
@@ -77,17 +57,10 @@ export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.Ad
 		adapterDir: "",
 		ioPack: {},
 		pack: {},
-		log: {
-			info: stub(),
-			warn: stub(),
-			error: stub(),
-			debug: stub(),
-			silly: stub(),
-			level: "info",
-		} as ioBroker.Logger,
+		log: createLoggerMock() as ioBroker.Logger,
 		version: "any",
 		states: {} as any as ioBroker.States,
-		objects: {} as any as ioBroker.Objects,
+		objects: createObjectsMock(db) as ioBroker.Objects,
 		connected: true,
 
 		getPort: stub(),
@@ -358,72 +331,22 @@ export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.Ad
 		resetMockHistory() {
 			// reset Adapter
 			doResetHistory(ret);
-			// reset Adapter.Log
-			doResetHistory(ret.log);
+			(ret.log as MockLogger).resetMockHistory();
+			(ret.objects as MockObjects).resetMockHistory();
 		},
 		resetMockBehavior() {
 			// reset Adapter
-			doResetBehavior(ret);
-			// reset Adapter.Log
-			doResetBehavior(ret.log);
+			doResetBehavior(ret, implementedMethods);
+			(ret.log as MockLogger).resetMockBehavior();
+			(ret.objects as MockObjects).resetMockBehavior();
 		},
 		resetMock() {
 			ret.resetMockHistory();
 			ret.resetMockBehavior();
 		},
 	} as MockAdapter;
-	// promisify methods
-	const dontOverwriteThis = () => { throw new Error("You must not overwrite the behavior of this stub!"); };
 
-	// The methods implemented above are no stubs, but we claimed they are
-	// Therefore hook them up with a real stub
-	for (const method of implementedMethodsDefaultCallback) {
-		if (method.endsWith("Async")) continue;
-
-		const originalMethod = ret[method];
-		const callbackFake = ret[method] = stub();
-		callbackFake.callsFake(originalMethod);
-		const asyncFake = stub().callsFake(promisify<any>(originalMethod, ret));
-		ret[`${method}Async` as keyof ioBroker.Adapter] = asyncFake;
-
-		// Prevent the user from changing the stub's behavior
-		callbackFake.returns = dontOverwriteThis;
-		callbackFake.callsFake = dontOverwriteThis;
-		asyncFake.returns = dontOverwriteThis;
-		asyncFake.callsFake = dontOverwriteThis;
-	}
-	for (const method of implementedMethodsNoErrorCallback) {
-		if (method.endsWith("Async")) continue;
-
-		const originalMethod = ret[method];
-		const callbackFake = ret[method] = stub();
-		callbackFake.callsFake(originalMethod);
-		const asyncFake = stub().callsFake(promisifyNoError<any>(originalMethod, ret));
-		ret[`${method}Async` as keyof ioBroker.Adapter] = asyncFake;
-
-		// Prevent the user from changing the stub's behavior
-		callbackFake.returns = dontOverwriteThis;
-		callbackFake.callsFake = dontOverwriteThis;
-		asyncFake.returns = dontOverwriteThis;
-		asyncFake.callsFake = dontOverwriteThis;
-	}
+	stubAndPromisifyImplementedMethods(ret, implementedMethods);
 
 	return ret;
-}
-
-function doResetHistory(parent: Record<string, any>) {
-	for (const prop of Object.keys(parent)) {
-		const val = parent[prop];
-		if (val && typeof val.resetHistory === "function") val.resetHistory();
-	}
-}
-
-function doResetBehavior(parent: Record<string, any>) {
-	for (const prop of Object.keys(parent)) {
-		if (implementedMethods.indexOf(prop) > -1 || (
-			prop.endsWith("Async") && implementedMethods.indexOf(prop.slice(0, -5))) > -1
-		) continue;
-		const val = parent[prop];
-		if (val && typeof val.resetBehavior === "function") val.resetBehavior();
-	}
 }

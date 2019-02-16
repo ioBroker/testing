@@ -35,6 +35,9 @@ function startMockAdapter(adapterMainFile, options = {}) {
         const adapterCoreMock = mockAdapterCore_1.mockAdapterCore(databaseMock, {
             onAdapterCreated: mock => {
                 adapterMock = mock;
+                // Give the user the chance to change the mock behavior
+                if (typeof options.defineMockBehavior === "function")
+                    options.defineMockBehavior(databaseMock, adapterMock);
                 // If an adapter configuration was given, set it on the mock
                 if (options.config)
                     mock.config = options.config;

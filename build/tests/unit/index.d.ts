@@ -1,9 +1,13 @@
 import { StartMockAdapterOptions } from "./harness/startMockAdapter";
+import { MockDatabase } from "./mocks/mockDatabase";
+import { MockAdapter } from "./mocks/mockAdapter";
 export interface TestAdapterOptions {
     allowedExitCodes?: number[];
     additionalMockedModules?: StartMockAdapterOptions["additionalMockedModules"];
     /** Allows you to define additional tests */
     defineAdditionalTests?: () => void;
+    /** Allows you to modifiy the behavior of predefined mocks in the predefined methods */
+    defineMockBehavior?: (database: MockDatabase, adapter: MockAdapter) => void;
 }
 /**
  * Tests the adapter startup in offline mode (with mocks, no JS-Controller)
