@@ -39,28 +39,36 @@ export function doResetBehavior(parent: Record<string, any>, implementedMethods:
 
 const dontOverwriteThis = () => { throw new Error("You must not overwrite the behavior of this stub!"); };
 
-export function stubAndPromisifyImplementedMethods(parent: Record<string, any>, implementedMethods: Record<string, any>) {
+export function stubAndPromisifyImplementedMethods<T extends string>(
+	parent: Record<T, any>,
+	implementedMethods: Partial<Record<T, any>>,
+	allowUserOverrides: T[] = [],
+) {
 	// The methods implemented above are no stubs, but we claimed they are
 	// Therefore hook them up with a real stub
-	for (const methodName of Object.keys(implementedMethods)) {
+	for (const methodName of Object.keys(implementedMethods) as T[]) {
 		if (methodName.endsWith("Async")) continue;
 
 		const originalMethod = parent[methodName];
 		const callbackFake = parent[methodName] = stub();
 		callbackFake.callsFake(originalMethod);
 		// Prevent the user from changing the stub's behavior
-		callbackFake.returns = dontOverwriteThis;
-		callbackFake.callsFake = dontOverwriteThis;
+		if (allowUserOverrides.indexOf(methodName) === -1) {
+			callbackFake.returns = dontOverwriteThis;
+			callbackFake.callsFake = dontOverwriteThis;
+		}
 
 		// Construct the async fake if there's any
 		const asyncType = implementedMethods[methodName];
 		if (asyncType === "none") continue;
 		const promisifyMethod = asyncType === "no error" ? promisifyNoError : promisify;
 		const asyncFake = stub().callsFake(promisifyMethod<any>(originalMethod, parent));
-		parent[`${methodName}Async`] = asyncFake;
+		parent[`${methodName}Async` as T] = asyncFake;
 		// Prevent the user from changing the stub's behavior
-		asyncFake.returns = dontOverwriteThis;
-		asyncFake.callsFake = dontOverwriteThis;
+		if (allowUserOverrides.indexOf(methodName) === -1 || allowUserOverrides.indexOf(methodName + "Async" as T) === -1) {
+			asyncFake.returns = dontOverwriteThis;
+			asyncFake.callsFake = dontOverwriteThis;
+		}
 	}
 }
 

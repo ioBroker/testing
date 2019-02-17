@@ -9,5 +9,5 @@ export declare type Mock<T> = Overwrite<T, {
 }>;
 export declare function doResetHistory(parent: Record<string, any>): void;
 export declare function doResetBehavior(parent: Record<string, any>, implementedMethods: Record<string, any>): void;
-export declare function stubAndPromisifyImplementedMethods(parent: Record<string, any>, implementedMethods: Record<string, any>): void;
+export declare function stubAndPromisifyImplementedMethods<T extends string>(parent: Record<T, any>, implementedMethods: Partial<Record<T, any>>, allowUserOverrides?: T[]): void;
 export declare type ImplementedMethodDictionary<T> = Partial<Record<MockableMethods<T>, "none" | "normal" | "no error">>;

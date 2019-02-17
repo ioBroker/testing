@@ -90,7 +90,7 @@ function createObjectsMock(db) {
             ret.resetMockBehavior();
         },
     };
-    tools_1.stubAndPromisifyImplementedMethods(ret, implementedMethods);
+    tools_1.stubAndPromisifyImplementedMethods(ret, implementedMethods, ["getObjectView", "getObjectList"]);
     return ret;
 }
 exports.createObjectsMock = createObjectsMock;

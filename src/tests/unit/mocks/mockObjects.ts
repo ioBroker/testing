@@ -104,7 +104,7 @@ export function createObjectsMock(db: MockDatabase) {
 		},
 	} as MockObjects;
 
-	stubAndPromisifyImplementedMethods(ret, implementedMethods);
+	stubAndPromisifyImplementedMethods(ret, implementedMethods, ["getObjectView", "getObjectList"]);
 
 	return ret;
 }
