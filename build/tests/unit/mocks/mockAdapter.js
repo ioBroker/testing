@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const sinon_1 = require("sinon");
 const objects_1 = require("alcalzone-shared/objects");
-const tools_1 = require("./tools");
 const mockLogger_1 = require("./mockLogger");
 const mockObjects_1 = require("./mockObjects");
+const tools_1 = require("./tools");
 // Define here which methods were implemented manually, so we can hook them up with a real stub
 // The value describes if and how the async version of the callback is constructed
 const implementedMethods = {

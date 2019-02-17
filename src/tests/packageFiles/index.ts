@@ -1,5 +1,6 @@
 // wotan-disable async-function-assignability
 // wotan-disable no-unused-expression
+// tslint:disable: space-before-function-paren
 
 import { isArray } from "alcalzone-shared/typeguards";
 import { expect } from "chai";

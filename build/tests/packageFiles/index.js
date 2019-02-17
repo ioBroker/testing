@@ -1,6 +1,7 @@
 "use strict";
 // wotan-disable async-function-assignability
 // wotan-disable no-unused-expression
+// tslint:disable: space-before-function-paren
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};

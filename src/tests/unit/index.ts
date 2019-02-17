@@ -4,8 +4,8 @@
 import { expect } from "chai";
 import { adapterShouldSupportCompactMode, loadAdapterConfig, loadInstanceObjects, locateAdapterMainFile } from "../../lib/adapterTools";
 import { startMockAdapter, StartMockAdapterOptions } from "./harness/startMockAdapter";
-import { MockDatabase } from "./mocks/mockDatabase";
 import { MockAdapter } from "./mocks/mockAdapter";
+import { MockDatabase } from "./mocks/mockDatabase";
 
 export interface TestAdapterOptions {
 	allowedExitCodes?: number[];

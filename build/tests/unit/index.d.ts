@@ -1,6 +1,6 @@
 import { StartMockAdapterOptions } from "./harness/startMockAdapter";
-import { MockDatabase } from "./mocks/mockDatabase";
 import { MockAdapter } from "./mocks/mockAdapter";
+import { MockDatabase } from "./mocks/mockDatabase";
 export interface TestAdapterOptions {
     allowedExitCodes?: number[];
     additionalMockedModules?: StartMockAdapterOptions["additionalMockedModules"];

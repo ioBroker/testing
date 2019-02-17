@@ -2,9 +2,9 @@ import { stub } from "sinon";
 
 import { extend } from "alcalzone-shared/objects";
 import { MockDatabase } from "./mockDatabase";
-import { doResetBehavior, doResetHistory, ImplementedMethodDictionary, Mock, MockableMethods, stubAndPromisifyImplementedMethods } from "./tools";
 import { createLoggerMock, MockLogger } from "./mockLogger";
 import { createObjectsMock, MockObjects } from "./mockObjects";
+import { doResetBehavior, doResetHistory, ImplementedMethodDictionary, Mock, MockableMethods, stubAndPromisifyImplementedMethods } from "./tools";
 
 // The mocked adapter interface has all the usual properties, but all methods are replaced with stubs
 export type MockAdapter = Mock<ioBroker.Adapter> & {
