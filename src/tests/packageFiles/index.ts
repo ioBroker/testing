@@ -145,7 +145,7 @@ export function validatePackageFiles(adapterDir: string) {
 			];
 			requiredProperties.forEach(prop => ensurePropertyExists(prop, iopackContent));
 
-			it(`The title does not contain "adapter" or "iobroker"`, () => {
+			it(`The title should not contain "adapter" or "iobroker"`, () => {
 				expect(iopackContent.common.title).not.to.match(/iobroker|adapter/i);
 			});
 			it(`The description is an object to support multiple languages`, () => {
