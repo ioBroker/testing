@@ -14,6 +14,9 @@ export type MockAdapter = Mock<ioBroker.Adapter> & {
 	messageHandler: ioBroker.MessageHandler | undefined;
 	unloadHandler: ioBroker.UnloadHandler | undefined;
 
+	log: MockLogger;
+	objects: MockObjects;
+
 	resetMock(): void;
 	resetMockHistory(): void;
 	resetMockBehavior(): void;
@@ -57,10 +60,10 @@ export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.Ad
 		adapterDir: "",
 		ioPack: {},
 		pack: {},
-		log: createLoggerMock() as ioBroker.Logger,
+		log: createLoggerMock(),
 		version: "any",
 		states: {} as any as ioBroker.States,
-		objects: createObjectsMock(db) as ioBroker.Objects,
+		objects: createObjectsMock(db),
 		connected: true,
 
 		getPort: stub(),

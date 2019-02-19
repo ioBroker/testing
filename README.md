@@ -149,7 +149,7 @@ TODO
 TODO
 
 ### Example
-Here's an example how this can be used in a unit test. Note that this will not be the final syntax:
+Here's an example how this can be used in a unit test:
 ```ts
 import { tests, utils } from "@iobroker/testing";
 
