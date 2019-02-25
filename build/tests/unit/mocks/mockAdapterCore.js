@@ -11,18 +11,23 @@ function mockAdapterCore(database, options = {}) {
     function getConfig() {
         return {};
     }
-    const adapterConstructor = function (nameOrOptions) {
+    // tslint:disable-next-line: variable-name
+    const AdapterConstructor = function (nameOrOptions) {
+        // This needs to be a class with the correct `this` context or the ES6 tests won't work
+        if (!(this instanceof AdapterConstructor))
+            return new AdapterConstructor(nameOrOptions);
         const createAdapterMockOptions = typeof nameOrOptions === "string" ? { name: nameOrOptions } : nameOrOptions;
         const ret = mockAdapter_1.createAdapterMock(database, createAdapterMockOptions);
         if (typeof options.onAdapterCreated === "function")
             options.onAdapterCreated(ret);
-        return ret;
+        Object.assign(this, ret);
+        return this;
     };
     return {
         controllerDir,
         getConfig,
-        Adapter: adapterConstructor,
-        adapter: adapterConstructor,
+        Adapter: AdapterConstructor,
+        adapter: AdapterConstructor,
     };
 }
 exports.mockAdapterCore = mockAdapterCore;

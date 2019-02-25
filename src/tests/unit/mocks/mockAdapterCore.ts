@@ -23,17 +23,22 @@ export function mockAdapterCore(database: MockDatabase, options: MockAdapterCore
 		return {} as Record<string, any>;
 	}
 
-	const adapterConstructor = function(this: MockAdapter | void, nameOrOptions: string | ioBroker.AdapterOptions) {
+	// tslint:disable-next-line: variable-name
+	const AdapterConstructor = function(this: MockAdapter | void, nameOrOptions: string | ioBroker.AdapterOptions) {
+		// This needs to be a class with the correct `this` context or the ES6 tests won't work
+		if (!(this instanceof AdapterConstructor)) return new AdapterConstructor(nameOrOptions);
+
 		const createAdapterMockOptions = typeof nameOrOptions === "string" ? { name: nameOrOptions } : nameOrOptions;
 		const ret = createAdapterMock(database, createAdapterMockOptions);
 		if (typeof options.onAdapterCreated === "function") options.onAdapterCreated(ret);
-		return ret;
+		Object.assign(this, ret);
+		return this;
 	} as MockAdapterConstructor;
 
 	return {
 		controllerDir,
 		getConfig,
-		Adapter: adapterConstructor,
-		adapter: adapterConstructor,
+		Adapter: AdapterConstructor,
+		adapter: AdapterConstructor,
 	};
 }
