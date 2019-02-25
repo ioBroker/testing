@@ -66,7 +66,7 @@ function startMockAdapter(adapterMainFile, options = {}) {
         // Assert some basic stuff
         if (adapterMock == undefined)
             throw new Error("The adapter was not initialized!");
-        chai_1.expect(adapterMock.readyHandler).to.exist;
+        chai_1.expect(adapterMock.readyHandler, "The adapter's ready method could not be found!").to.exist;
         // Execute the ready method (synchronously or asynchronously)
         let processExitCode;
         let terminateReason;

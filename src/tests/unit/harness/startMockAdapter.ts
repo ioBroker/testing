@@ -75,7 +75,7 @@ export async function startMockAdapter(adapterMainFile: string, options: StartMo
 
 	// Assert some basic stuff
 	if (adapterMock == undefined) throw new Error("The adapter was not initialized!");
-	expect(adapterMock.readyHandler).to.exist;
+	expect(adapterMock.readyHandler, "The adapter's ready method could not be found!").to.exist;
 
 	// Execute the ready method (synchronously or asynchronously)
 	let processExitCode: number | undefined;
