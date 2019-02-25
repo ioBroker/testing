@@ -43,6 +43,8 @@ const implementedMethods: ImplementedMethodDictionary<ioBroker.Adapter> = {
 	setForeignState: "normal",
 	setForeignStateChanged: "normal",
 	getAdapterObjects: "no error",
+	on: "none",
+	terminate: "none",
 };
 
 /**
@@ -291,22 +293,16 @@ export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.Ad
 		formatValue: stub(),
 		formatDate: stub(),
 
-		readyHandler: options.ready,
-		messageHandler: options.message,
-		objectChangeHandler: options.objectChange,
-		stateChangeHandler: options.stateChange,
-		unloadHandler: options.unload,
-
-		terminate: stub().callsFake((reason?: string) => {
+		terminate: ((reason?: string) => {
 			// Terminates execution by
 			const err = new Error(`Adapter.terminate was called${reason ? ` with reason: "${reason}"` : ""}!`);
 			// @ts-ignore
 			err.terminateReason = reason || "no reason given!";
 			throw err;
-		}),
+		}) as any as sinon.SinonStub,
 
 		// EventEmitter methods
-		on: stub().callsFake((event: string, handler: (...args: any[]) => void) => {
+		on: ((event: string, handler: (...args: any[]) => void) => {
 			// Remember the event handlers so we can call them on demand
 			switch (event) {
 				case "ready":
@@ -325,10 +321,42 @@ export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.Ad
 					ret.unloadHandler = handler;
 					break;
 			}
-		}),
+		}) as sinon.SinonStub,
 		// TODO: Do we need those?
 		// removeListener: stub(),
 		// removeAllListeners: stub(),
+
+		// Access the options object directly, so we can react to later changes
+		get readyHandler(): typeof options.ready {
+			return options.ready;
+		},
+		set readyHandler(handler: typeof options.ready) {
+			options.ready = handler;
+		},
+		get messageHandler(): typeof options.message {
+			return options.message;
+		},
+		set messageHandler(handler: typeof options.message) {
+			options.message = handler;
+		},
+		get objectChangeHandler(): typeof options.objectChange {
+			return options.objectChange;
+		},
+		set objectChangeHandler(handler: typeof options.objectChange) {
+			options.objectChange = handler;
+		},
+		get stateChangeHandler(): typeof options.stateChange {
+			return options.stateChange;
+		},
+		set stateChangeHandler(handler: typeof options.stateChange) {
+			options.stateChange = handler;
+		},
+		get unloadHandler(): typeof options.unload {
+			return options.unload;
+		},
+		set unloadHandler(handler: typeof options.unload) {
+			options.unload = handler;
+		},
 
 		// Mock-specific methods
 		resetMockHistory() {

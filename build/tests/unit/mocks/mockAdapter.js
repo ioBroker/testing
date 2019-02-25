@@ -26,6 +26,8 @@ const implementedMethods = {
     setForeignState: "normal",
     setForeignStateChanged: "normal",
     getAdapterObjects: "no error",
+    on: "none",
+    terminate: "none",
 };
 /**
  * Creates an adapter mock that is connected to a given database mock
@@ -269,12 +271,7 @@ function createAdapterMock(db, options = {}) {
         chmodFile: sinon_1.stub(),
         formatValue: sinon_1.stub(),
         formatDate: sinon_1.stub(),
-        readyHandler: options.ready,
-        messageHandler: options.message,
-        objectChangeHandler: options.objectChange,
-        stateChangeHandler: options.stateChange,
-        unloadHandler: options.unload,
-        terminate: sinon_1.stub().callsFake((reason) => {
+        terminate: ((reason) => {
             // Terminates execution by
             const err = new Error(`Adapter.terminate was called${reason ? ` with reason: "${reason}"` : ""}!`);
             // @ts-ignore
@@ -282,7 +279,7 @@ function createAdapterMock(db, options = {}) {
             throw err;
         }),
         // EventEmitter methods
-        on: sinon_1.stub().callsFake((event, handler) => {
+        on: ((event, handler) => {
             // Remember the event handlers so we can call them on demand
             switch (event) {
                 case "ready":
@@ -305,6 +302,37 @@ function createAdapterMock(db, options = {}) {
         // TODO: Do we need those?
         // removeListener: stub(),
         // removeAllListeners: stub(),
+        // Access the options object directly, so we can react to later changes
+        get readyHandler() {
+            return options.ready;
+        },
+        set readyHandler(handler) {
+            options.ready = handler;
+        },
+        get messageHandler() {
+            return options.message;
+        },
+        set messageHandler(handler) {
+            options.message = handler;
+        },
+        get objectChangeHandler() {
+            return options.objectChange;
+        },
+        set objectChangeHandler(handler) {
+            options.objectChange = handler;
+        },
+        get stateChangeHandler() {
+            return options.stateChange;
+        },
+        set stateChangeHandler(handler) {
+            options.stateChange = handler;
+        },
+        get unloadHandler() {
+            return options.unload;
+        },
+        set unloadHandler(handler) {
+            options.unload = handler;
+        },
         // Mock-specific methods
         resetMockHistory() {
             // reset Adapter
