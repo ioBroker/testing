@@ -21,6 +21,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // Add debug logging for tests
 const debug_1 = __importDefault(require("debug"));
 const debug = debug_1.default("testing:integration:AdapterSetup");
+const objects_1 = require("alcalzone-shared/objects");
 const fs_extra_1 = require("fs-extra");
 const path = __importStar(require("path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
@@ -72,8 +73,8 @@ class AdapterSetup {
             const packageJsonPath = path.join(this.testDir, "package.json");
             const packageJson = yield fs_extra_1.readJSON(packageJsonPath);
             packageJson.dependencies[this.adapterFullName] = `file:./${tarballName}`;
-            for (const dep of adapterTools_1.getAdapterDependencies(this.adapterDir)) {
-                packageJson.dependencies[`${this.appName}.${dep}`] = "latest";
+            for (const [dep, version] of objects_1.entries(adapterTools_1.getAdapterDependencies(this.adapterDir))) {
+                packageJson.dependencies[`${this.appName}.${dep}`] = version;
             }
             yield fs_extra_1.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
             debug("Deleting old remains of this adapter");

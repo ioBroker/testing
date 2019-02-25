@@ -22,6 +22,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const debug_1 = __importDefault(require("debug"));
 const debug = debug_1.default("testing:unit:adapterTools");
 // tslint:disable:unified-signatures
+const typeguards_1 = require("alcalzone-shared/typeguards");
 const fs_extra_1 = require("fs-extra");
 const path = __importStar(require("path"));
 /**
@@ -114,6 +115,19 @@ exports.getAdapterFullName = getAdapterFullName;
 /** Reads other ioBroker modules this adapter depends on from io-package.json */
 function getAdapterDependencies(adapterDir) {
     const ioPackage = loadIoPackage(adapterDir);
-    return ioPackage.common.dependencies || [];
+    const ret = {};
+    if (typeguards_1.isArray(ioPackage.common.dependencies)) {
+        for (const dep of ioPackage.common.dependencies) {
+            if (typeof dep === "string") {
+                ret[dep] = "latest";
+            }
+            else if (typeguards_1.isObject(dep)) {
+                const key = Object.keys(dep)[0];
+                if (key)
+                    ret[key] = dep[key] || "latest";
+            }
+        }
+    }
+    return ret;
 }
 exports.getAdapterDependencies = getAdapterDependencies;

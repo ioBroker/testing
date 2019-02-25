@@ -3,6 +3,7 @@ import debugModule from "debug";
 const debug = debugModule("testing:unit:adapterTools");
 
 // tslint:disable:unified-signatures
+import { isArray, isObject } from "alcalzone-shared/typeguards";
 import { pathExists } from "fs-extra";
 import * as path from "path";
 
@@ -105,7 +106,18 @@ export function getAdapterFullName(adapterDir: string): string {
 }
 
 /** Reads other ioBroker modules this adapter depends on from io-package.json */
-export function getAdapterDependencies(adapterDir: string): string[] {
+export function getAdapterDependencies(adapterDir: string) {
 	const ioPackage = loadIoPackage(adapterDir);
-	return ioPackage.common.dependencies || [];
+	const ret: Record<string, string> = {};
+	if (isArray(ioPackage.common.dependencies)) {
+		for (const dep of ioPackage.common.dependencies) {
+			if (typeof dep === "string") {
+				ret[dep] = "latest";
+			} else if (isObject(dep)) {
+				const key = Object.keys(dep)[0];
+				if (key) ret[key] = (dep as Record<string, string>)[key] || "latest";
+			}
+		}
+	}
+	return ret;
 }

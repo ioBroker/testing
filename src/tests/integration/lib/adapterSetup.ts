@@ -2,6 +2,7 @@
 import debugModule from "debug";
 const debug = debugModule("testing:integration:AdapterSetup");
 
+import { entries } from "alcalzone-shared/objects";
 import { copy, pathExists, readJSON, remove, unlink, writeJSON } from "fs-extra";
 import * as path from "path";
 import { getAdapterDependencies, getAdapterFullName, getAdapterName, getAppName } from "../../../lib/adapterTools";
@@ -69,8 +70,8 @@ export class AdapterSetup {
 		const packageJsonPath = path.join(this.testDir, "package.json");
 		const packageJson = await readJSON(packageJsonPath);
 		packageJson.dependencies[this.adapterFullName] = `file:./${tarballName}`;
-		for (const dep of getAdapterDependencies(this.adapterDir)) {
-			packageJson.dependencies[`${this.appName}.${dep}`] = "latest";
+		for (const [dep, version] of entries(getAdapterDependencies(this.adapterDir))) {
+			packageJson.dependencies[`${this.appName}.${dep}`] = version;
 		}
 		await writeJSON(packageJsonPath, packageJson, { spaces: 2 });
 
