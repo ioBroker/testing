@@ -97,6 +97,11 @@ ${buildProxy}`;
     return prefix + code + postfix;
 }
 exports.monkeyPatchGlobals = monkeyPatchGlobals;
+/** Removes a hashbang from the code if it exists since that causes compilation errors */
+function removeHashbang(code) {
+    return code.replace(/^#!.+$/m, "");
+}
+exports.removeHashbang = removeHashbang;
 /** A test-safe replacement for process.exit that throws a specific error instead */
 function fakeProcessExit(code = 0) {
     const err = new Error(`process.exit was called with code ${code}`);
@@ -142,6 +147,7 @@ function loadModuleInHarness(moduleFilename, options = {}) {
         if (typeguards_1.isObject(options.globalPatches)) {
             const originalCompile = module._compile;
             module._compile = (code, _filename) => {
+                code = removeHashbang(code);
                 code = monkeyPatchGlobals(code, options.globalPatches);
                 // Restore everything to not break the NodeJS internals
                 module._compile = originalCompile;

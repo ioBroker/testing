@@ -6,6 +6,8 @@ export declare function createMockRequire(originalRequire: NodeRequire, mocks: R
  * @param globals A dictionary of globals and their properties to be replaced
  */
 export declare function monkeyPatchGlobals(code: string, globals: Record<string, Record<string, any>>): string;
+/** Removes a hashbang from the code if it exists since that causes compilation errors */
+export declare function removeHashbang(code: string): string;
 /** A test-safe replacement for process.exit that throws a specific error instead */
 export declare function fakeProcessExit(code?: number): void;
 /**

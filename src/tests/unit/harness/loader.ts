@@ -90,6 +90,11 @@ ${buildProxy}`;
 	return prefix + code + postfix;
 }
 
+/** Removes a hashbang from the code if it exists since that causes compilation errors */
+export function removeHashbang(code: string): string {
+	return code.replace(/^#!.+$/m, "");
+}
+
 /** A test-safe replacement for process.exit that throws a specific error instead */
 export function fakeProcessExit(code: number = 0) {
 	const err = new Error(`process.exit was called with code ${code}`);
@@ -144,6 +149,7 @@ export function loadModuleInHarness(moduleFilename: string, options: HarnessOpti
 		if (isObject(options.globalPatches)) {
 			const originalCompile = module._compile;
 			module._compile = (code: string, _filename: string) => {
+				code = removeHashbang(code);
 				code = monkeyPatchGlobals(code, options.globalPatches!);
 
 				// Restore everything to not break the NodeJS internals
