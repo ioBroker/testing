@@ -18,6 +18,9 @@ const startMockAdapter_1 = require("./harness/startMockAdapter");
  * This is meant to be executed in a mocha context.
  */
 function testAdapterWithMocks(adapterDir, options = {}) {
+    if (typeof options.startTimeout === "number" && options.startTimeout < 1) {
+        throw new Error("The start timeout must be a positive number!");
+    }
     function assertValidExitCode(allowedExitCodes, exitCode) {
         if (exitCode == undefined)
             return;
@@ -32,16 +35,21 @@ function testAdapterWithMocks(adapterDir, options = {}) {
         before(() => __awaiter(this, void 0, void 0, function* () {
             mainFilename = yield adapterTools_1.locateAdapterMainFile(adapterDir);
         }));
-        it("The adapter starts in normal mode", () => __awaiter(this, void 0, void 0, function* () {
-            const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, {
-                config: adapterConfig,
-                instanceObjects,
-                additionalMockedModules: options.additionalMockedModules,
-                defineMockBehavior: options.defineMockBehavior,
+        it("The adapter starts in normal mode", function () {
+            return __awaiter(this, void 0, void 0, function* () {
+                // If necessary, change the default timeout
+                if (typeof options.startTimeout === "number")
+                    this.timeout(options.startTimeout);
+                const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, {
+                    config: adapterConfig,
+                    instanceObjects,
+                    additionalMockedModules: options.additionalMockedModules,
+                    defineMockBehavior: options.defineMockBehavior,
+                });
+                assertValidExitCode(options.allowedExitCodes || [], processExitCode);
+                // TODO: Test that the unload callback is called
             });
-            assertValidExitCode(options.allowedExitCodes || [0], processExitCode);
-            // TODO: Test that the unload callback is called
-        }));
+        });
         if (supportsCompactMode) {
             it("The adapter starts in compact mode", () => __awaiter(this, void 0, void 0, function* () {
                 const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, {

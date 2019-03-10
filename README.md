@@ -43,9 +43,12 @@ tests.unit(path.join(__dirname, ".."), {
     // This should be the adapter's root directory
 
     // If the adapter may call process.exit during startup, define here which exit codes are allowed.
-    // By default, 0 is ok. Providing this option overrides the default.
-    // Make sure to include 0 if other exit codes are allowed aswell.
+    // By default, no exit codes are allowed.
     allowedExitCodes: [11],
+
+    // If the adapter startup unit tests sometimes fail with a timeout, 
+    // you can optionally increase the default timeout here.
+    startTimeout: 10000,
 
     // optionally define which modules should be mocked.
     additionalMockedModules: {

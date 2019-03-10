@@ -10,6 +10,8 @@ import { MockDatabase } from "./mocks/mockDatabase";
 export interface TestAdapterOptions {
 	allowedExitCodes?: number[];
 	additionalMockedModules?: StartMockAdapterOptions["additionalMockedModules"];
+	/** Change the default test timeout of 2000ms for the startup tests */
+	startTimeout?: number;
 	/** Allows you to define additional tests */
 	defineAdditionalTests?: () => void;
 	/** Allows you to modifiy the behavior of predefined mocks in the predefined methods */
@@ -21,6 +23,10 @@ export interface TestAdapterOptions {
  * This is meant to be executed in a mocha context.
  */
 export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOptions = {}) {
+
+	if (typeof options.startTimeout === "number" && options.startTimeout < 1) {
+		throw new Error("The start timeout must be a positive number!");
+	}
 
 	function assertValidExitCode(allowedExitCodes: number[], exitCode?: number) {
 		if (exitCode == undefined) return;
@@ -42,14 +48,17 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 			mainFilename = await locateAdapterMainFile(adapterDir);
 		});
 
-		it("The adapter starts in normal mode", async () => {
+		it("The adapter starts in normal mode", async function() {
+			// If necessary, change the default timeout
+			if (typeof options.startTimeout === "number") this.timeout(options.startTimeout);
+
 			const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(mainFilename, {
 				config: adapterConfig,
 				instanceObjects,
 				additionalMockedModules: options.additionalMockedModules,
 				defineMockBehavior: options.defineMockBehavior,
 			});
-			assertValidExitCode(options.allowedExitCodes || [0], processExitCode);
+			assertValidExitCode(options.allowedExitCodes || [], processExitCode);
 			// TODO: Test that the unload callback is called
 		});
 
