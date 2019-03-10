@@ -5,6 +5,7 @@ const debug = debugModule("testing:integration:AdapterSetup");
 import { entries } from "alcalzone-shared/objects";
 import { copy, pathExists, readJSON, remove, unlink, writeJSON } from "fs-extra";
 import * as path from "path";
+import { EOL } from "os";
 import { getAdapterDependencies, getAdapterFullName, getAdapterName, getAppName } from "../../../lib/adapterTools";
 import { executeCommand } from "../../../lib/executeCommand";
 import { DBConnection } from "./dbConnection";
@@ -57,7 +58,9 @@ export class AdapterSetup {
 		});
 		if (packResult.exitCode !== 0 || typeof packResult.stdout !== "string") throw new Error(`Packing the adapter tarball failed!`);
 
-		const tarballName = packResult.stdout.trim();
+		// The last non-empty line of `npm pack`s STDOUT contains the tarball path
+		const stdoutLines = packResult.stdout.trim().split(/[\r\n]+/);
+		const tarballName = stdoutLines[stdoutLines.length - 1].trim();
 		const tarballPath = path.resolve(this.adapterDir, tarballName);
 		await copy(
 			tarballPath,

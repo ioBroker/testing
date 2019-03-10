@@ -64,7 +64,9 @@ class AdapterSetup {
             });
             if (packResult.exitCode !== 0 || typeof packResult.stdout !== "string")
                 throw new Error(`Packing the adapter tarball failed!`);
-            const tarballName = packResult.stdout.trim();
+            // The last non-empty line of `npm pack`s STDOUT contains the tarball path
+            const stdoutLines = packResult.stdout.trim().split(/[\r\n]+/);
+            const tarballName = stdoutLines[stdoutLines.length - 1].trim();
             const tarballPath = path.resolve(this.adapterDir, tarballName);
             yield fs_extra_1.copy(tarballPath, path.resolve(this.testDir, tarballName));
             yield fs_extra_1.unlink(tarballPath);
