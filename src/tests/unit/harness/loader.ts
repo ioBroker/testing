@@ -11,6 +11,9 @@ export function createMockRequire(originalRequire: NodeRequire, mocks: Record<st
 		// Resolve relative paths relative to the require-ing module
 		if (relativeToDir != undefined && filename.startsWith(".")) {
 			filename = path.join(relativeToDir, filename);
+		} else if (path.isAbsolute(filename)) {
+			// Avoid not finding modules due to mixed slashes and backslashes
+			filename = path.normalize(filename);
 		}
 		if (filename in mocks) return mocks[filename].exports;
 		return originalRequire(filename);
