@@ -1,13 +1,17 @@
 // wotan-disable no-unused-expression
 // tslint:disable:no-unused-expression
 
+import { entries } from "alcalzone-shared/objects";
 import { expect } from "chai";
+import * as path from "path";
 import { MockAdapter } from "../mocks/mockAdapter";
 import { mockAdapterCore } from "../mocks/mockAdapterCore";
 import { MockDatabase } from "../mocks/mockDatabase";
 import { fakeProcessExit, loadModuleInHarness } from "./loader";
 
 export interface StartMockAdapterOptions {
+	/** A specific directory to use as the adapter dir. If none is given, all paths are relative */
+	adapterDir?: string;
 	/** Whether the adapter should be started in compact mode */
 	compact?: boolean;
 	/** The adapter config */
@@ -46,13 +50,20 @@ export async function startMockAdapter(adapterMainFile: string, options: StartMo
 			// If an adapter configuration was given, set it on the mock
 			if (options.config) mock.config = options.config;
 		},
+		adapterDir: options.adapterDir,
 	});
 
 	// Replace the following modules with mocks
-	const mockedModules = {
-		...options.additionalMockedModules,
-		"@iobroker/adapter-core": adapterCoreMock,
-	};
+	const mockedModules: Record<string, any> = { };
+	if (options.additionalMockedModules) {
+		for (let [mdl, mock] of entries(options.additionalMockedModules)) {
+			mdl = mdl.replace("{CONTROLLER_DIR}", adapterCoreMock.controllerDir);
+			if (mdl.startsWith(".") || path.isAbsolute(mdl)) mdl = path.normalize(mdl);
+			mockedModules[mdl] = mock;
+		}
+	}
+	mockedModules["@iobroker/adapter-core"] = adapterCoreMock;
+
 	// If the adapter supports compact mode and should be executed in "normal" mode,
 	// we need to trick it into thinking it was not required
 	const fakeNotRequired = !options.compact;

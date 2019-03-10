@@ -7,6 +7,7 @@ interface MockAdapterConstructor {
 }
 export interface MockAdapterCoreOptions {
     onAdapterCreated?: (adapter: MockAdapter) => void;
+    adapterDir?: string;
 }
 export declare function mockAdapterCore(database: MockDatabase, options?: MockAdapterCoreOptions): {
     controllerDir: string;

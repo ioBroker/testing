@@ -1,3 +1,4 @@
+import * as path from "path";
 import { createAdapterMock, MockAdapter } from "./mockAdapter";
 import { MockDatabase } from "./mockDatabase";
 
@@ -8,6 +9,7 @@ interface MockAdapterConstructor {
 
 export interface MockAdapterCoreOptions {
 	onAdapterCreated?: (adapter: MockAdapter) => void;
+	adapterDir?: string;
 }
 
 export function mockAdapterCore(database: MockDatabase, options: MockAdapterCoreOptions = {}) {
@@ -16,7 +18,7 @@ export function mockAdapterCore(database: MockDatabase, options: MockAdapterCore
 	 * The root directory of JS-Controller
 	 * If this has to exist in the test, the user/tester has to take care of it!
 	 */
-	const controllerDir = "../iobroker.js-controller";
+	const controllerDir = path.join(options.adapterDir || "", "..", "iobroker.js-controller");
 
 	/** Reads the configuration file of JS-Controller */
 	function getConfig() {

@@ -57,6 +57,7 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 				instanceObjects,
 				additionalMockedModules: options.additionalMockedModules,
 				defineMockBehavior: options.defineMockBehavior,
+				adapterDir,
 			});
 			assertValidExitCode(options.allowedExitCodes || [], processExitCode);
 			// TODO: Test that the unload callback is called
@@ -70,6 +71,7 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 					instanceObjects,
 					additionalMockedModules: options.additionalMockedModules,
 					defineMockBehavior: options.defineMockBehavior,
+					adapterDir,
 				});
 				// In compact mode, only "adapter.terminate" may be called
 				expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;

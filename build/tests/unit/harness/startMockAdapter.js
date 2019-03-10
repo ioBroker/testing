@@ -9,8 +9,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const objects_1 = require("alcalzone-shared/objects");
 const chai_1 = require("chai");
+const path = __importStar(require("path"));
 const mockAdapterCore_1 = require("../mocks/mockAdapterCore");
 const mockDatabase_1 = require("../mocks/mockDatabase");
 const loader_1 = require("./loader");
@@ -42,9 +51,19 @@ function startMockAdapter(adapterMainFile, options = {}) {
                 if (options.config)
                     mock.config = options.config;
             },
+            adapterDir: options.adapterDir,
         });
         // Replace the following modules with mocks
-        const mockedModules = Object.assign({}, options.additionalMockedModules, { "@iobroker/adapter-core": adapterCoreMock });
+        const mockedModules = {};
+        if (options.additionalMockedModules) {
+            for (let [mdl, mock] of objects_1.entries(options.additionalMockedModules)) {
+                mdl = mdl.replace("{CONTROLLER_DIR}", adapterCoreMock.controllerDir);
+                if (mdl.startsWith(".") || path.isAbsolute(mdl))
+                    mdl = path.normalize(mdl);
+                mockedModules[mdl] = mock;
+            }
+        }
+        mockedModules["@iobroker/adapter-core"] = adapterCoreMock;
         // If the adapter supports compact mode and should be executed in "normal" mode,
         // we need to trick it into thinking it was not required
         const fakeNotRequired = !options.compact;

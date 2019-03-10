@@ -5,7 +5,6 @@ const debug = debugModule("testing:integration:AdapterSetup");
 import { entries } from "alcalzone-shared/objects";
 import { copy, pathExists, readJSON, remove, unlink, writeJSON } from "fs-extra";
 import * as path from "path";
-import { EOL } from "os";
 import { getAdapterDependencies, getAdapterFullName, getAdapterName, getAppName } from "../../../lib/adapterTools";
 import { executeCommand } from "../../../lib/executeCommand";
 import { DBConnection } from "./dbConnection";

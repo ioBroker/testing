@@ -2,6 +2,8 @@
 import { MockAdapter } from "../mocks/mockAdapter";
 import { MockDatabase } from "../mocks/mockDatabase";
 export interface StartMockAdapterOptions {
+    /** A specific directory to use as the adapter dir. If none is given, all paths are relative */
+    adapterDir?: string;
     /** Whether the adapter should be started in compact mode */
     compact?: boolean;
     /** The adapter config */

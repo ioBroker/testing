@@ -54,6 +54,9 @@ tests.unit(path.join(__dirname, ".."), {
     additionalMockedModules: {
         "noble": nobleMock,
         "@abandonware/noble": nobleMock,
+        // Use the {CONTROLLER_DIR} placeholder to access the path where JS-Controller would be installed.
+        // Don't forget to provide mocks for every module you need, as they don't exist in unit tests
+        "{CONTROLLER_DIR}/lib/tools.js": {}, 
     },
 
     // Define your own tests inside defineAdditionalTests

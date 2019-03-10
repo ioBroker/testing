@@ -1,12 +1,20 @@
 "use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const path = __importStar(require("path"));
 const mockAdapter_1 = require("./mockAdapter");
 function mockAdapterCore(database, options = {}) {
     /**
      * The root directory of JS-Controller
      * If this has to exist in the test, the user/tester has to take care of it!
      */
-    const controllerDir = "../iobroker.js-controller";
+    const controllerDir = path.join(options.adapterDir || "", "..", "iobroker.js-controller");
     /** Reads the configuration file of JS-Controller */
     function getConfig() {
         return {};
