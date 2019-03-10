@@ -4,7 +4,7 @@ import { MockDatabase } from "./mocks/mockDatabase";
 export interface TestAdapterOptions {
     allowedExitCodes?: number[];
     additionalMockedModules?: StartMockAdapterOptions["additionalMockedModules"];
-    /** Change the default test timeout of 2000ms for the startup tests */
+    /** Change the default test timeout of 15000ms for the startup tests */
     startTimeout?: number;
     /** Allows you to define additional tests */
     defineAdditionalTests?: () => void;

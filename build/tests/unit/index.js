@@ -18,7 +18,10 @@ const startMockAdapter_1 = require("./harness/startMockAdapter");
  * This is meant to be executed in a mocha context.
  */
 function testAdapterWithMocks(adapterDir, options = {}) {
-    if (typeof options.startTimeout === "number" && options.startTimeout < 1) {
+    if (!options.startTimeout) {
+        options.startTimeout = 15000;
+    }
+    else if (options.startTimeout < 1) {
         throw new Error("The start timeout must be a positive number!");
     }
     function assertValidExitCode(allowedExitCodes, exitCode) {
@@ -52,19 +55,24 @@ function testAdapterWithMocks(adapterDir, options = {}) {
             });
         });
         if (supportsCompactMode) {
-            it("The adapter starts in compact mode", () => __awaiter(this, void 0, void 0, function* () {
-                const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, {
-                    compact: true,
-                    config: adapterConfig,
-                    instanceObjects,
-                    additionalMockedModules: options.additionalMockedModules,
-                    defineMockBehavior: options.defineMockBehavior,
-                    adapterDir,
+            it("The adapter starts in compact mode", function () {
+                return __awaiter(this, void 0, void 0, function* () {
+                    // If necessary, change the default timeout
+                    if (typeof options.startTimeout === "number")
+                        this.timeout(options.startTimeout);
+                    const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, {
+                        compact: true,
+                        config: adapterConfig,
+                        instanceObjects,
+                        additionalMockedModules: options.additionalMockedModules,
+                        defineMockBehavior: options.defineMockBehavior,
+                        adapterDir,
+                    });
+                    // In compact mode, only "adapter.terminate" may be called
+                    chai_1.expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;
+                    // TODO: Test that the unload callback is called (if terminateReason is undefined)
                 });
-                // In compact mode, only "adapter.terminate" may be called
-                chai_1.expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;
-                // TODO: Test that the unload callback is called (if terminateReason is undefined)
-            }));
+            });
         }
         // Call the user's tests
         if (typeof options.defineAdditionalTests === "function") {

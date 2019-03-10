@@ -48,7 +48,7 @@ tests.unit(path.join(__dirname, ".."), {
 
     // If the adapter startup unit tests sometimes fail with a timeout, 
     // you can optionally increase the default timeout here.
-    startTimeout: 10000,
+    startTimeout: 60000, // 15000 is the default
 
     // optionally define which modules should be mocked.
     additionalMockedModules: {

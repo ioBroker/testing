@@ -10,7 +10,7 @@ import { MockDatabase } from "./mocks/mockDatabase";
 export interface TestAdapterOptions {
 	allowedExitCodes?: number[];
 	additionalMockedModules?: StartMockAdapterOptions["additionalMockedModules"];
-	/** Change the default test timeout of 2000ms for the startup tests */
+	/** Change the default test timeout of 15000ms for the startup tests */
 	startTimeout?: number;
 	/** Allows you to define additional tests */
 	defineAdditionalTests?: () => void;
@@ -24,7 +24,9 @@ export interface TestAdapterOptions {
  */
 export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOptions = {}) {
 
-	if (typeof options.startTimeout === "number" && options.startTimeout < 1) {
+	if (!options.startTimeout) {
+		options.startTimeout = 15000;
+	} else if (options.startTimeout < 1) {
 		throw new Error("The start timeout must be a positive number!");
 	}
 
@@ -64,7 +66,10 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 		});
 
 		if (supportsCompactMode) {
-			it("The adapter starts in compact mode", async () => {
+			it("The adapter starts in compact mode", async function() {
+				// If necessary, change the default timeout
+				if (typeof options.startTimeout === "number") this.timeout(options.startTimeout);
+
 				const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(mainFilename, {
 					compact: true,
 					config: adapterConfig,
