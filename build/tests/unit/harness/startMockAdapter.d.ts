@@ -30,3 +30,4 @@ export declare function startMockAdapter(adapterMainFile: string, options?: Star
     processExitCode: number | undefined;
     terminateReason: string | undefined;
 }>;
+export declare function unloadMockAdapter(adapter: MockAdapter, timeout?: number): Promise<boolean>;

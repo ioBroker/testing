@@ -30,6 +30,7 @@ function testAdapterWithMocks(adapterDir, options = {}) {
         // Ensure that a valid exit code was returned. By default, only 0 is allowed
         chai_1.expect(allowedExitCodes).contains(exitCode, `process.exit was called with the unexpected exit code ${exitCode}!`);
     }
+    const adapterCommon = adapterTools_1.loadAdapterCommon(adapterDir);
     const adapterConfig = adapterTools_1.loadAdapterConfig(adapterDir);
     const instanceObjects = adapterTools_1.loadInstanceObjects(adapterDir);
     const supportsCompactMode = adapterTools_1.adapterShouldSupportCompactMode(adapterDir);
@@ -51,7 +52,9 @@ function testAdapterWithMocks(adapterDir, options = {}) {
                     adapterDir,
                 });
                 assertValidExitCode(options.allowedExitCodes || [], processExitCode);
-                // TODO: Test that the unload callback is called
+                // Test that the unload callback is called
+                const unloadTestResult = yield startMockAdapter_1.unloadMockAdapter(adapterMock, adapterCommon.stopTimeout);
+                chai_1.expect(unloadTestResult).to.be.true;
             });
         });
         if (supportsCompactMode) {
@@ -70,7 +73,11 @@ function testAdapterWithMocks(adapterDir, options = {}) {
                     });
                     // In compact mode, only "adapter.terminate" may be called
                     chai_1.expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;
-                    // TODO: Test that the unload callback is called (if terminateReason is undefined)
+                    // Test that the unload callback is called
+                    if (terminateReason != undefined) {
+                        const unloadTestResult = yield startMockAdapter_1.unloadMockAdapter(adapterMock, adapterCommon.stopTimeout);
+                        chai_1.expect(unloadTestResult).to.be.true;
+                    }
                 });
             });
         }

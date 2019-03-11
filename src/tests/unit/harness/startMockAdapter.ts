@@ -122,3 +122,29 @@ export async function startMockAdapter(adapterMainFile: string, options: StartMo
 		terminateReason,
 	};
 }
+
+export function unloadMockAdapter(adapter: MockAdapter, timeout: number = 500) {
+	expect(adapter.unloadHandler, "The adapter's unload method could not be found!").to.exist;
+	return new Promise<boolean>((res, rej) => {
+		function finishUnload() {
+			res(true);
+		}
+		if (adapter.unloadHandler!.length >= 1) {
+			// The method takes (at least) a callback
+			adapter.unloadHandler!(finishUnload);
+		} else {
+			// The method takes no arguments, so it must return a Promise
+			const unloadPromise = (adapter.unloadHandler as any)();
+			if (unloadPromise instanceof Promise) {
+				// Call finishUnload in the case of success and failure
+				unloadPromise.then(finishUnload, finishUnload);
+			} else {
+				// No callback accepted and no Promise returned - force unload
+				rej(new Error(`The unload method must return a Promise if it does not accept a callback!`));
+			}
+		}
+
+		// If the developer forgets to call the callback within the configured time, fail the test
+		setTimeout(() => rej(new Error("The unload callback was not called within the timeout")), timeout);
+	});
+}

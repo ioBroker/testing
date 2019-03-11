@@ -86,6 +86,15 @@ function loadAdapterConfig(adapterDir) {
 }
 exports.loadAdapterConfig = loadAdapterConfig;
 /**
+ * Loads the adapter's common configuration from `io-package.json`
+ * @param adapterDir The directory the adapter resides in
+ */
+function loadAdapterCommon(adapterDir) {
+    const ioPackage = loadIoPackage(adapterDir);
+    return ioPackage.common || {};
+}
+exports.loadAdapterCommon = loadAdapterCommon;
+/**
  * Loads the instanceObjects for an adapter from its `io-package.json`
  * @param adapterDir The directory the adapter resides in
  */
