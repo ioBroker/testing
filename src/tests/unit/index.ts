@@ -2,7 +2,7 @@
 // wotan-disable no-unused-expression
 
 import { expect } from "chai";
-import { adapterShouldSupportCompactMode, loadAdapterConfig, loadInstanceObjects, locateAdapterMainFile, loadAdapterCommon } from "../../lib/adapterTools";
+import { adapterShouldSupportCompactMode, loadAdapterCommon, loadAdapterConfig, loadInstanceObjects, locateAdapterMainFile } from "../../lib/adapterTools";
 import { startMockAdapter, StartMockAdapterOptions, unloadMockAdapter } from "./harness/startMockAdapter";
 import { MockAdapter } from "./mocks/mockAdapter";
 import { MockDatabase } from "./mocks/mockDatabase";
@@ -51,7 +51,7 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 			mainFilename = await locateAdapterMainFile(adapterDir);
 		});
 
-		it("The adapter starts in normal mode", async function () {
+		it("The adapter starts in normal mode", async function() {
 			// If necessary, change the default timeout
 			if (typeof options.startTimeout === "number") this.timeout(options.startTimeout);
 
@@ -64,12 +64,12 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 			});
 			assertValidExitCode(options.allowedExitCodes || [], processExitCode);
 			// Test that the unload callback is called
-			const unloadTestResult = await unloadMockAdapter(adapterMock, adapterCommon.stopTimeout);
+			const unloadTestResult = await unloadMockAdapter(adapterMock!, adapterCommon.stopTimeout);
 			expect(unloadTestResult).to.be.true;
 		});
 
 		if (supportsCompactMode) {
-			it("The adapter starts in compact mode", async function () {
+			it("The adapter starts in compact mode", async function() {
 				// If necessary, change the default timeout
 				if (typeof options.startTimeout === "number") this.timeout(options.startTimeout);
 
@@ -85,7 +85,7 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 				expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;
 				// Test that the unload callback is called
 				if (terminateReason != undefined) {
-					const unloadTestResult = await unloadMockAdapter(adapterMock, adapterCommon.stopTimeout);
+					const unloadTestResult = await unloadMockAdapter(adapterMock!, adapterCommon.stopTimeout);
 					expect(unloadTestResult).to.be.true;
 				}
 			});
