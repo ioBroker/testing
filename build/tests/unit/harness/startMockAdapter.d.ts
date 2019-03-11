@@ -26,7 +26,7 @@ export interface StartMockAdapterOptions {
  */
 export declare function startMockAdapter(adapterMainFile: string, options?: StartMockAdapterOptions): Promise<{
     databaseMock: MockDatabase;
-    adapterMock: MockAdapter;
+    adapterMock: MockAdapter | undefined;
     processExitCode: number | undefined;
     terminateReason: string | undefined;
 }>;

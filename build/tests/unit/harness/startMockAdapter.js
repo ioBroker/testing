@@ -69,32 +69,34 @@ function startMockAdapter(adapterMainFile, options = {}) {
         const fakeNotRequired = !options.compact;
         // Make process.exit() test-safe
         const globalPatches = { process: { exit: loader_1.fakeProcessExit } };
-        // Load the adapter file into the test harness and capture it's module.exports
-        const mainFileExport = loader_1.loadModuleInHarness(adapterMainFile, {
-            mockedModules,
-            fakeNotRequired,
-            globalPatches,
-        });
-        if (options.compact) {
-            // In compact mode, the main file must export a function
-            if (typeof mainFileExport !== "function")
-                throw new Error("The adapter's main file must export a function in compact mode!");
-            // Call it to initialize the adapter
-            mainFileExport();
-        }
-        // Assert some basic stuff
-        if (adapterMock == undefined)
-            throw new Error("The adapter was not initialized!");
-        chai_1.expect(adapterMock.readyHandler, "The adapter's ready method could not be found!").to.exist;
-        // Execute the ready method (synchronously or asynchronously)
         let processExitCode;
         let terminateReason;
         try {
+            // Load the adapter file into the test harness and capture it's module.exports
+            const mainFileExport = loader_1.loadModuleInHarness(adapterMainFile, {
+                mockedModules,
+                fakeNotRequired,
+                globalPatches,
+            });
+            if (options.compact) {
+                // In compact mode, the main file must export a function
+                if (typeof mainFileExport !== "function")
+                    throw new Error("The adapter's main file must export a function in compact mode!");
+                // Call it to initialize the adapter
+                mainFileExport();
+            }
+            // Assert some basic stuff
+            if (adapterMock == undefined)
+                throw new Error("The adapter was not initialized!");
+            chai_1.expect(adapterMock.readyHandler, "The adapter's ready method could not be found!").to.exist;
+            // Execute the ready method (synchronously or asynchronously)
             const readyResult = adapterMock.readyHandler();
             if (readyResult instanceof Promise)
                 yield readyResult;
         }
         catch (e) {
+            // We give special handling to Errors here, as we also use them to convey that
+            // process.exit or adapter.terminate was called
             if (e instanceof Error) {
                 const anyError = e;
                 if (typeof anyError.processExitCode === "number") {
