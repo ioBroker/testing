@@ -1,6 +1,6 @@
 {
   "name": "@iobroker/testing",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "description": "Shared utilities for adapter and module testing in ioBroker",
   "main": "build/index.js",
   "types": "build/index.d.ts",
