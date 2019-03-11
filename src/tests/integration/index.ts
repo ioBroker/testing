@@ -75,7 +75,8 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
 
 		});
 
-		beforeEach(async () => {
+		beforeEach(async function() {
+			this.timeout(30000);
 
 			// Clean up before every single test
 			await Promise.all([
@@ -104,7 +105,7 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
 
 		afterEach(async function() {
 			// Stopping the processes may take a while
-			this.timeout(10000);
+			this.timeout(30000);
 			// Stop the controller again
 			await harness.stopController();
 

@@ -66,31 +66,34 @@ function testAdapter(adapterDir, options = {}) {
                 ({ objects: objectsBackup, states: statesBackup } = yield dbConnection.readDB());
             });
         });
-        beforeEach(() => __awaiter(this, void 0, void 0, function* () {
-            // Clean up before every single test
-            yield Promise.all([
-                controllerSetup.clearDBDir(),
-                controllerSetup.clearLogDir(),
-                dbConnection.writeDB(objectsBackup, statesBackup),
-            ]);
-            // Create a new test harness
-            harness = new harness_1.TestHarness(adapterDir, testDir);
-            // Enable the adapter and set its loglevel to debug
-            yield harness.changeAdapterConfig(appName, testDir, adapterName, {
-                common: {
-                    enabled: true,
-                    loglevel: "debug",
-                },
+        beforeEach(function () {
+            return __awaiter(this, void 0, void 0, function* () {
+                this.timeout(30000);
+                // Clean up before every single test
+                yield Promise.all([
+                    controllerSetup.clearDBDir(),
+                    controllerSetup.clearLogDir(),
+                    dbConnection.writeDB(objectsBackup, statesBackup),
+                ]);
+                // Create a new test harness
+                harness = new harness_1.TestHarness(adapterDir, testDir);
+                // Enable the adapter and set its loglevel to debug
+                yield harness.changeAdapterConfig(appName, testDir, adapterName, {
+                    common: {
+                        enabled: true,
+                        loglevel: "debug",
+                    },
+                });
+                // Start the controller instance
+                yield harness.startController();
+                // And enable the sendTo emulation
+                yield harness.enableSendTo();
             });
-            // Start the controller instance
-            yield harness.startController();
-            // And enable the sendTo emulation
-            yield harness.enableSendTo();
-        }));
+        });
         afterEach(function () {
             return __awaiter(this, void 0, void 0, function* () {
                 // Stopping the processes may take a while
-                this.timeout(10000);
+                this.timeout(30000);
                 // Stop the controller again
                 yield harness.stopController();
                 harness.removeAllListeners();
