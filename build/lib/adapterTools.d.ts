@@ -30,6 +30,11 @@ export declare function locateAdapterMainFile(adapterDir: string): Promise<strin
  */
 export declare function loadAdapterConfig(adapterDir: string): Record<string, any>;
 /**
+ * Loads the adapter's common configuration from `io-package.json`
+ * @param adapterDir The directory the adapter resides in
+ */
+export declare function loadAdapterCommon(adapterDir: string): Record<string, any>;
+/**
  * Loads the instanceObjects for an adapter from its `io-package.json`
  * @param adapterDir The directory the adapter resides in
  */

@@ -2,8 +2,8 @@
 // wotan-disable no-unused-expression
 
 import { expect } from "chai";
-import { adapterShouldSupportCompactMode, loadAdapterConfig, loadInstanceObjects, locateAdapterMainFile } from "../../lib/adapterTools";
-import { startMockAdapter, StartMockAdapterOptions } from "./harness/startMockAdapter";
+import { adapterShouldSupportCompactMode, loadAdapterConfig, loadInstanceObjects, locateAdapterMainFile, loadAdapterCommon } from "../../lib/adapterTools";
+import { startMockAdapter, StartMockAdapterOptions, unloadMockAdapter } from "./harness/startMockAdapter";
 import { MockAdapter } from "./mocks/mockAdapter";
 import { MockDatabase } from "./mocks/mockDatabase";
 
@@ -38,6 +38,7 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 		);
 	}
 
+	const adapterCommon = loadAdapterCommon(adapterDir);
 	const adapterConfig = loadAdapterConfig(adapterDir);
 	const instanceObjects = loadInstanceObjects(adapterDir);
 	const supportsCompactMode = adapterShouldSupportCompactMode(adapterDir);
@@ -50,7 +51,7 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 			mainFilename = await locateAdapterMainFile(adapterDir);
 		});
 
-		it("The adapter starts in normal mode", async function() {
+		it("The adapter starts in normal mode", async function () {
 			// If necessary, change the default timeout
 			if (typeof options.startTimeout === "number") this.timeout(options.startTimeout);
 
@@ -62,11 +63,13 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 				adapterDir,
 			});
 			assertValidExitCode(options.allowedExitCodes || [], processExitCode);
-			// TODO: Test that the unload callback is called
+			// Test that the unload callback is called
+			const unloadTestResult = await unloadMockAdapter(adapterMock, adapterCommon.stopTimeout);
+			expect(unloadTestResult).to.be.true;
 		});
 
 		if (supportsCompactMode) {
-			it("The adapter starts in compact mode", async function() {
+			it("The adapter starts in compact mode", async function () {
 				// If necessary, change the default timeout
 				if (typeof options.startTimeout === "number") this.timeout(options.startTimeout);
 
@@ -80,7 +83,11 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 				});
 				// In compact mode, only "adapter.terminate" may be called
 				expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;
-				// TODO: Test that the unload callback is called (if terminateReason is undefined)
+				// Test that the unload callback is called
+				if (terminateReason != undefined) {
+					const unloadTestResult = await unloadMockAdapter(adapterMock, adapterCommon.stopTimeout);
+					expect(unloadTestResult).to.be.true;
+				}
 			});
 		}
 

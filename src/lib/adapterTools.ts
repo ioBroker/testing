@@ -79,6 +79,15 @@ export function loadAdapterConfig(adapterDir: string): Record<string, any> {
 }
 
 /**
+ * Loads the adapter's common configuration from `io-package.json`
+ * @param adapterDir The directory the adapter resides in
+ */
+export function loadAdapterCommon(adapterDir: string): Record<string, any> {
+	const ioPackage = loadIoPackage(adapterDir);
+	return ioPackage.common || {};
+}
+
+/**
  * Loads the instanceObjects for an adapter from its `io-package.json`
  * @param adapterDir The directory the adapter resides in
  */
