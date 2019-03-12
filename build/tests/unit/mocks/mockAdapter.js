@@ -298,10 +298,47 @@ function createAdapterMock(db, options = {}) {
                     ret.unloadHandler = handler;
                     break;
             }
+            return ret;
         }),
-        // TODO: Do we need those?
-        // removeListener: stub(),
-        // removeAllListeners: stub(),
+        removeListener: ((event, listener) => {
+            // TODO This is not entirely correct
+            switch (event) {
+                case "ready":
+                    ret.readyHandler = undefined;
+                    break;
+                case "message":
+                    ret.messageHandler = undefined;
+                    break;
+                case "objectChange":
+                    ret.objectChangeHandler = undefined;
+                    break;
+                case "stateChange":
+                    ret.stateChangeHandler = undefined;
+                    break;
+                case "unload":
+                    ret.unloadHandler = undefined;
+                    break;
+            }
+            return ret;
+        }),
+        removeAllListeners: ((event) => {
+            if (!event || event === "ready") {
+                ret.readyHandler = undefined;
+            }
+            if (!event || event === "message") {
+                ret.messageHandler = undefined;
+            }
+            if (!event || event === "objectChange") {
+                ret.objectChangeHandler = undefined;
+            }
+            if (!event || event === "stateChange") {
+                ret.stateChangeHandler = undefined;
+            }
+            if (!event || event === "unload") {
+                ret.unloadHandler = undefined;
+            }
+            return ret;
+        }),
         // Access the options object directly, so we can react to later changes
         get readyHandler() {
             return options.ready;

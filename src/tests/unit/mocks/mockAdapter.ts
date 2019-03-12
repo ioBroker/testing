@@ -321,10 +321,49 @@ export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.Ad
 					ret.unloadHandler = handler;
 					break;
 			}
+			return ret;
 		}) as sinon.SinonStub,
-		// TODO: Do we need those?
-		// removeListener: stub(),
-		// removeAllListeners: stub(),
+
+		removeListener: ((event: string, listener: (...args: any[]) => void) => {
+			// TODO This is not entirely correct
+			switch (event) {
+				case "ready":
+					ret.readyHandler = undefined;
+					break;
+				case "message":
+					ret.messageHandler = undefined;
+					break;
+				case "objectChange":
+					ret.objectChangeHandler = undefined;
+					break;
+				case "stateChange":
+					ret.stateChangeHandler = undefined;
+					break;
+				case "unload":
+					ret.unloadHandler = undefined;
+					break;
+			}
+			return ret;
+		}) as sinon.SinonStub,
+
+		removeAllListeners: ((event?: string) => {
+			if (!event || event === "ready") {
+				ret.readyHandler = undefined;
+			}
+			if (!event || event === "message") {
+				ret.messageHandler = undefined;
+			}
+			if (!event || event === "objectChange") {
+				ret.objectChangeHandler = undefined;
+			}
+			if (!event || event === "stateChange") {
+				ret.stateChangeHandler = undefined;
+			}
+			if (!event || event === "unload") {
+				ret.unloadHandler = undefined;
+			}
+			return ret;
+		}) as sinon.SinonStub,
 
 		// Access the options object directly, so we can react to later changes
 		get readyHandler(): typeof options.ready {
