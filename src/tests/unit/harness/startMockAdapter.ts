@@ -124,7 +124,6 @@ export async function startMockAdapter(adapterMainFile: string, options: StartMo
 }
 
 export function unloadMockAdapter(adapter: MockAdapter, timeout: number = 500) {
-	expect(adapter.unloadHandler, "The adapter's unload method could not be found!").to.exist;
 	return new Promise<boolean>((res, rej) => {
 		function finishUnload() {
 			res(true);

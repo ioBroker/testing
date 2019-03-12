@@ -53,8 +53,10 @@ function testAdapterWithMocks(adapterDir, options = {}) {
                 });
                 assertValidExitCode(options.allowedExitCodes || [], processExitCode);
                 // Test that the unload callback is called
-                const unloadTestResult = yield startMockAdapter_1.unloadMockAdapter(adapterMock, adapterCommon.stopTimeout);
-                chai_1.expect(unloadTestResult).to.be.true;
+                if (adapterMock && adapterMock.unloadHandler) {
+                    const unloadTestResult = yield startMockAdapter_1.unloadMockAdapter(adapterMock, adapterCommon.stopTimeout);
+                    chai_1.expect(unloadTestResult).to.be.true;
+                }
             });
         });
         if (supportsCompactMode) {
@@ -74,7 +76,7 @@ function testAdapterWithMocks(adapterDir, options = {}) {
                     // In compact mode, only "adapter.terminate" may be called
                     chai_1.expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;
                     // Test that the unload callback is called
-                    if (terminateReason != undefined) {
+                    if (terminateReason != undefined && adapterMock && adapterMock.unloadHandler) {
                         const unloadTestResult = yield startMockAdapter_1.unloadMockAdapter(adapterMock, adapterCommon.stopTimeout);
                         chai_1.expect(unloadTestResult).to.be.true;
                     }
