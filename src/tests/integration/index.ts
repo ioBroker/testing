@@ -41,8 +41,9 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
 		let statesBackup: any;
 
 		before(async function() {
-			// Installation may take a while
-			this.timeout(600000);
+			// Installation may take a while - especially if rsa-compat needs to be installed
+			const oneMinute = 60000;
+			this.timeout(30 * oneMinute);
 
 			if (await controllerSetup.isJsControllerRunning()) {
 				throw new Error("JS-Controller is already running! Stop it for the first test run and try again!");
