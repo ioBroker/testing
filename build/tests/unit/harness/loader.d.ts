@@ -1,5 +1,6 @@
 /// <reference types="node" />
-export declare function createMockRequire(originalRequire: NodeRequire, mocks: Record<string, NodeModule>, relativeToFile?: string): (filename: string) => any;
+import Module from "module";
+export declare function createMockRequire(originalRequire: NodeRequire, options: LoadModuleOptions): (filename: string) => any;
 /**
  * Monkey-patches module code before executing it by wrapping it in an IIFE whose arguments are modified (proxied) globals
  * @param code The code to monkey patch
@@ -10,14 +11,15 @@ export declare function monkeyPatchGlobals(code: string, globals: Record<string,
 export declare function removeHashbang(code: string): string;
 /** A test-safe replacement for process.exit that throws a specific error instead */
 export declare function fakeProcessExit(code?: number): void;
+declare type LoaderFunction = NodeExtensions[string];
 /**
  * Replaces NodeJS's default loader for .js-files with the given one and returns the original one
  */
-export declare function replaceJsLoader(loaderFunction: NodeExtensions[string]): NodeExtensions[string];
+export declare function replaceJsLoader(loaderFunction: LoaderFunction): void;
 /**
  * Replaces a replaced loader for .js-files with the original one
  */
-export declare function restoreJsLoader(originalJsLoader: NodeExtensions[string]): void;
+export declare function restoreJsLoader(): void;
 export interface HarnessOptions {
     /** Mocks for loaded modules. This should be a dictionary of module name to module.exports */
     mockedModules?: Record<string, any>;
@@ -26,7 +28,17 @@ export interface HarnessOptions {
     /** Patches for global objects like `process` */
     globalPatches?: Record<string, Record<string, any>>;
 }
+interface LoadModuleOptions {
+    /** Mocks for loaded modules. This should be a dictionary of module name to module objects */
+    mockedModules?: Record<string, Module>;
+    /** Whether the main module should believe that it was not required */
+    fakeNotRequired?: boolean;
+    /** Patches for global objects like `process` */
+    globalPatches?: Record<string, Record<string, any>>;
+    relativeToFile?: string;
+}
 /**
  * Loads the given module into the test harness and returns the module's `module.exports`.
  */
 export declare function loadModuleInHarness(moduleFilename: string, options?: HarnessOptions): unknown;
+export {};

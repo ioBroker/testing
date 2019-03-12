@@ -13,10 +13,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const module_1 = __importDefault(require("module"));
 const path = __importStar(require("path"));
-function createMockRequire(originalRequire, mocks, relativeToFile) {
+const globalRequire = require;
+function createMockRequire(originalRequire, options) {
     let relativeToDir;
-    if (relativeToFile != undefined) {
-        relativeToDir = path.dirname(relativeToFile);
+    if (options.relativeToFile) {
+        relativeToDir = path.dirname(options.relativeToFile);
     }
     return function fakeRequire(filename) {
         // Resolve relative paths relative to the require-ing module
@@ -27,9 +28,11 @@ function createMockRequire(originalRequire, mocks, relativeToFile) {
             // Avoid not finding modules due to mixed slashes and backslashes
             filename = path.normalize(filename);
         }
-        if (filename in mocks)
-            return mocks[filename].exports;
-        return originalRequire(filename);
+        if (options.mockedModules && filename in options.mockedModules) {
+            // require.cache[filename] = options.mockedModules[filename];
+            return options.mockedModules[filename].exports;
+        }
+        return loadModuleInternal(originalRequire, filename, options);
     };
 }
 exports.createMockRequire = createMockRequire;
@@ -114,35 +117,31 @@ function fakeProcessExit(code = 0) {
     throw err;
 }
 exports.fakeProcessExit = fakeProcessExit;
+let isOriginalLoader = true;
+let originalLoader;
 /**
  * Replaces NodeJS's default loader for .js-files with the given one and returns the original one
  */
 function replaceJsLoader(loaderFunction) {
-    const originalJsLoader = require.extensions[".js"];
+    if (isOriginalLoader) {
+        originalLoader = require.extensions[".js"];
+    }
     require.extensions[".js"] = loaderFunction;
-    return originalJsLoader;
+    isOriginalLoader = false;
 }
 exports.replaceJsLoader = replaceJsLoader;
 /**
  * Replaces a replaced loader for .js-files with the original one
  */
-function restoreJsLoader(originalJsLoader) {
-    require.extensions[".js"] = originalJsLoader;
+function restoreJsLoader() {
+    require.extensions[".js"] = originalLoader;
 }
 exports.restoreJsLoader = restoreJsLoader;
-/**
- * Loads the given module into the test harness and returns the module's `module.exports`.
- */
-function loadModuleInHarness(moduleFilename, options = {}) {
-    let originalJsLoader;
-    originalJsLoader = replaceJsLoader((module, filename) => {
+function loadModuleInternal(require, moduleFilename, options = {}) {
+    replaceJsLoader((module, filename) => {
         // If we want to replace some modules with mocks, we need to change the module's require function
         if (typeguards_1.isObject(options.mockedModules)) {
-            const mockModules = {};
-            for (const mod of Object.keys(options.mockedModules)) {
-                mockModules[mod] = createMockModule(mod, options.mockedModules[mod]);
-            }
-            module.require = createMockRequire(module.require.bind(module), mockModules, filename);
+            module.require = createMockRequire(module.require.bind(module), Object.assign({}, options, { relativeToFile: filename }));
         }
         if (options.fakeNotRequired && path.normalize(filename) === path.normalize(moduleFilename)) {
             module.parent = null;
@@ -159,15 +158,32 @@ function loadModuleInHarness(moduleFilename, options = {}) {
             };
         }
         // Call the original loader
-        originalJsLoader(module, filename);
+        originalLoader(module, filename);
     });
-    // Make sure the main file is not already loaded into the require cache
-    if (moduleFilename in require.cache)
-        delete require.cache[moduleFilename];
     // And load the module
     const moduleExport = require(moduleFilename);
     // Restore the js loader so we don't fuck up more things
-    restoreJsLoader(originalJsLoader);
+    restoreJsLoader();
     return moduleExport;
+}
+/**
+ * Loads the given module into the test harness and returns the module's `module.exports`.
+ */
+function loadModuleInHarness(moduleFilename, options = {}) {
+    let mockedModules;
+    if (typeguards_1.isObject(options.mockedModules)) {
+        mockedModules = {};
+        for (const mod of Object.keys(options.mockedModules)) {
+            mockedModules[mod] = createMockModule(mod, options.mockedModules[mod]);
+        }
+    }
+    // Make sure the main file is not already loaded into the require cache
+    if (moduleFilename in globalRequire.cache)
+        delete globalRequire.cache[moduleFilename];
+    return loadModuleInternal(require, moduleFilename, {
+        mockedModules,
+        fakeNotRequired: options.fakeNotRequired,
+        globalPatches: options.globalPatches,
+    });
 }
 exports.loadModuleInHarness = loadModuleInHarness;

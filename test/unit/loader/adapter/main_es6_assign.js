@@ -10,11 +10,10 @@ class TestAdapter extends utils.Adapter {
 	 * @param {Partial<ioBroker.AdapterOptions>} [options={}]
 	 */
 	constructor(options = {}) {
-		options = {
-			...options, 
-			name: 'test-adapter',
-		};
-		super(options);
+		/** @type {ioBroker.AdapterOptions} */
+		const adapterOptions = (options);
+		Object.assign(adapterOptions, {name: 'test-adapter'});
+		super(adapterOptions);
 		// After the super call, overwrite the methods on the options object
 		Object.assign(options, {
 			ready: this.onReady.bind(this),
