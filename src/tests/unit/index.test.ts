@@ -56,10 +56,15 @@ describe("The unit test harness correctly picks up the adapter's event handlers"
 	});
 });
 
-describe("The unit test harness correctly mocks modules that are loaded later", () => {
-	it("works", () => {
+describe("Regression tests", () => {
+	it("The unit test harness correctly mocks modules that are loaded later", () => {
 		const { mainFileExport } = loadAdapterMock(path.join(process.cwd(), "test/unit/loader/mocks/main.js"));
 		const testResult = mainFileExport();
 		expect(testResult.main).to.equal(testResult.secondary);
+	});
+
+	it("The adapter methods should be executed in the correct `this` context", () => {
+		const { adapterMock } = loadAdapterMock(path.join(process.cwd(), "test/unit/loader/thisContext/main.js"));
+		expect(() => adapterMock!.readyHandler!()).not.to.throw();
 	});
 });

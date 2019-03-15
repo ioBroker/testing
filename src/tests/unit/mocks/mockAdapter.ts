@@ -58,8 +58,10 @@ function getCallback<T extends (...args: any[]) => any>(...args: any[]): T | und
 /**
  * Creates an adapter mock that is connected to a given database mock
  */
-export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.AdapterOptions> = {}) {
-	const ret = {
+export function createAdapterMock(this: MockAdapter | void, db: MockDatabase, options: Partial<ioBroker.AdapterOptions> = {}) {
+	// In order to support ES6-style adapters with inheritance, we need to work on the instance directly
+	const ret: MockAdapter = this || {} as any;
+	Object.assign(ret, {
 		name: options.name || "test",
 		host: "testhost",
 		instance: options.instance || 0,
@@ -377,38 +379,6 @@ export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.Ad
 			return ret;
 		}) as sinon.SinonStub,
 
-		// Access the options object directly, so we can react to later changes
-		get readyHandler(): typeof options.ready {
-			return options.ready;
-		},
-		set readyHandler(handler: typeof options.ready) {
-			options.ready = handler;
-		},
-		get messageHandler(): typeof options.message {
-			return options.message;
-		},
-		set messageHandler(handler: typeof options.message) {
-			options.message = handler;
-		},
-		get objectChangeHandler(): typeof options.objectChange {
-			return options.objectChange;
-		},
-		set objectChangeHandler(handler: typeof options.objectChange) {
-			options.objectChange = handler;
-		},
-		get stateChangeHandler(): typeof options.stateChange {
-			return options.stateChange;
-		},
-		set stateChangeHandler(handler: typeof options.stateChange) {
-			options.stateChange = handler;
-		},
-		get unloadHandler(): typeof options.unload {
-			return options.unload;
-		},
-		set unloadHandler(handler: typeof options.unload) {
-			options.unload = handler;
-		},
-
 		// Mock-specific methods
 		resetMockHistory() {
 			// reset Adapter
@@ -426,9 +396,53 @@ export function createAdapterMock(db: MockDatabase, options: Partial<ioBroker.Ad
 			ret.resetMockHistory();
 			ret.resetMockBehavior();
 		},
-	} as MockAdapter;
+	} as MockAdapter);
 
 	stubAndPromisifyImplementedMethods(ret, implementedMethods);
+
+	// Access the options object directly, so we can react to later changes
+	Object.defineProperties(this, {
+		readyHandler: {
+			get(): typeof options.ready {
+				return options.ready;
+			},
+			set(handler: typeof options.ready) {
+				options.ready = handler;
+			},
+		},
+		messageHandler: {
+			get(): typeof options.message {
+				return options.message;
+			},
+			set(handler: typeof options.message) {
+				options.message = handler;
+			},
+		},
+		objectChangeHandler: {
+			get(): typeof options.objectChange {
+				return options.objectChange;
+			},
+			set(handler: typeof options.objectChange) {
+				options.objectChange = handler;
+			},
+		},
+		stateChangeHandler: {
+			get(): typeof options.stateChange {
+				return options.stateChange;
+			},
+			set(handler: typeof options.stateChange) {
+				options.stateChange = handler;
+			},
+		},
+		unloadHandler: {
+			get(): typeof options.unload {
+				return options.unload;
+			},
+			set(handler: typeof options.unload) {
+				options.unload = handler;
+			},
+		},
+	});
 
 	return ret;
 }

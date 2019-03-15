@@ -41,7 +41,9 @@ function getCallback(...args) {
  * Creates an adapter mock that is connected to a given database mock
  */
 function createAdapterMock(db, options = {}) {
-    const ret = {
+    // In order to support ES6-style adapters with inheritance, we need to work on the instance directly
+    const ret = this || {};
+    Object.assign(ret, {
         name: options.name || "test",
         host: "testhost",
         instance: options.instance || 0,
@@ -357,37 +359,6 @@ function createAdapterMock(db, options = {}) {
             }
             return ret;
         }),
-        // Access the options object directly, so we can react to later changes
-        get readyHandler() {
-            return options.ready;
-        },
-        set readyHandler(handler) {
-            options.ready = handler;
-        },
-        get messageHandler() {
-            return options.message;
-        },
-        set messageHandler(handler) {
-            options.message = handler;
-        },
-        get objectChangeHandler() {
-            return options.objectChange;
-        },
-        set objectChangeHandler(handler) {
-            options.objectChange = handler;
-        },
-        get stateChangeHandler() {
-            return options.stateChange;
-        },
-        set stateChangeHandler(handler) {
-            options.stateChange = handler;
-        },
-        get unloadHandler() {
-            return options.unload;
-        },
-        set unloadHandler(handler) {
-            options.unload = handler;
-        },
         // Mock-specific methods
         resetMockHistory() {
             // reset Adapter
@@ -405,8 +376,51 @@ function createAdapterMock(db, options = {}) {
             ret.resetMockHistory();
             ret.resetMockBehavior();
         },
-    };
+    });
     tools_1.stubAndPromisifyImplementedMethods(ret, implementedMethods);
+    // Access the options object directly, so we can react to later changes
+    Object.defineProperties(this, {
+        readyHandler: {
+            get() {
+                return options.ready;
+            },
+            set(handler) {
+                options.ready = handler;
+            },
+        },
+        messageHandler: {
+            get() {
+                return options.message;
+            },
+            set(handler) {
+                options.message = handler;
+            },
+        },
+        objectChangeHandler: {
+            get() {
+                return options.objectChange;
+            },
+            set(handler) {
+                options.objectChange = handler;
+            },
+        },
+        stateChangeHandler: {
+            get() {
+                return options.stateChange;
+            },
+            set(handler) {
+                options.stateChange = handler;
+            },
+        },
+        unloadHandler: {
+            get() {
+                return options.unload;
+            },
+            set(handler) {
+                options.unload = handler;
+            },
+        },
+    });
     return ret;
 }
 exports.createAdapterMock = createAdapterMock;

@@ -15,7 +15,7 @@ class TestAdapter extends utils.Adapter {
 		Object.assign(adapterOptions, {name: 'test-adapter'});
 		super(adapterOptions);
 		// After the super call, overwrite the methods on the options object
-		Object.assign(options, {
+		Object.assign(adapterOptions, {
 			ready: this.onReady.bind(this),
 			objectChange: this.onObjectChange.bind(this),
 			stateChange: this.onStateChange.bind(this),

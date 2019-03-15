@@ -18,4 +18,4 @@ export declare type MockAdapter = Mock<ioBroker.Adapter> & {
 /**
  * Creates an adapter mock that is connected to a given database mock
  */
-export declare function createAdapterMock(db: MockDatabase, options?: Partial<ioBroker.AdapterOptions>): MockAdapter;
+export declare function createAdapterMock(this: MockAdapter | void, db: MockDatabase, options?: Partial<ioBroker.AdapterOptions>): MockAdapter;

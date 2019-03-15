@@ -31,9 +31,8 @@ export function mockAdapterCore(database: MockDatabase, options: MockAdapterCore
 		if (!(this instanceof AdapterConstructor)) return new AdapterConstructor(nameOrOptions);
 
 		const createAdapterMockOptions = typeof nameOrOptions === "string" ? { name: nameOrOptions } : nameOrOptions;
-		const ret = createAdapterMock(database, createAdapterMockOptions);
-		if (typeof options.onAdapterCreated === "function") options.onAdapterCreated(ret);
-		Object.assign(this, ret);
+		createAdapterMock.bind(this)(database, createAdapterMockOptions);
+		if (typeof options.onAdapterCreated === "function") options.onAdapterCreated(this);
 		return this;
 	} as MockAdapterConstructor;
 
