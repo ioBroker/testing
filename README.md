@@ -59,6 +59,15 @@ tests.unit(path.join(__dirname, ".."), {
         "{CONTROLLER_DIR}/lib/tools.js": {}, 
     },
 
+    // Optionally overwrite the default adapter config
+    overwriteAdapterConfig(config: Record<string, any>) {
+        // Change the object as needed
+        delete config.foo;
+        config.bar = 1;
+        // Don't forget to return it
+        return config;
+    };
+
     // Define your own tests inside defineAdditionalTests
     defineAdditionalTests() {
         it("works", () => {

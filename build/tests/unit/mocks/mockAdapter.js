@@ -48,7 +48,7 @@ function createAdapterMock(db, options = {}) {
         host: "testhost",
         instance: options.instance || 0,
         namespace: `${options.name || "test"}.${options.instance || 0}`,
-        config: {},
+        config: options.config || {},
         common: {},
         systemConfig: null,
         adapterDir: "",

@@ -44,8 +44,11 @@ function testAdapterWithMocks(adapterDir, options = {}) {
                 // If necessary, change the default timeout
                 if (typeof options.startTimeout === "number")
                     this.timeout(options.startTimeout);
+                // Give the user a chance to change the adapter config
+                const actualAdapterConfig = typeof options.overwriteAdapterConfig === "function"
+                    ? options.overwriteAdapterConfig(Object.assign({}, adapterConfig)) : adapterConfig;
                 const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, {
-                    config: adapterConfig,
+                    config: actualAdapterConfig,
                     instanceObjects,
                     additionalMockedModules: options.additionalMockedModules,
                     defineMockBehavior: options.defineMockBehavior,
@@ -65,9 +68,12 @@ function testAdapterWithMocks(adapterDir, options = {}) {
                     // If necessary, change the default timeout
                     if (typeof options.startTimeout === "number")
                         this.timeout(options.startTimeout);
+                    // Give the user a chance to change the adapter config
+                    const actualAdapterConfig = typeof options.overwriteAdapterConfig === "function"
+                        ? options.overwriteAdapterConfig(Object.assign({}, adapterConfig)) : adapterConfig;
                     const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, {
                         compact: true,
-                        config: adapterConfig,
+                        config: actualAdapterConfig,
                         instanceObjects,
                         additionalMockedModules: options.additionalMockedModules,
                         defineMockBehavior: options.defineMockBehavior,
