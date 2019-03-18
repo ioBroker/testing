@@ -36,9 +36,12 @@ function startMockAdapter(adapterMainFile, options = {}) {
     return __awaiter(this, void 0, void 0, function* () {
         // Setup the mocks
         const databaseMock = new mockDatabase_1.MockDatabase();
-        // If instance objects are defined, populate the database mock with them
-        if (options.instanceObjects && options.instanceObjects.length) {
-            databaseMock.publishObjects(...options.instanceObjects);
+        // If objects and/or states are predefined, populate the database mock with them
+        if (options.predefinedObjects && options.predefinedObjects.length) {
+            databaseMock.publishObjects(...options.predefinedObjects);
+        }
+        if (options.predefinedStates) {
+            databaseMock.publishStates(options.predefinedStates);
         }
         let adapterMock;
         const adapterCoreMock = mockAdapterCore_1.mockAdapterCore(databaseMock, {

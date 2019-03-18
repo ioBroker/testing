@@ -82,6 +82,11 @@ export class MockDatabase {
 	public deleteState(id: string) {
 		this.states.delete(id);
 	}
+	public publishStates(states: Record<string, Partial<ioBroker.State> | null | undefined>) {
+		for (const id of Object.keys(states)) {
+			this.publishState(id, states[id]);
+		}
+	}
 
 	public hasObject(id: string): boolean;
 	public hasObject(namespace: string, id: string): boolean;

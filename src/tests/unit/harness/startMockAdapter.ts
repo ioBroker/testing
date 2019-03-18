@@ -16,8 +16,10 @@ export interface StartMockAdapterOptions {
 	compact?: boolean;
 	/** The adapter config */
 	config?: Record<string, any>;
-	/** An array of instance objects that should be populated before starting the adapter */
-	instanceObjects?: ioBroker.Object[];
+	/** An array of objects that should be populated before starting the adapter */
+	predefinedObjects?: ioBroker.Object[];
+	/** A dictionary of states that should be populated before starting the adapter */
+	predefinedStates?: Record<string, ioBroker.State>;
 	/** Mocks for loaded modules. This should be a dictionary of module name to module.exports */
 	additionalMockedModules?: Record<string, any>;
 	/** Allows you to modifiy the behavior of predefined mocks in the predefined methods */
@@ -37,9 +39,12 @@ export async function startMockAdapter(adapterMainFile: string, options: StartMo
 
 	// Setup the mocks
 	const databaseMock = new MockDatabase();
-	// If instance objects are defined, populate the database mock with them
-	if (options.instanceObjects && options.instanceObjects.length) {
-		databaseMock.publishObjects(...options.instanceObjects);
+	// If objects and/or states are predefined, populate the database mock with them
+	if (options.predefinedObjects && options.predefinedObjects.length) {
+		databaseMock.publishObjects(...options.predefinedObjects);
+	}
+	if (options.predefinedStates) {
+		databaseMock.publishStates(options.predefinedStates);
 	}
 	let adapterMock: MockAdapter | undefined;
 	const adapterCoreMock = mockAdapterCore(databaseMock, {

@@ -49,7 +49,11 @@ function testAdapterWithMocks(adapterDir, options = {}) {
                     ? options.overwriteAdapterConfig(Object.assign({}, adapterConfig)) : adapterConfig;
                 const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, {
                     config: actualAdapterConfig,
-                    instanceObjects,
+                    predefinedObjects: [
+                        ...instanceObjects,
+                        ...(options.predefinedObjects || []),
+                    ],
+                    predefinedStates: options.predefinedStates,
                     additionalMockedModules: options.additionalMockedModules,
                     defineMockBehavior: options.defineMockBehavior,
                     adapterDir,
@@ -74,7 +78,11 @@ function testAdapterWithMocks(adapterDir, options = {}) {
                     const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, {
                         compact: true,
                         config: actualAdapterConfig,
-                        instanceObjects,
+                        predefinedObjects: [
+                            ...instanceObjects,
+                            ...(options.predefinedObjects || []),
+                        ],
+                        predefinedStates: options.predefinedStates,
                         additionalMockedModules: options.additionalMockedModules,
                         defineMockBehavior: options.defineMockBehavior,
                         adapterDir,

@@ -18,6 +18,7 @@ export declare class MockDatabase {
     deleteObject(objID: string): void;
     publishState(id: string, state: Partial<ioBroker.State> | null | undefined): void;
     deleteState(id: string): void;
+    publishStates(states: Record<string, Partial<ioBroker.State> | null | undefined>): void;
     hasObject(id: string): boolean;
     hasObject(namespace: string, id: string): boolean;
     getObject(id: string): ioBroker.Object | undefined;

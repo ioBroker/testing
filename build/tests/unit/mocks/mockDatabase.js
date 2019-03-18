@@ -72,6 +72,11 @@ class MockDatabase {
     deleteState(id) {
         this.states.delete(id);
     }
+    publishStates(states) {
+        for (const id of Object.keys(states)) {
+            this.publishState(id, states[id]);
+        }
+    }
     hasObject(namespaceOrId, id) {
         id = namespaceOrId + (id ? "." + id : "");
         return this.objects.has(id);
