@@ -49,6 +49,24 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 	const instanceObjects = loadInstanceObjects(adapterDir);
 	const supportsCompactMode = adapterShouldSupportCompactMode(adapterDir);
 
+	function getStartMockAdapterOptions() {
+		// Give the user a chance to change the adapter config
+		const actualAdapterConfig = typeof options.overwriteAdapterConfig === "function"
+			? options.overwriteAdapterConfig({ ...adapterConfig }) : adapterConfig;
+
+		return {
+			config: actualAdapterConfig,
+			predefinedObjects: [
+				...instanceObjects,
+				...(options.predefinedObjects || []),
+			],
+			predefinedStates: options.predefinedStates,
+			additionalMockedModules: options.additionalMockedModules,
+			defineMockBehavior: options.defineMockBehavior,
+			adapterDir,
+		};
+	}
+
 	describe(`Test the adapter (in a mocked environment)`, async () => {
 
 		let mainFilename: string;
@@ -60,21 +78,11 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 		it("The adapter starts in normal mode", async function() {
 			// If necessary, change the default timeout
 			if (typeof options.startTimeout === "number") this.timeout(options.startTimeout);
-			// Give the user a chance to change the adapter config
-			const actualAdapterConfig = typeof options.overwriteAdapterConfig === "function"
-				? options.overwriteAdapterConfig({ ...adapterConfig }) : adapterConfig;
 
-			const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(mainFilename, {
-				config: actualAdapterConfig,
-				predefinedObjects: [
-					...instanceObjects,
-					...(options.predefinedObjects || []),
-				],
-				predefinedStates: options.predefinedStates,
-				additionalMockedModules: options.additionalMockedModules,
-				defineMockBehavior: options.defineMockBehavior,
-				adapterDir,
-			});
+			const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(
+				mainFilename,
+				getStartMockAdapterOptions(),
+			);
 			assertValidExitCode(options.allowedExitCodes || [], processExitCode);
 			// Test that the unload callback is called
 			if (adapterMock && adapterMock.unloadHandler) {
@@ -87,22 +95,14 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 			it("The adapter starts in compact mode", async function() {
 				// If necessary, change the default timeout
 				if (typeof options.startTimeout === "number") this.timeout(options.startTimeout);
-				// Give the user a chance to change the adapter config
-				const actualAdapterConfig = typeof options.overwriteAdapterConfig === "function"
-					? options.overwriteAdapterConfig({ ...adapterConfig }) : adapterConfig;
 
-				const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(mainFilename, {
-					compact: true,
-					config: actualAdapterConfig,
-					predefinedObjects: [
-						...instanceObjects,
-						...(options.predefinedObjects || []),
-					],
-					predefinedStates: options.predefinedStates,
-					additionalMockedModules: options.additionalMockedModules,
-					defineMockBehavior: options.defineMockBehavior,
-					adapterDir,
-				});
+				const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(
+					mainFilename,
+					{
+						...getStartMockAdapterOptions(),
+						compact: true,
+					},
+				);
 				// In compact mode, only "adapter.terminate" may be called
 				expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;
 				// Test that the unload callback is called
