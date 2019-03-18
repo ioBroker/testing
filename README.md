@@ -163,6 +163,8 @@ Currently, only `utils.unit` is defined which contains tools for unit tests:
 #### createMocks()
 ```ts
 const { database, adapter } = utils.unit.createMocks();
+// or (with custom adapter options)
+const { database, adapter } = utils.unit.createMocks(adapterOptions);
 ```
 This method creates a mock database and a mock adapter. See below for a more detailed description
 
