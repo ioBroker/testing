@@ -12,6 +12,10 @@ export interface TestAdapterOptions {
 	additionalMockedModules?: StartMockAdapterOptions["additionalMockedModules"];
 	/** Change the default test timeout of 15000ms for the startup tests */
 	startTimeout?: number;
+	/** An array of objects that should be populated before starting the adapter */
+	predefinedObjects?: ioBroker.Object[];
+	/** A dictionary of states that should be populated before starting the adapter */
+	predefinedStates?: Record<string, ioBroker.State>;
 	/** Allows you to define additional tests */
 	defineAdditionalTests?: () => void;
 	/** Allows you to modifiy the behavior of predefined mocks in the predefined methods */
@@ -57,7 +61,11 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 
 			const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(mainFilename, {
 				config: adapterConfig,
-				instanceObjects,
+				predefinedObjects: [
+					...instanceObjects,
+					...(options.predefinedObjects || []),
+				],
+				predefinedStates: options.predefinedStates,
 				additionalMockedModules: options.additionalMockedModules,
 				defineMockBehavior: options.defineMockBehavior,
 				adapterDir,
@@ -78,7 +86,11 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 				const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(mainFilename, {
 					compact: true,
 					config: adapterConfig,
-					instanceObjects,
+					predefinedObjects: [
+						...instanceObjects,
+						...(options.predefinedObjects || []),
+					],
+					predefinedStates: options.predefinedStates,
 					additionalMockedModules: options.additionalMockedModules,
 					defineMockBehavior: options.defineMockBehavior,
 					adapterDir,

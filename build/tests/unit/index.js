@@ -46,7 +46,11 @@ function testAdapterWithMocks(adapterDir, options = {}) {
                     this.timeout(options.startTimeout);
                 const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, {
                     config: adapterConfig,
-                    instanceObjects,
+                    predefinedObjects: [
+                        ...instanceObjects,
+                        ...(options.predefinedObjects || []),
+                    ],
+                    predefinedStates: options.predefinedStates,
                     additionalMockedModules: options.additionalMockedModules,
                     defineMockBehavior: options.defineMockBehavior,
                     adapterDir,
@@ -68,7 +72,11 @@ function testAdapterWithMocks(adapterDir, options = {}) {
                     const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, {
                         compact: true,
                         config: adapterConfig,
-                        instanceObjects,
+                        predefinedObjects: [
+                            ...instanceObjects,
+                            ...(options.predefinedObjects || []),
+                        ],
+                        predefinedStates: options.predefinedStates,
                         additionalMockedModules: options.additionalMockedModules,
                         defineMockBehavior: options.defineMockBehavior,
                         adapterDir,

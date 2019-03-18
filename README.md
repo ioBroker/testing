@@ -59,11 +59,26 @@ tests.unit(path.join(__dirname, ".."), {
         "{CONTROLLER_DIR}/lib/tools.js": {}, 
     },
 
-    // Define your own tests inside defineAdditionalTests
-    defineAdditionalTests() {
-        it("works", () => {
-            // see below how these could look like
-        });
+    // optionally define an array of objects that need to be present in the objects DB
+    // instance objects from io-package.json are pre-loaded by default
+    predefinedObjects: [
+        {
+            _id: "test.0.object1",
+            common: { /* ... */ },
+            native: { /* ... */ },
+        },
+        {
+            _id: "test.0.object2",
+            common: { /* ... */ },
+            native: { /* ... */ },
+        }
+    ],
+
+    // Optionally define which states need to exist in the states DB
+    // You can set all properties that are usually available on a state
+    predefinedStates: {
+        "test.0.object1": { val: true, ack: false },
+        "test.0.object2": { val: 2, ack: false, ts: 1 },
     },
 
     // If the startup tests need require specific behavior of the mocks 
@@ -75,6 +90,14 @@ tests.unit(path.join(__dirname, ".."), {
         // or
         adapter.objects.getUserGroup.returns("a string");
     }
+
+    // Define your own tests inside defineAdditionalTests. 
+    // If you need predefined objects etc. here, you need to take care of it yourself
+    defineAdditionalTests() {
+        it("works", () => {
+            // see below how these could look like
+        });
+    },
 
 });
 ```

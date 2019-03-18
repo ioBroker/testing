@@ -8,8 +8,10 @@ export interface StartMockAdapterOptions {
     compact?: boolean;
     /** The adapter config */
     config?: Record<string, any>;
-    /** An array of instance objects that should be populated before starting the adapter */
-    instanceObjects?: ioBroker.Object[];
+    /** An array of objects that should be populated before starting the adapter */
+    predefinedObjects?: ioBroker.Object[];
+    /** A dictionary of states that should be populated before starting the adapter */
+    predefinedStates?: Record<string, ioBroker.State>;
     /** Mocks for loaded modules. This should be a dictionary of module name to module.exports */
     additionalMockedModules?: Record<string, any>;
     /** Allows you to modifiy the behavior of predefined mocks in the predefined methods */
