@@ -14,7 +14,7 @@
     "build": "tsc -p tsconfig.build.json",
     "prewatch": "rimraf ./build",
     "watch": "tsc -p tsconfig.build.json --watch",
-    "lint:ts": "tslint \"src/**/*.ts\"",
+    "lint:ts": "eslint --ext .ts src",
     "lint:wotan": "wotan",
     "lint": "npm run lint:ts && npm run lint:wotan"
   },
@@ -49,10 +49,12 @@
     "@types/node": "^10.12.18",
     "@types/sinon": "^7.0.5",
     "@types/sinon-chai": "^3.2.2",
+    "@typescript-eslint/eslint-plugin": "^1.6.0",
+    "@typescript-eslint/parser": "^1.6.0",
+    "eslint": "^5.16.0",
     "rimraf": "^2.6.3",
     "source-map-support": "^0.5.10",
     "ts-node": "^8.0.2",
-    "tslint": "^5.12.1",
     "typescript": "^3.3.3"
   },
   "dependencies": {
