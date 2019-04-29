@@ -27,15 +27,26 @@ export interface ExecuteCommandResult {
 	stderr?: string;
 }
 
-export function executeCommand(command: string, options?: Partial<ExecuteCommandOptions>): Promise<ExecuteCommandResult>;
+export function executeCommand(
+	command: string,
+	options?: Partial<ExecuteCommandOptions>,
+): Promise<ExecuteCommandResult>;
 /**
  * Executes a command and returns the exit code and (if requested) the stdout
  * @param command The command to execute
  * @param args The command line arguments for the command
  * @param options (optional) Some options for the command execution
  */
-export function executeCommand(command: string, args: string[], options?: Partial<ExecuteCommandOptions>): Promise<ExecuteCommandResult>;
-export function executeCommand(command: string, argsOrOptions?: string[] | Partial<ExecuteCommandOptions>, options?: Partial<ExecuteCommandOptions>): Promise<ExecuteCommandResult> {
+export function executeCommand(
+	command: string,
+	args: string[],
+	options?: Partial<ExecuteCommandOptions>,
+): Promise<ExecuteCommandResult>;
+export function executeCommand(
+	command: string,
+	argsOrOptions?: string[] | Partial<ExecuteCommandOptions>,
+	options?: Partial<ExecuteCommandOptions>,
+): Promise<ExecuteCommandResult> {
 	let args: string[] | undefined;
 	if (isArray(argsOrOptions)) {
 		args = argsOrOptions;
@@ -63,28 +74,28 @@ export function executeCommand(command: string, argsOrOptions?: string[] | Parti
 		else if (command === "node") command += ".exe";
 	}
 
-	if (options.logCommandExecution == null) options.logCommandExecution = false;
+	if (options.logCommandExecution == null)
+		options.logCommandExecution = false;
 	if (options.logCommandExecution) {
-		console.log(
-			"executing: "
-			+ `${command} ${args.join(" ")}`,
-		);
+		console.log("executing: " + `${command} ${args.join(" ")}`);
 	}
 
 	// Now execute the npm process and avoid throwing errors
-	return new Promise((resolve) => {
+	return new Promise(resolve => {
 		try {
 			let bufferedStdout: string | undefined;
 			let bufferedStderr: string | undefined;
-			const cmd = spawn(command, args, spawnOptions)
-				.on("close", (code, signal) => {
+			const cmd = spawn(command, args, spawnOptions).on(
+				"close",
+				(code, signal) => {
 					resolve({
 						exitCode: code,
 						signal,
 						stdout: bufferedStdout,
 						stderr: bufferedStderr,
 					});
-				});
+				},
+			);
 			// Capture stdout/stderr if requested
 			if (options!.stdout === "pipe") {
 				bufferedStdout = "";

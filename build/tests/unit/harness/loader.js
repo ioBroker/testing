@@ -72,8 +72,8 @@ function detectStrictMode(code) {
     const singleLineComment = /^\s*\/\/.*?[\r\n]/;
     let singleLine = false;
     let multiLine = false;
-    // tslint:disable-next-line: no-conditional-assignment
-    while ((singleLine = singleLineComment.test(code)) || (multiLine = multiLineComment.test(code))) {
+    while ((singleLine = singleLineComment.test(code)) ||
+        (multiLine = multiLineComment.test(code))) {
         if (!!singleLine) {
             code = code.replace(singleLineComment, "");
         }
@@ -92,8 +92,7 @@ function detectStrictMode(code) {
 function monkeyPatchGlobals(code, globals) {
     const codeIsStrict = detectStrictMode(code);
     const prefix = `${codeIsStrict ? '"use strict"; ' : ""}((${Object.keys(globals).join(", ")}) => {`;
-    const patchedArguments = Object.keys(globals)
-        .map(glob => {
+    const patchedArguments = Object.keys(globals).map(glob => {
         const patchObj = globals[glob];
         const patches = Object.keys(patchObj).map(fn => `${fn}: ${patchObj[fn]}`);
         return `buildProxy(${glob}, {${patches.join(", ")}})`;
@@ -143,7 +142,8 @@ function loadModuleInternal(require, moduleFilename, options = {}) {
         if (typeguards_1.isObject(options.mockedModules)) {
             module.require = createMockRequire(module.require.bind(module), Object.assign({}, options, { relativeToFile: filename }));
         }
-        if (options.fakeNotRequired && path.normalize(filename) === path.normalize(moduleFilename)) {
+        if (options.fakeNotRequired &&
+            path.normalize(filename) === path.normalize(moduleFilename)) {
             module.parent = null;
         }
         // If necessary, edit the source code before executing it
@@ -161,6 +161,7 @@ function loadModuleInternal(require, moduleFilename, options = {}) {
         originalLoader(module, filename);
     });
     // And load the module
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const moduleExport = require(moduleFilename);
     // Restore the js loader so we don't fuck up more things
     restoreJsLoader();

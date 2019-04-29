@@ -1,11 +1,9 @@
 // Add debug logging for tests
-import debugModule from "debug";
-const debug = debugModule("testing:unit:adapterTools");
-
-// tslint:disable:unified-signatures
 import { isArray, isObject } from "alcalzone-shared/typeguards";
+import debugModule from "debug";
 import { pathExists } from "fs-extra";
 import * as path from "path";
+const debug = debugModule("testing:unit:adapterTools");
 
 /**
  * Loads an adapter's package.json
@@ -27,14 +25,19 @@ export function loadIoPackage(adapterDir: string): Record<string, any> {
  * Checks if an adapter claims that it supports compact mode
  * @param ioPackage The contents of io-package.json in object format
  */
-export function adapterShouldSupportCompactMode(ioPackage: Record<string, any>): boolean;
+export function adapterShouldSupportCompactMode(
+	ioPackage: Record<string, any>,
+): boolean;
 /**
  * Checks if an adapter claims that it supports compact mode
  * @param adapterDir The directory the adapter resides in
  */
 export function adapterShouldSupportCompactMode(adapterDir: string): boolean;
-export function adapterShouldSupportCompactMode(dirOrIoPack: string | Record<string, any>) {
-	if (typeof dirOrIoPack === "string") dirOrIoPack = loadIoPackage(dirOrIoPack);
+export function adapterShouldSupportCompactMode(
+	dirOrIoPack: string | Record<string, any>,
+): boolean {
+	if (typeof dirOrIoPack === "string")
+		dirOrIoPack = loadIoPackage(dirOrIoPack);
 	return dirOrIoPack.common.compact === true;
 }
 
@@ -42,14 +45,17 @@ export function adapterShouldSupportCompactMode(dirOrIoPack: string | Record<str
  * Locates an adapter's main file
  * @param adapterDir The directory the adapter resides in
  */
-export async function locateAdapterMainFile(adapterDir: string) {
+export async function locateAdapterMainFile(
+	adapterDir: string,
+): Promise<string> {
 	debug(`locating adapter main file in ${adapterDir}...`);
 	const ioPackage = loadIoPackage(adapterDir);
 
 	// First look for the file defined in io-package.json or use "main.js" as a fallback
-	const mainFile = typeof ioPackage.common.main === "string"
-		? ioPackage.common.main
-		: "main.js";
+	const mainFile =
+		typeof ioPackage.common.main === "string"
+			? ioPackage.common.main
+			: "main.js";
 
 	let ret = path.join(adapterDir, mainFile);
 	debug(`  => trying ${ret}`);
@@ -115,7 +121,9 @@ export function getAdapterFullName(adapterDir: string): string {
 }
 
 /** Reads other ioBroker modules this adapter depends on from io-package.json */
-export function getAdapterDependencies(adapterDir: string) {
+export function getAdapterDependencies(
+	adapterDir: string,
+): Record<string, string> {
 	const ioPackage = loadIoPackage(adapterDir);
 	const ret: Record<string, string> = {};
 	if (isArray(ioPackage.common.dependencies)) {
@@ -124,7 +132,8 @@ export function getAdapterDependencies(adapterDir: string) {
 				ret[dep] = "latest";
 			} else if (isObject(dep)) {
 				const key = Object.keys(dep)[0];
-				if (key) ret[key] = (dep as Record<string, string>)[key] || "latest";
+				if (key)
+					ret[key] = (dep as Record<string, string>)[key] || "latest";
 			}
 		}
 	}

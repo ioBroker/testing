@@ -1,7 +1,7 @@
 "use strict";
+/* eslint-disable @typescript-eslint/no-var-requires */
 // wotan-disable async-function-assignability
 // wotan-disable no-unused-expression
-// tslint:disable: space-before-function-paren
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -31,7 +31,8 @@ function validatePackageFiles(adapterDir) {
             return this.skip();
     }
     function markAsInvalid(filename) {
-        if (this.currentTest.state === "failed" && invalidFiles[filename] === false) {
+        if (this.currentTest.state === "failed" &&
+            invalidFiles[filename] === false) {
             invalidFiles[filename] = true;
             console.error(`Skipping subsequent tests including "${filename}" because they require valid JSON files!`);
         }
@@ -62,7 +63,9 @@ function validatePackageFiles(adapterDir) {
                         chai_1.expect(fs.existsSync(packagePath), `${filename} is missing in the adapter dir. Please create it!`).to.be.true;
                     });
                     it("contains valid JSON", () => {
-                        chai_1.expect(() => { JSON.parse(fs.readFileSync(packagePath, "utf8")); }, `${filename} contains invalid JSON!`).not.to.throw();
+                        chai_1.expect(() => {
+                            JSON.parse(fs.readFileSync(packagePath, "utf8"));
+                        }, `${filename} contains invalid JSON!`).not.to.throw();
                     });
                     it("is an object", () => {
                         chai_1.expect(require(packagePath), `${filename} must contain an object!`).to.be.an("object");

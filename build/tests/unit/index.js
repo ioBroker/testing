@@ -34,10 +34,12 @@ function testAdapterWithMocks(adapterDir, options = {}) {
     const adapterConfig = adapterTools_1.loadAdapterConfig(adapterDir);
     const instanceObjects = adapterTools_1.loadInstanceObjects(adapterDir);
     const supportsCompactMode = adapterTools_1.adapterShouldSupportCompactMode(adapterDir);
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     function getStartMockAdapterOptions() {
         // Give the user a chance to change the adapter config
         const actualAdapterConfig = typeof options.overwriteAdapterConfig === "function"
-            ? options.overwriteAdapterConfig(Object.assign({}, adapterConfig)) : adapterConfig;
+            ? options.overwriteAdapterConfig(Object.assign({}, adapterConfig))
+            : adapterConfig;
         return {
             config: actualAdapterConfig,
             predefinedObjects: [
@@ -60,7 +62,7 @@ function testAdapterWithMocks(adapterDir, options = {}) {
                 // If necessary, change the default timeout
                 if (typeof options.startTimeout === "number")
                     this.timeout(options.startTimeout);
-                const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, getStartMockAdapterOptions());
+                const { adapterMock, processExitCode } = yield startMockAdapter_1.startMockAdapter(mainFilename, getStartMockAdapterOptions());
                 assertValidExitCode(options.allowedExitCodes || [], processExitCode);
                 // Test that the unload callback is called
                 if (adapterMock && adapterMock.unloadHandler) {
@@ -75,11 +77,13 @@ function testAdapterWithMocks(adapterDir, options = {}) {
                     // If necessary, change the default timeout
                     if (typeof options.startTimeout === "number")
                         this.timeout(options.startTimeout);
-                    const { adapterMock, databaseMock, processExitCode, terminateReason } = yield startMockAdapter_1.startMockAdapter(mainFilename, Object.assign({}, getStartMockAdapterOptions(), { compact: true }));
+                    const { adapterMock, processExitCode, terminateReason, } = yield startMockAdapter_1.startMockAdapter(mainFilename, Object.assign({}, getStartMockAdapterOptions(), { compact: true }));
                     // In compact mode, only "adapter.terminate" may be called
                     chai_1.expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;
                     // Test that the unload callback is called
-                    if (terminateReason != undefined && adapterMock && adapterMock.unloadHandler) {
+                    if (terminateReason != undefined &&
+                        adapterMock &&
+                        adapterMock.unloadHandler) {
                         const unloadTestResult = yield startMockAdapter_1.unloadMockAdapter(adapterMock, adapterCommon.stopTimeout);
                         chai_1.expect(unloadTestResult).to.be.true;
                     }

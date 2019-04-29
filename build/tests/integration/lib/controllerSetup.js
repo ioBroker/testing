@@ -7,6 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
@@ -14,18 +17,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+/* eslint-disable @typescript-eslint/no-var-requires */
+// Add debug logging for tests
+const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = require("fs-extra");
 const net_1 = require("net");
 const path = __importStar(require("path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
 const executeCommand_1 = require("../../../lib/executeCommand");
 const tools_1 = require("./tools");
-// Add debug logging for tests
-const debug_1 = __importDefault(require("debug"));
 const debug = debug_1.default("testing:integration:ControllerSetup");
 class ControllerSetup {
     constructor(adapterDir, testDir, dbConnection) {
@@ -56,7 +57,7 @@ class ControllerSetup {
                 version: "1.0.0",
                 main: "index.js",
                 scripts: {
-                    test: "echo \"Error: no test specified\" && exit 1",
+                    test: 'echo "Error: no test specified" && exit 1',
                 },
                 keywords: [],
                 author: "",
@@ -66,7 +67,9 @@ class ControllerSetup {
                 },
                 description: "",
             };
-            yield fs_extra_1.writeJSON(path.join(this.testDir, "package.json"), packageJson, { spaces: 2 });
+            yield fs_extra_1.writeJSON(path.join(this.testDir, "package.json"), packageJson, {
+                spaces: 2,
+            });
             // Delete a possible package-lock.json as it can mess with future installations
             const pckLockPath = path.join(this.testDir, "package-lock.json");
             if (yield fs_extra_1.pathExists(pckLockPath))
@@ -83,7 +86,8 @@ class ControllerSetup {
         return __awaiter(this, void 0, void 0, function* () {
             debug("Testing if JS-Controller is installed...");
             // We expect js-controller to be installed if the dir in <testDir>/node_modules and the data directory exist
-            const isInstalled = (yield fs_extra_1.pathExists(this.testControllerDir)) && (yield fs_extra_1.pathExists(this.testDataDir));
+            const isInstalled = (yield fs_extra_1.pathExists(this.testControllerDir)) &&
+                (yield fs_extra_1.pathExists(this.testDataDir));
             debug(`  => ${isInstalled}`);
             return isInstalled;
         });
@@ -93,18 +97,21 @@ class ControllerSetup {
      */
     isJsControllerRunning() {
         debug("Testing if JS-Controller is running...");
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
             const client = new net_1.Socket();
             // Try to connect to an existing ObjectsDB
-            client.connect({
+            client
+                .connect({
                 port: 9000,
                 host: "127.0.0.1",
-            }).on("connect", () => {
+            })
+                .on("connect", () => {
                 // The connection succeeded
                 client.destroy();
                 debug(`  => true`);
                 resolve(true);
-            }).on("error", () => {
+            })
+                .on("error", () => {
                 client.destroy();
                 debug(`  => false`);
                 resolve(false);

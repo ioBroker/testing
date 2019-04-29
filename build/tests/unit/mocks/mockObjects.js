@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const sinon_1 = require("sinon");
+/* eslint-disable @typescript-eslint/camelcase */
 const objects_1 = require("alcalzone-shared/objects");
+const sinon_1 = require("sinon");
 const tools_1 = require("./tools");
 // Define here which methods were implemented manually, so we can hook them up with a real stub
 // The value describes if and how the async version of the callback is constructed
@@ -29,7 +30,7 @@ function createObjectsMock(db) {
                 });
             }
         }),
-        getObjectList: (({ startkey, endkey, include_docs }, callback) => {
+        getObjectList: (({ startkey, endkey, include_docs, }, callback) => {
             if (typeof callback === "function") {
                 let objects = objects_1.values(db.getObjects("*"));
                 if (startkey)
@@ -39,7 +40,11 @@ function createObjectsMock(db) {
                 if (!include_docs)
                     objects = objects.filter(obj => !obj._id.startsWith("_"));
                 callback(null, {
-                    rows: objects.map(obj => ({ id: obj._id, value: obj, doc: obj })),
+                    rows: objects.map(obj => ({
+                        id: obj._id,
+                        value: obj,
+                        doc: obj,
+                    })),
                 });
             }
         }),
@@ -90,7 +95,10 @@ function createObjectsMock(db) {
             ret.resetMockBehavior();
         },
     };
-    tools_1.stubAndPromisifyImplementedMethods(ret, implementedMethods, ["getObjectView", "getObjectList"]);
+    tools_1.stubAndPromisifyImplementedMethods(ret, implementedMethods, [
+        "getObjectView",
+        "getObjectList",
+    ]);
     return ret;
 }
 exports.createObjectsMock = createObjectsMock;

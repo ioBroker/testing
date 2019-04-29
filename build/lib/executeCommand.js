@@ -37,16 +37,14 @@ function executeCommand(command, argsOrOptions, options) {
     if (options.logCommandExecution == null)
         options.logCommandExecution = false;
     if (options.logCommandExecution) {
-        console.log("executing: "
-            + `${command} ${args.join(" ")}`);
+        console.log("executing: " + `${command} ${args.join(" ")}`);
     }
     // Now execute the npm process and avoid throwing errors
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
         try {
             let bufferedStdout;
             let bufferedStderr;
-            const cmd = child_process_1.spawn(command, args, spawnOptions)
-                .on("close", (code, signal) => {
+            const cmd = child_process_1.spawn(command, args, spawnOptions).on("close", (code, signal) => {
                 resolve({
                     exitCode: code,
                     signal,

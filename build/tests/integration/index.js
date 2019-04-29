@@ -1,5 +1,5 @@
 "use strict";
-// process.env.DEBUG = "testing:*";
+// wotan-disable async-function-assignability
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -64,7 +64,10 @@ function testAdapter(adapterDir, options = {}) {
                 yield adapterSetup.deleteOldInstances();
                 yield adapterSetup.addAdapterInstance();
                 // Create a copy of the databases that we can restore later
-                ({ objects: objectsBackup, states: statesBackup } = yield dbConnection.readDB());
+                ({
+                    objects: objectsBackup,
+                    states: statesBackup,
+                } = yield dbConnection.readDB());
             });
         });
         beforeEach(function () {
@@ -106,20 +109,28 @@ function testAdapter(adapterDir, options = {}) {
                 // Register a handler to check the alive state and exit codes
                 harness
                     .on("stateChange", (id, state) => __awaiter(this, void 0, void 0, function* () {
-                    if (id === `system.adapter.${adapterName}.0.alive` && state && state.val === true) {
+                    if (id === `system.adapter.${adapterName}.0.alive` &&
+                        state &&
+                        state.val === true) {
                         // Wait a bit so we can catch errors that do not happen immediately
-                        yield async_1.wait(options.waitBeforeStartupSuccess != undefined ? options.waitBeforeStartupSuccess : 5000);
+                        yield async_1.wait(options.waitBeforeStartupSuccess != undefined
+                            ? options.waitBeforeStartupSuccess
+                            : 5000);
                         resolve(`The adapter started successfully.`);
                     }
                 }))
                     .on("failed", code => {
-                    if (options.allowedExitCodes == undefined
-                        || options.allowedExitCodes.indexOf(code) === -1) {
-                        reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === "number" ? "code" : "signal"} ${code}`));
+                    if (options.allowedExitCodes == undefined ||
+                        options.allowedExitCodes.indexOf(code) === -1) {
+                        reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === "number"
+                            ? "code"
+                            : "signal"} ${code}`));
                     }
                     else {
                         // This was a valid exit code
-                        resolve(`The expected ${typeof code === "number" ? "exit code" : "signal"} ${code} was received.`);
+                        resolve(`The expected ${typeof code === "number"
+                            ? "exit code"
+                            : "signal"} ${code} was received.`);
                     }
                 });
                 harness.startAdapter();

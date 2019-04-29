@@ -1,16 +1,9 @@
 "use strict";
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const utils = __importStar(require("@iobroker/adapter-core"));
-const adapter = utils.adapter({
-    name: "foo",
-    ready() {
-        console.log("ready");
-    },
-});
+// TODO: Do we need this file?
+// import * as utils from "@iobroker/adapter-core";
+// const adapter = utils.adapter({
+// 	name: "foo",
+// 	ready() {
+// 		console.log("ready");
+// 	},
+// });

@@ -1,5 +1,4 @@
 // wotan-disable no-unused-expression
-// tslint:disable:no-unused-expression
 
 import { entries } from "alcalzone-shared/objects";
 import { expect } from "chai";
@@ -35,8 +34,11 @@ export interface StartMockAdapterOptions {
  *
  * @param adapterMainFile The main file of the adapter to start. Must be an absolute path.
  */
-export async function startMockAdapter(adapterMainFile: string, options: StartMockAdapterOptions = {}) {
-
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export async function startMockAdapter(
+	adapterMainFile: string,
+	options: StartMockAdapterOptions = {},
+) {
 	// Setup the mocks
 	const databaseMock = new MockDatabase();
 	// If objects and/or states are predefined, populate the database mock with them
@@ -51,7 +53,8 @@ export async function startMockAdapter(adapterMainFile: string, options: StartMo
 		onAdapterCreated: mock => {
 			adapterMock = mock;
 			// Give the user the chance to change the mock behavior
-			if (typeof options.defineMockBehavior === "function") options.defineMockBehavior(databaseMock, adapterMock);
+			if (typeof options.defineMockBehavior === "function")
+				options.defineMockBehavior(databaseMock, adapterMock);
 			// If an adapter configuration was given, set it on the mock
 			if (options.config) mock.config = options.config;
 		},
@@ -62,8 +65,12 @@ export async function startMockAdapter(adapterMainFile: string, options: StartMo
 	const mockedModules: Record<string, any> = {};
 	if (options.additionalMockedModules) {
 		for (let [mdl, mock] of entries(options.additionalMockedModules)) {
-			mdl = mdl.replace("{CONTROLLER_DIR}", adapterCoreMock.controllerDir);
-			if (mdl.startsWith(".") || path.isAbsolute(mdl)) mdl = path.normalize(mdl);
+			mdl = mdl.replace(
+				"{CONTROLLER_DIR}",
+				adapterCoreMock.controllerDir,
+			);
+			if (mdl.startsWith(".") || path.isAbsolute(mdl))
+				mdl = path.normalize(mdl);
 			mockedModules[mdl] = mock;
 		}
 	}
@@ -87,17 +94,26 @@ export async function startMockAdapter(adapterMainFile: string, options: StartMo
 
 		if (options.compact) {
 			// In compact mode, the main file must export a function
-			if (typeof mainFileExport !== "function") throw new Error("The adapter's main file must export a function in compact mode!");
+			if (typeof mainFileExport !== "function")
+				throw new Error(
+					"The adapter's main file must export a function in compact mode!",
+				);
 			// Call it to initialize the adapter
 			mainFileExport();
 		}
 
 		// Assert some basic stuff
-		if (adapterMock == undefined) throw new Error("The adapter was not initialized!");
-		expect(adapterMock.readyHandler, "The adapter's ready method could not be found!").to.exist;
+		if (adapterMock == undefined)
+			throw new Error("The adapter was not initialized!");
+		expect(
+			adapterMock.readyHandler,
+			"The adapter's ready method could not be found!",
+		).to.exist;
 
 		// Execute the ready method (synchronously or asynchronously)
-		const readyResult = adapterMock.readyHandler!() as undefined | Promise<void>;
+		const readyResult = adapterMock.readyHandler!() as
+			| undefined
+			| Promise<void>;
 		if (readyResult instanceof Promise) await readyResult;
 	} catch (e) {
 		// We give special handling to Errors here, as we also use them to convey that
@@ -128,9 +144,12 @@ export async function startMockAdapter(adapterMainFile: string, options: StartMo
 	};
 }
 
-export function unloadMockAdapter(adapter: MockAdapter, timeout: number = 500) {
+export function unloadMockAdapter(
+	adapter: MockAdapter,
+	timeout: number = 500,
+): Promise<boolean> {
 	return new Promise<boolean>((res, rej) => {
-		function finishUnload() {
+		function finishUnload(): void {
 			res(true);
 		}
 		if (adapter.unloadHandler!.length >= 1) {
@@ -144,11 +163,23 @@ export function unloadMockAdapter(adapter: MockAdapter, timeout: number = 500) {
 				unloadPromise.then(finishUnload, finishUnload);
 			} else {
 				// No callback accepted and no Promise returned - force unload
-				rej(new Error(`The unload method must return a Promise if it does not accept a callback!`));
+				rej(
+					new Error(
+						`The unload method must return a Promise if it does not accept a callback!`,
+					),
+				);
 			}
 		}
 
 		// If the developer forgets to call the callback within the configured time, fail the test
-		setTimeout(() => rej(new Error("The unload callback was not called within the timeout")), timeout);
+		setTimeout(
+			() =>
+				rej(
+					new Error(
+						"The unload callback was not called within the timeout",
+					),
+				),
+			timeout,
+		);
 	});
 }

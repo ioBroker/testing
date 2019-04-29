@@ -1,5 +1,4 @@
 "use strict";
-// tslint:disable:unified-signatures
 Object.defineProperty(exports, "__esModule", { value: true });
 const objects_1 = require("alcalzone-shared/objects");
 const typeguards_1 = require("alcalzone-shared/typeguards");
@@ -99,7 +98,8 @@ class MockDatabase {
         // combines getObjects and getForeignObjects into one
         let pattern;
         if (type != null) {
-            pattern = namespaceOrPattern + (patternOrType ? "." + patternOrType : "");
+            pattern =
+                namespaceOrPattern + (patternOrType ? "." + patternOrType : "");
         }
         else if (patternOrType != null) {
             if (["state", "channel", "device"].indexOf(patternOrType) > -1) {
@@ -121,8 +121,7 @@ class MockDatabase {
     getStates(pattern) {
         // combines getStates and getForeignStates into one
         const idRegExp = str2regex_1.str2regex(pattern);
-        return objects_1.composeObject([...this.states.entries()]
-            .filter(([id]) => idRegExp.test(id)));
+        return objects_1.composeObject([...this.states.entries()].filter(([id]) => idRegExp.test(id)));
     }
 }
 exports.MockDatabase = MockDatabase;
@@ -136,6 +135,7 @@ exports.MockDatabase = MockDatabase;
  * @param db The mock database to operate on
  * @param adapter The mock adapter to operate on
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function createAsserts(db, adapter) {
     function normalizeID(id) {
         if (typeguards_1.isArray(id))
@@ -172,19 +172,15 @@ function createAsserts(db, adapter) {
             id = normalizeID(id);
             ret.assertObjectExists(id);
             const dbObj = db.getObject(id);
-            dbObj.should.be.an("object")
-                .that.has.property("common");
-            dbObj.common.should.be.an("object")
-                .that.nested.include(common);
+            dbObj.should.be.an("object").that.has.property("common");
+            dbObj.common.should.be.an("object").that.nested.include(common);
         },
         assertObjectNative(id, native) {
             id = normalizeID(id);
             ret.assertObjectExists(id);
             const dbObj = db.getObject(id);
-            dbObj.should.be.an("object")
-                .that.has.property("native");
-            dbObj.native.should.be.an("object")
-                .that.nested.include(native);
+            dbObj.should.be.an("object").that.has.property("native");
+            dbObj.native.should.be.an("object").that.nested.include(native);
         },
     };
     return ret;

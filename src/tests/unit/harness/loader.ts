@@ -4,7 +4,10 @@ import * as path from "path";
 
 const globalRequire = require;
 
-export function createMockRequire(originalRequire: NodeRequire, options: LoadModuleOptions) {
+export function createMockRequire(
+	originalRequire: NodeRequire,
+	options: LoadModuleOptions,
+): NodeRequireFunction {
 	let relativeToDir: string | undefined;
 	if (options.relativeToFile) {
 		relativeToDir = path.dirname(options.relativeToFile);
@@ -28,7 +31,7 @@ export function createMockRequire(originalRequire: NodeRequire, options: LoadMod
 /**
  * Creates a module that is loaded instead of another one with the same name
  */
-function createMockModule(id: string, mocks: Record<string, any>) {
+function createMockModule(id: string, mocks: Record<string, any>): Module {
 	const ret = new Module(id);
 	ret.exports = mocks;
 	return ret;
@@ -38,11 +41,14 @@ function createMockModule(id: string, mocks: Record<string, any>) {
  * Builds a proxy around a global object with the given properties or methods
  * proxied to their given replacements
  */
-function buildProxy(global: any, mocks: Record<string, any>) {
+function buildProxy<T extends object>(
+	global: T,
+	mocks: Record<string, any>,
+): T {
 	return new Proxy(global, {
 		get: (target, name) => {
 			if (name in mocks) return mocks[name as any];
-			const ret = target[name];
+			const ret = (target as any)[name];
 			// Bind original functions to the target to avoid illegal invocation errors
 			if (typeof ret === "function") return ret.bind(target);
 			return ret;
@@ -54,18 +60,20 @@ function buildProxy(global: any, mocks: Record<string, any>) {
  * Returns true if the source code is intended to run in strict mode. Does not detect
  * "use strict" if it occurs in a nested function.
  */
-function detectStrictMode(code: string) {
+function detectStrictMode(code: string): boolean {
 	// Taken from rewirejs
 
 	// remove all comments before testing for "use strict"
 	const multiLineComment = /^\s*\/\*.*?\*\//;
 	const singleLineComment = /^\s*\/\/.*?[\r\n]/;
 
-	let singleLine: boolean = false;
-	let multiLine: boolean = false;
+	let singleLine = false;
+	let multiLine = false;
 
-	// tslint:disable-next-line: no-conditional-assignment
-	while ((singleLine = singleLineComment.test(code)) || (multiLine = multiLineComment.test(code))) {
+	while (
+		(singleLine = singleLineComment.test(code)) ||
+		(multiLine = multiLineComment.test(code))
+	) {
 		if (!!singleLine) {
 			code = code.replace(singleLineComment, "");
 		}
@@ -83,15 +91,21 @@ function detectStrictMode(code: string) {
  * @param code The code to monkey patch
  * @param globals A dictionary of globals and their properties to be replaced
  */
-export function monkeyPatchGlobals(code: string, globals: Record<string, Record<string, any>>) {
+export function monkeyPatchGlobals(
+	code: string,
+	globals: Record<string, Record<string, any>>,
+): string {
 	const codeIsStrict = detectStrictMode(code);
-	const prefix: string = `${codeIsStrict ? '"use strict"; ' : ""}((${Object.keys(globals).join(", ")}) => {`;
-	const patchedArguments = Object.keys(globals)
-		.map(glob => {
-			const patchObj = globals[glob];
-			const patches = Object.keys(patchObj).map(fn => `${fn}: ${patchObj[fn]}`);
-			return `buildProxy(${glob}, {${patches.join(", ")}})`;
-		});
+	const prefix: string = `${
+		codeIsStrict ? '"use strict"; ' : ""
+	}((${Object.keys(globals).join(", ")}) => {`;
+	const patchedArguments = Object.keys(globals).map(glob => {
+		const patchObj = globals[glob];
+		const patches = Object.keys(patchObj).map(
+			fn => `${fn}: ${patchObj[fn]}`,
+		);
+		return `buildProxy(${glob}, {${patches.join(", ")}})`;
+	});
 	const postfix: string = `
 })(${patchedArguments.join(", ")});
 ${buildProxy}`;
@@ -104,7 +118,7 @@ export function removeHashbang(code: string): string {
 }
 
 /** A test-safe replacement for process.exit that throws a specific error instead */
-export function fakeProcessExit(code: number = 0) {
+export function fakeProcessExit(code: number = 0): never {
 	const err = new Error(`process.exit was called with code ${code}`);
 	// @ts-ignore
 	err.processExitCode = code;
@@ -112,13 +126,13 @@ export function fakeProcessExit(code: number = 0) {
 }
 
 type LoaderFunction = NodeExtensions[string];
-let isOriginalLoader: boolean = true;
+let isOriginalLoader = true;
 let originalLoader: LoaderFunction | undefined;
 
 /**
  * Replaces NodeJS's default loader for .js-files with the given one and returns the original one
  */
-export function replaceJsLoader(loaderFunction: LoaderFunction) {
+export function replaceJsLoader(loaderFunction: LoaderFunction): void {
 	if (isOriginalLoader) {
 		originalLoader = require.extensions[".js"];
 	}
@@ -129,7 +143,7 @@ export function replaceJsLoader(loaderFunction: LoaderFunction) {
 /**
  * Replaces a replaced loader for .js-files with the original one
  */
-export function restoreJsLoader() {
+export function restoreJsLoader(): void {
 	require.extensions[".js"] = originalLoader!;
 }
 
@@ -152,7 +166,11 @@ interface LoadModuleOptions {
 	relativeToFile?: string;
 }
 
-function loadModuleInternal(require: NodeRequire, moduleFilename: string, options: LoadModuleOptions = {}) {
+function loadModuleInternal(
+	require: NodeRequire,
+	moduleFilename: string,
+	options: LoadModuleOptions = {},
+): unknown {
 	replaceJsLoader((module: any, filename: string) => {
 		// If we want to replace some modules with mocks, we need to change the module's require function
 		if (isObject(options.mockedModules)) {
@@ -161,7 +179,10 @@ function loadModuleInternal(require: NodeRequire, moduleFilename: string, option
 				relativeToFile: filename,
 			});
 		}
-		if (options.fakeNotRequired && path.normalize(filename) === path.normalize(moduleFilename)) {
+		if (
+			options.fakeNotRequired &&
+			path.normalize(filename) === path.normalize(moduleFilename)
+		) {
 			module.parent = null;
 		}
 		// If necessary, edit the source code before executing it
@@ -181,6 +202,7 @@ function loadModuleInternal(require: NodeRequire, moduleFilename: string, option
 	});
 
 	// And load the module
+	// eslint-disable-next-line @typescript-eslint/no-var-requires
 	const moduleExport: unknown = require(moduleFilename);
 
 	// Restore the js loader so we don't fuck up more things
@@ -192,17 +214,24 @@ function loadModuleInternal(require: NodeRequire, moduleFilename: string, option
 /**
  * Loads the given module into the test harness and returns the module's `module.exports`.
  */
-export function loadModuleInHarness(moduleFilename: string, options: HarnessOptions = {}) {
+export function loadModuleInHarness(
+	moduleFilename: string,
+	options: HarnessOptions = {},
+): unknown {
 	let mockedModules: Record<string, Module> | undefined;
 	if (isObject(options.mockedModules)) {
 		mockedModules = {};
 		for (const mod of Object.keys(options.mockedModules)) {
-			mockedModules[mod] = createMockModule(mod, options.mockedModules[mod]);
+			mockedModules[mod] = createMockModule(
+				mod,
+				options.mockedModules[mod],
+			);
 		}
 	}
 
 	// Make sure the main file is not already loaded into the require cache
-	if (moduleFilename in globalRequire.cache) delete globalRequire.cache[moduleFilename];
+	if (moduleFilename in globalRequire.cache)
+		delete globalRequire.cache[moduleFilename];
 
 	return loadModuleInternal(require, moduleFilename, {
 		mockedModules,
