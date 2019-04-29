@@ -1,0 +1,20 @@
+language: node_js
+node_js:
+  - 8
+  - 10
+  - node
+os:
+  - linux
+
+install:
+  - npm ci
+script:
+  # Make sure the code is good
+  - npm run lint
+  # and it builds
+  - npm run build
+  # Now perform a test run
+  - npm test
+
+notifications:
+  email: false
