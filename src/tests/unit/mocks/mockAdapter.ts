@@ -1,10 +1,15 @@
-import { stub } from "sinon";
-
 import { extend } from "alcalzone-shared/objects";
+import { stub } from "sinon";
 import { MockDatabase } from "./mockDatabase";
 import { createLoggerMock, MockLogger } from "./mockLogger";
 import { createObjectsMock, MockObjects } from "./mockObjects";
-import { doResetBehavior, doResetHistory, ImplementedMethodDictionary, Mock, MockableMethods, stubAndPromisifyImplementedMethods } from "./tools";
+import {
+	doResetBehavior,
+	doResetHistory,
+	ImplementedMethodDictionary,
+	Mock,
+	stubAndPromisifyImplementedMethods,
+} from "./tools";
 
 // The mocked adapter interface has all the usual properties, but all methods are replaced with stubs
 export type MockAdapter = Mock<ioBroker.Adapter> & {
@@ -50,7 +55,9 @@ const implementedMethods: ImplementedMethodDictionary<ioBroker.Adapter> = {
 };
 
 // wotan-disable no-misused-generics
-function getCallback<T extends (...args: any[]) => any>(...args: any[]): T | undefined {
+function getCallback<T extends (...args: any[]) => any>(
+	...args: any[]
+): T | undefined {
 	const lastArg = args[args.length - 1];
 	if (typeof lastArg === "function") return lastArg as T;
 }
@@ -58,9 +65,13 @@ function getCallback<T extends (...args: any[]) => any>(...args: any[]): T | und
 /**
  * Creates an adapter mock that is connected to a given database mock
  */
-export function createAdapterMock(this: MockAdapter | void, db: MockDatabase, options: Partial<ioBroker.AdapterOptions> = {}) {
+export function createAdapterMock(
+	this: MockAdapter | void,
+	db: MockDatabase,
+	options: Partial<ioBroker.AdapterOptions> = {},
+): MockAdapter {
 	// In order to support ES6-style adapters with inheritance, we need to work on the instance directly
-	const ret: MockAdapter = this || {} as any;
+	const ret: MockAdapter = this || ({} as any);
 	Object.assign(ret, {
 		name: options.name || "test",
 		host: "testhost",
@@ -74,7 +85,7 @@ export function createAdapterMock(this: MockAdapter | void, db: MockDatabase, op
 		pack: {},
 		log: createLoggerMock(),
 		version: "any",
-		states: {} as any as ioBroker.States,
+		states: ({} as any) as ioBroker.States,
 		objects: createObjectsMock(db),
 		connected: true,
 
@@ -104,7 +115,11 @@ export function createAdapterMock(this: MockAdapter | void, db: MockDatabase, op
 			const callback = getCallback<ioBroker.SetObjectCallback>(...args);
 			if (callback) callback(null, { id });
 		}) as sinon.SinonStub,
-		setObjectNotExists: ((id: string, obj: ioBroker.Object, ...args: any[]) => {
+		setObjectNotExists: ((
+			id: string,
+			obj: ioBroker.Object,
+			...args: any[]
+		) => {
 			if (!id.startsWith(ret.namespace)) id = ret.namespace + "." + id;
 			const callback = getCallback<ioBroker.SetObjectCallback>(...args);
 			if (db.hasObject(id)) {
@@ -113,15 +128,23 @@ export function createAdapterMock(this: MockAdapter | void, db: MockDatabase, op
 				ret.setObject(id, obj, callback);
 			}
 		}) as sinon.SinonStub,
-		getAdapterObjects: ((callback: (objects: Record<string, ioBroker.Object>) => void) => {
+		getAdapterObjects: ((
+			callback: (objects: Record<string, ioBroker.Object>) => void,
+		) => {
 			callback(db.getObjects(`${ret.namespace}.*`));
 		}) as sinon.SinonStub,
-		extendObject: ((id: string, obj: ioBroker.PartialObject, ...args: any[]) => {
+		extendObject: ((
+			id: string,
+			obj: ioBroker.PartialObject,
+			...args: any[]
+		) => {
 			if (!id.startsWith(ret.namespace)) id = ret.namespace + "." + id;
 			const existing = db.getObject(id) || {};
 			const target = extend({}, existing, obj) as ioBroker.Object;
 			db.publishObject(target);
-			const callback = getCallback<ioBroker.ExtendObjectCallback>(...args);
+			const callback = getCallback<ioBroker.ExtendObjectCallback>(
+				...args,
+			);
 			if (callback) callback(null, { id: target._id, value: target }, id);
 		}) as sinon.SinonStub,
 		delObject: ((id: string, ...args: any[]) => {
@@ -135,17 +158,29 @@ export function createAdapterMock(this: MockAdapter | void, db: MockDatabase, op
 			const callback = getCallback<ioBroker.GetObjectCallback>(...args);
 			if (callback) callback(null, db.getObject(id));
 		}) as sinon.SinonStub,
-		getForeignObjects: ((pattern: string, type: ioBroker.ObjectType, ...args: any[]) => {
+		getForeignObjects: ((
+			pattern: string,
+			type: ioBroker.ObjectType,
+			...args: any[]
+		) => {
 			const callback = getCallback<ioBroker.GetObjectsCallback>(...args);
 			if (callback) callback(null, db.getObjects(pattern, type));
 		}) as sinon.SinonStub,
-		setForeignObject: ((id: string, obj: ioBroker.Object, ...args: any[]) => {
+		setForeignObject: ((
+			id: string,
+			obj: ioBroker.Object,
+			...args: any[]
+		) => {
 			obj._id = id;
 			db.publishObject(obj);
 			const callback = getCallback<ioBroker.SetObjectCallback>(...args);
 			if (callback) callback(null, { id });
 		}) as sinon.SinonStub,
-		setForeignObjectNotExists: ((id: string, obj: ioBroker.Object, ...args: any[]) => {
+		setForeignObjectNotExists: ((
+			id: string,
+			obj: ioBroker.Object,
+			...args: any[]
+		) => {
 			const callback = getCallback<ioBroker.SetObjectCallback>(...args);
 			if (db.hasObject(id)) {
 				if (callback) callback(null, { id });
@@ -153,11 +188,17 @@ export function createAdapterMock(this: MockAdapter | void, db: MockDatabase, op
 				ret.setObject(id, obj, callback);
 			}
 		}) as sinon.SinonStub,
-		extendForeignObject: ((id: string, obj: ioBroker.PartialObject, ...args: any[]) => {
-			const target = db.getObject(id) || {} as ioBroker.Object;
+		extendForeignObject: ((
+			id: string,
+			obj: ioBroker.PartialObject,
+			...args: any[]
+		) => {
+			const target = db.getObject(id) || ({} as ioBroker.Object);
 			Object.assign(target, obj);
 			db.publishObject(target);
-			const callback = getCallback<ioBroker.ExtendObjectCallback>(...args);
+			const callback = getCallback<ioBroker.ExtendObjectCallback>(
+				...args,
+			);
 			if (callback) callback(null, { id: target._id, value: target }, id);
 		}) as sinon.SinonStub,
 		findForeignObject: stub(),
@@ -181,7 +222,12 @@ export function createAdapterMock(this: MockAdapter | void, db: MockDatabase, op
 			db.publishState(id, { val: state, ack });
 			if (callback) callback(null, id);
 		}) as sinon.SinonStub,
-		setStateChanged: ((id: string, state: any, ack?: boolean, ...args: any[]) => {
+		setStateChanged: ((
+			id: string,
+			state: any,
+			ack?: boolean,
+			...args: any[]
+		) => {
 			if (typeof ack !== "boolean") ack = false;
 			const callback = getCallback<ioBroker.SetStateCallback>(...args);
 
@@ -196,7 +242,12 @@ export function createAdapterMock(this: MockAdapter | void, db: MockDatabase, op
 			}
 			if (callback) callback(null, id);
 		}) as sinon.SinonStub,
-		setForeignState: ((id: string, state: any, ack?: boolean, ...args: any[]) => {
+		setForeignState: ((
+			id: string,
+			state: any,
+			ack?: boolean,
+			...args: any[]
+		) => {
 			if (typeof ack !== "boolean") ack = false;
 			const callback = getCallback<ioBroker.SetStateCallback>(...args);
 
@@ -208,7 +259,12 @@ export function createAdapterMock(this: MockAdapter | void, db: MockDatabase, op
 			db.publishState(id, { val: state, ack });
 			if (callback) callback(null, id);
 		}) as sinon.SinonStub,
-		setForeignStateChanged: ((id: string, state: any, ack?: boolean, ...args: any[]) => {
+		setForeignStateChanged: ((
+			id: string,
+			state: any,
+			ack?: boolean,
+			...args: any[]
+		) => {
 			if (typeof ack !== "boolean") ack = false;
 			const callback = getCallback<ioBroker.SetStateCallback>(...args);
 
@@ -233,7 +289,8 @@ export function createAdapterMock(this: MockAdapter | void, db: MockDatabase, op
 			if (callback) callback(null, db.getState(id));
 		}) as sinon.SinonStub,
 		getStates: ((pattern: string, ...args: any[]) => {
-			if (!pattern.startsWith(ret.namespace)) pattern = ret.namespace + "." + pattern;
+			if (!pattern.startsWith(ret.namespace))
+				pattern = ret.namespace + "." + pattern;
 			const callback = getCallback<ioBroker.GetStatesCallback>(...args);
 			if (callback) callback(null, db.getStates(pattern));
 		}) as sinon.SinonStub,
@@ -307,13 +364,17 @@ export function createAdapterMock(this: MockAdapter | void, db: MockDatabase, op
 		formatValue: stub(),
 		formatDate: stub(),
 
-		terminate: ((reason?: string) => {
+		terminate: (((reason?: string) => {
 			// Terminates execution by
-			const err = new Error(`Adapter.terminate was called${reason ? ` with reason: "${reason}"` : ""}!`);
+			const err = new Error(
+				`Adapter.terminate was called${
+					reason ? ` with reason: "${reason}"` : ""
+				}!`,
+			);
 			// @ts-ignore
 			err.terminateReason = reason || "no reason given!";
 			throw err;
-		}) as any as sinon.SinonStub,
+		}) as any) as sinon.SinonStub,
 
 		// EventEmitter methods
 		on: ((event: string, handler: (...args: any[]) => void) => {
@@ -338,7 +399,10 @@ export function createAdapterMock(this: MockAdapter | void, db: MockDatabase, op
 			return ret;
 		}) as sinon.SinonStub,
 
-		removeListener: ((event: string, listener: (...args: any[]) => void) => {
+		removeListener: ((
+			event: string,
+			_listener: (...args: any[]) => void,
+		) => {
 			// TODO This is not entirely correct
 			switch (event) {
 				case "ready":

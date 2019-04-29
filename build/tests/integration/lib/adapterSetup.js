@@ -19,14 +19,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // Add debug logging for tests
-const debug_1 = __importDefault(require("debug"));
-const debug = debug_1.default("testing:integration:AdapterSetup");
 const objects_1 = require("alcalzone-shared/objects");
+const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = require("fs-extra");
 const path = __importStar(require("path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
 const executeCommand_1 = require("../../../lib/executeCommand");
 const tools_1 = require("./tools");
+const debug = debug_1.default("testing:integration:AdapterSetup");
 class AdapterSetup {
     constructor(adapterDir, testDir, dbConnection) {
         this.adapterDir = adapterDir;
@@ -92,7 +92,13 @@ class AdapterSetup {
         return __awaiter(this, void 0, void 0, function* () {
             debug("Adding adapter instance...");
             // execute iobroker add <adapter> -- This also installs missing dependencies
-            const addResult = yield executeCommand_1.executeCommand("node", [`${this.appName}.js`, "add", this.adapterName, "--enabled", "false"], {
+            const addResult = yield executeCommand_1.executeCommand("node", [
+                `${this.appName}.js`,
+                "add",
+                this.adapterName,
+                "--enabled",
+                "false",
+            ], {
                 cwd: this.testControllerDir,
                 stdout: "ignore",
             });
@@ -108,10 +114,10 @@ class AdapterSetup {
             const instanceRegex = new RegExp(`^system\\.adapter\\.${this.adapterName}\\.\\d+`);
             const instanceObjsRegex = new RegExp(`^${this.adapterName}\\.\\d+\.`);
             const belongsToAdapter = (id) => {
-                return instanceRegex.test(id)
-                    || instanceObjsRegex.test(id)
-                    || id === this.adapterName
-                    || id === `${this.adapterName}.admin`;
+                return (instanceRegex.test(id) ||
+                    instanceObjsRegex.test(id) ||
+                    id === this.adapterName ||
+                    id === `${this.adapterName}.admin`);
             };
             if (objects) {
                 for (const id of Object.keys(objects)) {

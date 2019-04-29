@@ -1,16 +1,22 @@
-// Add debug logging for tests
-import debugModule from "debug";
-const debug = debugModule("testing:integration:TestHarness");
+/* eslint-disable @typescript-eslint/camelcase */
+/* eslint-disable @typescript-eslint/no-var-requires */
+// wotan-disable async-function-assignability
 
 import { wait } from "alcalzone-shared/async";
 import { extend } from "alcalzone-shared/objects";
 import { ChildProcess, spawn } from "child_process";
+import debugModule from "debug";
 import { EventEmitter } from "events";
-import { pathExists } from "fs-extra";
 import * as path from "path";
-import { getAdapterName, getAppName, locateAdapterMainFile } from "../../../lib/adapterTools";
+import {
+	getAdapterName,
+	getAppName,
+	locateAdapterMainFile,
+} from "../../../lib/adapterTools";
 import { DBConnection } from "./dbConnection";
 import { getTestAdapterDir, getTestControllerDir } from "./tools";
+
+const debug = debugModule("testing:integration:TestHarness");
 
 const isWindows = /^win/.test(process.platform);
 
@@ -23,13 +29,11 @@ const logger = {
 	error: console.error,
 };
 
-// tslint:disable:unified-signatures
 export interface TestHarness {
 	on(event: "objectChange", handler: ioBroker.ObjectChangeHandler): this;
 	on(event: "stateChange", handler: ioBroker.StateChangeHandler): this;
 	on(event: "failed", handler: (codeOrSignal: number | string) => void): this;
 }
-// tslint:enable:unified-signatures
 
 const fromAdapterID = "system.adapter.test.0";
 
@@ -38,15 +42,11 @@ const fromAdapterID = "system.adapter.test.0";
  * Use it in every test to start a fresh adapter instance
  */
 export class TestHarness extends EventEmitter {
-
 	/**
 	 * @param adapterDir The root directory of the adapter
 	 * @param testDir The directory the integration tests are executed in
 	 */
-	constructor(
-		private adapterDir: string,
-		private testDir: string,
-	) {
+	public constructor(private adapterDir: string, private testDir: string) {
 		super();
 
 		debug("Creating instance");
@@ -95,10 +95,9 @@ export class TestHarness extends EventEmitter {
 	}
 
 	/** Creates the objects DB and sets up listeners for it */
-	private async createObjectsDB() {
+	private async createObjectsDB(): Promise<void> {
 		debug("creating objects DB");
 
-		// tslint:disable-next-line:variable-name
 		const Objects = require(path.join(
 			this.testControllerDir,
 			"lib/objects/objectsInMemServer",
@@ -127,10 +126,9 @@ export class TestHarness extends EventEmitter {
 	}
 
 	/** Creates the states DB and sets up listeners for it */
-	private async createStatesDB() {
+	private async createStatesDB(): Promise<void> {
 		debug("creating states DB");
 
-		// tslint:disable-next-line:variable-name
 		const States = require(path.join(
 			this.testControllerDir,
 			"lib/states/statesInMemServer",
@@ -159,21 +157,22 @@ export class TestHarness extends EventEmitter {
 	}
 
 	/** Checks if the controller instance is running */
-	public isControllerRunning() {
-		return this._objects || this._states;
+	public isControllerRunning(): boolean {
+		return !!this._objects || !!this._states;
 	}
 
 	/** Starts the controller instance by creating the databases */
-	public async startController() {
+	public async startController(): Promise<void> {
 		debug("starting controller instance...");
-		if (this.isControllerRunning()) throw new Error("The Controller is already running!");
+		if (this.isControllerRunning())
+			throw new Error("The Controller is already running!");
 		await this.createObjectsDB();
 		await this.createStatesDB();
 		debug("controller instance created");
 	}
 
 	/** Stops the controller instance (and the adapter if it is running) */
-	public async stopController() {
+	public async stopController(): Promise<void> {
 		if (!this.isControllerRunning()) return;
 
 		debug("Stopping controller instance...");
@@ -189,10 +188,7 @@ export class TestHarness extends EventEmitter {
 		// Give the adapter time to stop, but maximum 5s
 		if (!this.didAdapterStop()) {
 			debug("Stopping adapter instance...");
-			await Promise.race([
-				this.stopAdapter(),
-				wait(5000),
-			]);
+			await Promise.race([this.stopAdapter(), wait(5000)]);
 			if (this.isAdapterRunning()) {
 				debug("Adapter did not terminate, killing it");
 				this._adapterProcess!.kill("SIGKILL");
@@ -218,47 +214,68 @@ export class TestHarness extends EventEmitter {
 	 * Starts the adapter in a separate process and monitors its status
 	 * @param env Additional environment variables to set
 	 */
-	public async startAdapter(env: NodeJS.ProcessEnv = {}) {
-		if (this.isAdapterRunning()) throw new Error("The adapter is already running!");
-		else if (this.didAdapterStop()) throw new Error("This test harness has already been used. Please create a new one for each test!");
+	public async startAdapter(env: NodeJS.ProcessEnv = {}): Promise<void> {
+		if (this.isAdapterRunning())
+			throw new Error("The adapter is already running!");
+		else if (this.didAdapterStop())
+			throw new Error(
+				"This test harness has already been used. Please create a new one for each test!",
+			);
 
-		const mainFileAbsolute = await locateAdapterMainFile(this.testAdapterDir);
-		const mainFileRelative = path.relative(this.testAdapterDir, mainFileAbsolute);
+		const mainFileAbsolute = await locateAdapterMainFile(
+			this.testAdapterDir,
+		);
+		const mainFileRelative = path.relative(
+			this.testAdapterDir,
+			mainFileAbsolute,
+		);
 
-		const onClose = (code: number, signal: string) => {
+		const onClose = (code: number | undefined, signal: string): void => {
 			this._adapterProcess!.removeAllListeners();
 			this._adapterExit = code != undefined ? code : signal;
 			this.emit("failed", this._adapterExit);
 		};
 
-		this._adapterProcess =
-			spawn(isWindows ? "node.exe" : "node", [mainFileRelative, "--console"], {
+		this._adapterProcess = spawn(
+			isWindows ? "node.exe" : "node",
+			[mainFileRelative, "--console"],
+			{
 				cwd: this.testAdapterDir,
 				stdio: ["inherit", "inherit", "inherit"],
-				env: {...process.env, ...env},
-			})
-				.on("close", onClose)
-				.on("exit", onClose)
-			;
+				env: { ...process.env, ...env },
+			},
+		)
+			.on("close", onClose)
+			.on("exit", onClose);
 	}
 
 	/**
 	 * Starts the adapter in a separate process and resolves after it has started
 	 * @param env Additional environment variables to set
 	 */
-	public async startAdapterAndWait(env: NodeJS.ProcessEnv = {}) {
+	public async startAdapterAndWait(
+		env: NodeJS.ProcessEnv = {},
+	): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
-			this
-				.on("stateChange", async (id, state) => {
-					if (id === `system.adapter.${this.adapterName}.0.alive` && state && state.val === true) {
-						resolve();
-					}
-				})
+			this.on("stateChange", async (id, state) => {
+				if (
+					id === `system.adapter.${this.adapterName}.0.alive` &&
+					state &&
+					state.val === true
+				) {
+					resolve();
+				}
+			})
 				.on("failed", code => {
-					reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === "number" ? "code" : "signal"} ${code}`));
+					reject(
+						new Error(
+							`The adapter startup was interrupted unexpectedly with ${
+								typeof code === "number" ? "code" : "signal"
+							} ${code}`,
+						),
+					);
 				})
-				.startAdapter(env)
-				;
+				.startAdapter(env);
 		});
 	}
 
@@ -273,11 +290,14 @@ export class TestHarness extends EventEmitter {
 	}
 
 	/** Stops the adapter process */
-	public stopAdapter() {
+	public stopAdapter(): Promise<void> | undefined {
 		if (!this.isAdapterRunning()) return;
 
 		return new Promise<void>(resolve => {
-			const onClose = (code: number, signal: string) => {
+			const onClose = (
+				code: number | undefined,
+				signal: string,
+			): void => {
 				if (!this._adapterProcess) return;
 				this._adapterProcess.removeAllListeners();
 
@@ -289,19 +309,22 @@ export class TestHarness extends EventEmitter {
 				resolve();
 			};
 
-			this._adapterProcess!
-				.removeAllListeners()
+			this._adapterProcess!.removeAllListeners()
 				.on("close", onClose)
 				.on("exit", onClose)
-				.kill("SIGTERM")
-				;
+				.kill("SIGTERM");
 		});
 	}
 
 	/**
 	 * Updates the adapter config. The changes can be a subset of the target object
 	 */
-	public async changeAdapterConfig(appName: string, testDir: string, adapterName: string, changes: any) {
+	public async changeAdapterConfig(
+		appName: string,
+		testDir: string,
+		adapterName: string,
+		changes: any,
+	): Promise<void> {
 		const objects = await this.dbConnection.readObjectsDB();
 		const adapterInstanceId = `system.adapter.${adapterName}.0`;
 		if (objects && adapterInstanceId in objects) {
@@ -312,23 +335,35 @@ export class TestHarness extends EventEmitter {
 	}
 
 	/** Enables the sendTo method */
-	public enableSendTo() {
+	public enableSendTo(): Promise<void> {
 		return new Promise<void>(resolve => {
-			this._objects.setObject(fromAdapterID, {
-				common: {},
-				type: "instance",
-			}, () => {
-				this._states.subscribeMessage(fromAdapterID);
-				resolve();
-			});
+			this._objects.setObject(
+				fromAdapterID,
+				{
+					common: {},
+					type: "instance",
+				},
+				() => {
+					this._states.subscribeMessage(fromAdapterID);
+					resolve();
+				},
+			);
 		});
 	}
 
 	private sendToID: number = 1;
 
 	/** Sends a message to an adapter instance */
-	public sendTo(target: string, command: string, message: any, callback: ioBroker.MessageCallback) {
-		const stateChangedHandler: ioBroker.StateChangeHandler = (id, state) => {
+	public sendTo(
+		target: string,
+		command: string,
+		message: any,
+		callback: ioBroker.MessageCallback,
+	): void {
+		const stateChangedHandler: ioBroker.StateChangeHandler = (
+			id,
+			state,
+		) => {
 			if (id === `messagebox.${fromAdapterID}`) {
 				callback((state as any).message);
 				this.removeListener("stateChange", stateChangedHandler);
@@ -336,16 +371,20 @@ export class TestHarness extends EventEmitter {
 		};
 		this.addListener("stateChange", stateChangedHandler);
 
-		this._states.pushMessage(`system.adapter.${target}`, {
-			command: command,
-			message: message,
-			from: fromAdapterID,
-			callback: {
+		this._states.pushMessage(
+			`system.adapter.${target}`,
+			{
+				command: command,
 				message: message,
-				id: this.sendToID++,
-				ack: false,
-				time: Date.now(),
+				from: fromAdapterID,
+				callback: {
+					message: message,
+					id: this.sendToID++,
+					ack: false,
+					time: Date.now(),
+				},
 			},
-		}, (err: any, id: any) => console.log("published message " + id));
+			(err: any, id: any) => console.log("published message " + id),
+		);
 	}
 }

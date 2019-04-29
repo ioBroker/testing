@@ -2,8 +2,18 @@
 // wotan-disable no-unused-expression
 
 import { expect } from "chai";
-import { adapterShouldSupportCompactMode, loadAdapterCommon, loadAdapterConfig, loadInstanceObjects, locateAdapterMainFile } from "../../lib/adapterTools";
-import { startMockAdapter, StartMockAdapterOptions, unloadMockAdapter } from "./harness/startMockAdapter";
+import {
+	adapterShouldSupportCompactMode,
+	loadAdapterCommon,
+	loadAdapterConfig,
+	loadInstanceObjects,
+	locateAdapterMainFile,
+} from "../../lib/adapterTools";
+import {
+	startMockAdapter,
+	StartMockAdapterOptions,
+	unloadMockAdapter,
+} from "./harness/startMockAdapter";
 import { MockAdapter } from "./mocks/mockAdapter";
 import { MockDatabase } from "./mocks/mockDatabase";
 
@@ -13,7 +23,9 @@ export interface TestAdapterOptions {
 	/** Change the default test timeout of 15000ms for the startup tests */
 	startTimeout?: number;
 	/** Allows you to overwrite the default adapter config */
-	overwriteAdapterConfig?: (config: Record<string, any>) => Record<string, any>;
+	overwriteAdapterConfig?: (
+		config: Record<string, any>,
+	) => Record<string, any>;
 	/** An array of objects that should be populated before starting the adapter */
 	predefinedObjects?: ioBroker.Object[];
 	/** A dictionary of states that should be populated before starting the adapter */
@@ -28,18 +40,24 @@ export interface TestAdapterOptions {
  * Tests the adapter startup in offline mode (with mocks, no JS-Controller)
  * This is meant to be executed in a mocha context.
  */
-export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOptions = {}) {
-
+export function testAdapterWithMocks(
+	adapterDir: string,
+	options: TestAdapterOptions = {},
+): void {
 	if (!options.startTimeout) {
 		options.startTimeout = 15000;
 	} else if (options.startTimeout < 1) {
 		throw new Error("The start timeout must be a positive number!");
 	}
 
-	function assertValidExitCode(allowedExitCodes: number[], exitCode?: number) {
+	function assertValidExitCode(
+		allowedExitCodes: number[],
+		exitCode?: number,
+	): void {
 		if (exitCode == undefined) return;
 		// Ensure that a valid exit code was returned. By default, only 0 is allowed
-		expect(allowedExitCodes).contains(exitCode,
+		expect(allowedExitCodes).contains(
+			exitCode,
 			`process.exit was called with the unexpected exit code ${exitCode}!`,
 		);
 	}
@@ -49,10 +67,13 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 	const instanceObjects = loadInstanceObjects(adapterDir);
 	const supportsCompactMode = adapterShouldSupportCompactMode(adapterDir);
 
+	// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 	function getStartMockAdapterOptions() {
 		// Give the user a chance to change the adapter config
-		const actualAdapterConfig = typeof options.overwriteAdapterConfig === "function"
-			? options.overwriteAdapterConfig({ ...adapterConfig }) : adapterConfig;
+		const actualAdapterConfig =
+			typeof options.overwriteAdapterConfig === "function"
+				? options.overwriteAdapterConfig({ ...adapterConfig })
+				: adapterConfig;
 
 		return {
 			config: actualAdapterConfig,
@@ -68,7 +89,6 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 	}
 
 	describe(`Test the adapter (in a mocked environment)`, async () => {
-
 		let mainFilename: string;
 
 		before(async () => {
@@ -77,16 +97,23 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 
 		it("The adapter starts in normal mode", async function() {
 			// If necessary, change the default timeout
-			if (typeof options.startTimeout === "number") this.timeout(options.startTimeout);
+			if (typeof options.startTimeout === "number")
+				this.timeout(options.startTimeout);
 
-			const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(
+			const { adapterMock, processExitCode } = await startMockAdapter(
 				mainFilename,
 				getStartMockAdapterOptions(),
 			);
-			assertValidExitCode(options.allowedExitCodes || [], processExitCode);
+			assertValidExitCode(
+				options.allowedExitCodes || [],
+				processExitCode,
+			);
 			// Test that the unload callback is called
 			if (adapterMock && adapterMock.unloadHandler) {
-				const unloadTestResult = await unloadMockAdapter(adapterMock, adapterCommon.stopTimeout);
+				const unloadTestResult = await unloadMockAdapter(
+					adapterMock,
+					adapterCommon.stopTimeout,
+				);
 				expect(unloadTestResult).to.be.true;
 			}
 		});
@@ -94,20 +121,32 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 		if (supportsCompactMode) {
 			it("The adapter starts in compact mode", async function() {
 				// If necessary, change the default timeout
-				if (typeof options.startTimeout === "number") this.timeout(options.startTimeout);
+				if (typeof options.startTimeout === "number")
+					this.timeout(options.startTimeout);
 
-				const { adapterMock, databaseMock, processExitCode, terminateReason } = await startMockAdapter(
-					mainFilename,
-					{
-						...getStartMockAdapterOptions(),
-						compact: true,
-					},
-				);
+				const {
+					adapterMock,
+					processExitCode,
+					terminateReason,
+				} = await startMockAdapter(mainFilename, {
+					...getStartMockAdapterOptions(),
+					compact: true,
+				});
 				// In compact mode, only "adapter.terminate" may be called
-				expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;
+				expect(
+					processExitCode,
+					"In compact mode, process.exit() must not be called!",
+				).to.be.undefined;
 				// Test that the unload callback is called
-				if (terminateReason != undefined && adapterMock && adapterMock.unloadHandler) {
-					const unloadTestResult = await unloadMockAdapter(adapterMock, adapterCommon.stopTimeout);
+				if (
+					terminateReason != undefined &&
+					adapterMock &&
+					adapterMock.unloadHandler
+				) {
+					const unloadTestResult = await unloadMockAdapter(
+						adapterMock,
+						adapterCommon.stopTimeout,
+					);
 					expect(unloadTestResult).to.be.true;
 				}
 			});
@@ -117,6 +156,5 @@ export function testAdapterWithMocks(adapterDir: string, options: TestAdapterOpt
 		if (typeof options.defineAdditionalTests === "function") {
 			options.defineAdditionalTests();
 		}
-
 	});
 }

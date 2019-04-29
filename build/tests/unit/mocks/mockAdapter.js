@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const sinon_1 = require("sinon");
 const objects_1 = require("alcalzone-shared/objects");
+const sinon_1 = require("sinon");
 const mockLogger_1 = require("./mockLogger");
 const mockObjects_1 = require("./mockObjects");
 const tools_1 = require("./tools");
@@ -320,7 +320,7 @@ function createAdapterMock(db, options = {}) {
             }
             return ret;
         }),
-        removeListener: ((event, listener) => {
+        removeListener: ((event, _listener) => {
             // TODO This is not entirely correct
             switch (event) {
                 case "ready":

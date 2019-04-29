@@ -1,18 +1,31 @@
-import { emptyDir, ensureDir, pathExists, unlink, writeFile, writeJSON } from "fs-extra";
-import { Socket } from "net";
-import * as path from "path";
-import { getAdapterFullName, getAdapterName, getAppName } from "../../../lib/adapterTools";
-import { executeCommand } from "../../../lib/executeCommand";
-import { getTestAdapterDir, getTestControllerDir, getTestDataDir, getTestDBDir, getTestLogDir } from "./tools";
-
+/* eslint-disable @typescript-eslint/no-var-requires */
 // Add debug logging for tests
 import debugModule from "debug";
+import {
+	emptyDir,
+	ensureDir,
+	pathExists,
+	unlink,
+	writeFile,
+	writeJSON,
+} from "fs-extra";
+import { Socket } from "net";
+import * as path from "path";
+import { getAdapterName, getAppName } from "../../../lib/adapterTools";
+import { executeCommand } from "../../../lib/executeCommand";
 import { DBConnection } from "./dbConnection";
+import {
+	getTestAdapterDir,
+	getTestControllerDir,
+	getTestDataDir,
+	getTestDBDir,
+	getTestLogDir,
+} from "./tools";
+
 const debug = debugModule("testing:integration:ControllerSetup");
 
 export class ControllerSetup {
-
-	constructor(
+	public constructor(
 		private adapterDir: string,
 		private testDir: string,
 		private dbConnection: DBConnection,
@@ -22,7 +35,10 @@ export class ControllerSetup {
 		this.adapterName = getAdapterName(this.adapterDir);
 		this.appName = getAppName(this.adapterDir);
 		this.testAdapterDir = getTestAdapterDir(this.adapterDir, this.testDir);
-		this.testControllerDir = getTestControllerDir(this.appName, this.testDir);
+		this.testControllerDir = getTestControllerDir(
+			this.appName,
+			this.testDir,
+		);
 		this.testDataDir = getTestDataDir(this.appName, this.testDir);
 
 		debug(`  directories:`);
@@ -39,7 +55,7 @@ export class ControllerSetup {
 	private testControllerDir: string;
 	private testDataDir: string;
 
-	public async prepareTestDir() {
+	public async prepareTestDir(): Promise<void> {
 		debug("Preparing the test directory...");
 		// Make sure the test dir exists
 		await ensureDir(this.testDir);
@@ -50,17 +66,21 @@ export class ControllerSetup {
 			version: "1.0.0",
 			main: "index.js",
 			scripts: {
-				test: "echo \"Error: no test specified\" && exit 1",
+				test: 'echo "Error: no test specified" && exit 1',
 			},
 			keywords: [],
 			author: "",
 			license: "ISC",
 			dependencies: {
-				[`${this.appName}.js-controller`]: `https://github.com/${this.appName}/${this.appName}.js-controller/tarball/master`,
+				[`${this.appName}.js-controller`]: `https://github.com/${
+					this.appName
+				}/${this.appName}.js-controller/tarball/master`,
 			},
 			description: "",
 		};
-		await writeJSON(path.join(this.testDir, "package.json"), packageJson, {spaces: 2});
+		await writeJSON(path.join(this.testDir, "package.json"), packageJson, {
+			spaces: 2,
+		});
 
 		// Delete a possible package-lock.json as it can mess with future installations
 		const pckLockPath = path.join(this.testDir, "package-lock.json");
@@ -74,10 +94,12 @@ export class ControllerSetup {
 	 * @param appName The branded name of "iobroker"
 	 * @param testDir The directory the integration tests are executed in
 	 */
-	public async isJsControllerInstalled() {
+	public async isJsControllerInstalled(): Promise<boolean> {
 		debug("Testing if JS-Controller is installed...");
 		// We expect js-controller to be installed if the dir in <testDir>/node_modules and the data directory exist
-		const isInstalled = await pathExists(this.testControllerDir) && await pathExists(this.testDataDir);
+		const isInstalled =
+			(await pathExists(this.testControllerDir)) &&
+			(await pathExists(this.testDataDir));
 		debug(`  => ${isInstalled}`);
 		return isInstalled;
 	}
@@ -85,24 +107,27 @@ export class ControllerSetup {
 	/**
 	 * Tests if an instance of JS-Controller is already running by attempting to connect to the Objects DB
 	 */
-	public isJsControllerRunning() {
+	public isJsControllerRunning(): Promise<boolean> {
 		debug("Testing if JS-Controller is running...");
-		return new Promise<boolean>((resolve) => {
+		return new Promise<boolean>(resolve => {
 			const client = new Socket();
 			// Try to connect to an existing ObjectsDB
-			client.connect({
-				port: 9000,
-				host: "127.0.0.1",
-			}).on("connect", () => {
-				// The connection succeeded
-				client.destroy();
-				debug(`  => true`);
-				resolve(true);
-			}).on("error", () => {
-				client.destroy();
-				debug(`  => false`);
-				resolve(false);
-			});
+			client
+				.connect({
+					port: 9000,
+					host: "127.0.0.1",
+				})
+				.on("connect", () => {
+					// The connection succeeded
+					client.destroy();
+					debug(`  => true`);
+					resolve(true);
+				})
+				.on("error", () => {
+					client.destroy();
+					debug(`  => false`);
+					resolve(false);
+				});
 
 			setTimeout(() => {
 				// Assume the connection failed after 1 s
@@ -118,14 +143,21 @@ export class ControllerSetup {
 	 * @param appName The branded name of "iobroker"
 	 * @param testDir The directory the integration tests are executed in
 	 */
-	public async installJsController() {
+	public async installJsController(): Promise<void> {
 		debug("Installing newest JS-Controller from github...");
 		// First npm install the JS-Controller into the correct directory
-		const installUrl = `https://github.com/${this.appName}/${this.appName}.js-controller/tarball/master`;
-		const installResult = await executeCommand("npm", ["i", installUrl, "--save"], {
-			cwd: this.testDir,
-		});
-		if (installResult.exitCode !== 0) throw new Error("JS-Controller could not be installed!");
+		const installUrl = `https://github.com/${this.appName}/${
+			this.appName
+		}.js-controller/tarball/master`;
+		const installResult = await executeCommand(
+			"npm",
+			["i", installUrl, "--save"],
+			{
+				cwd: this.testDir,
+			},
+		);
+		if (installResult.exitCode !== 0)
+			throw new Error("JS-Controller could not be installed!");
 		debug("  => done!");
 	}
 
@@ -134,7 +166,7 @@ export class ControllerSetup {
 	 * @param appName The branded name of "iobroker"
 	 * @param testDir The directory the integration tests are executed in
 	 */
-	public async setupJsController() {
+	public async setupJsController(): Promise<void> {
 		debug("Initializing JS-Controller installation...");
 		// Stop the controller before calling setup first
 		await executeCommand("node", [`${this.appName}.js`, "stop"], {
@@ -142,11 +174,16 @@ export class ControllerSetup {
 			stdout: "ignore",
 		});
 
-		const setupResult = await executeCommand("node", [`${this.appName}.js`, "setup", "first", "--console"], {
-			cwd: this.testControllerDir,
-			stdout: "ignore",
-		});
-		if (setupResult.exitCode !== 0) throw new Error(`${this.appName} setup first failed!`);
+		const setupResult = await executeCommand(
+			"node",
+			[`${this.appName}.js`, "setup", "first", "--console"],
+			{
+				cwd: this.testControllerDir,
+				stdout: "ignore",
+			},
+		);
+		if (setupResult.exitCode !== 0)
+			throw new Error(`${this.appName} setup first failed!`);
 		debug("  => done!");
 	}
 
@@ -155,10 +192,13 @@ export class ControllerSetup {
 	 * @param appName The branded name of "iobroker"
 	 * @param testDir The directory the integration tests are executed in
 	 */
-	public async setupSystemConfig() {
+	public async setupSystemConfig(): Promise<void> {
 		debug("Moving databases to different ports...");
 
-		const systemFilename = path.join(this.testDataDir, `${this.appName}.json`);
+		const systemFilename = path.join(
+			this.testDataDir,
+			`${this.appName}.json`,
+		);
 		const systemConfig = require(systemFilename);
 		systemConfig.objects.port = 19001;
 		systemConfig.states.port = 19000;
@@ -171,7 +211,7 @@ export class ControllerSetup {
 	 * @param appName The branded name of "iobroker"
 	 * @param testDir The directory the integration tests are executed in
 	 */
-	public clearLogDir() {
+	public clearLogDir(): Promise<void> {
 		debug("Cleaning log directory...");
 		return emptyDir(getTestLogDir(this.appName, this.testDir));
 	}
@@ -181,7 +221,7 @@ export class ControllerSetup {
 	 * @param appName The branded name of "iobroker"
 	 * @param testDir The directory the integration tests are executed in
 	 */
-	public clearDBDir() {
+	public clearDBDir(): Promise<void> {
 		debug("Cleaning SQLite directory...");
 		return emptyDir(getTestDBDir(this.appName, this.testDir));
 	}
@@ -190,7 +230,7 @@ export class ControllerSetup {
 	 * Disables all admin instances in the objects DB
 	 * @param objects The contents of objects.json
 	 */
-	public async disableAdminInstances() {
+	public async disableAdminInstances(): Promise<void> {
 		debug("Disabling admin instances...");
 		const objects = await this.dbConnection.readObjectsDB();
 		if (objects) {
@@ -204,5 +244,4 @@ export class ControllerSetup {
 		}
 		debug("  => done!");
 	}
-
 }

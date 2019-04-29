@@ -1,8 +1,14 @@
-import { stub } from "sinon";
-
+/* eslint-disable @typescript-eslint/camelcase */
 import { values } from "alcalzone-shared/objects";
+import { stub } from "sinon";
 import { MockDatabase } from "./mockDatabase";
-import { doResetBehavior, doResetHistory, ImplementedMethodDictionary, Mock, MockableMethods, stubAndPromisifyImplementedMethods } from "./tools";
+import {
+	doResetBehavior,
+	doResetHistory,
+	ImplementedMethodDictionary,
+	Mock,
+	stubAndPromisifyImplementedMethods,
+} from "./tools";
 
 // The mocked objects interface has all the usual properties, but all methods are replaced with stubs
 export type MockObjects = Mock<ioBroker.Objects> & {
@@ -21,18 +27,23 @@ const implementedMethods: ImplementedMethodDictionary<ioBroker.Objects> = {
 /**
  * Creates an adapter mock that is connected to a given database mock
  */
-export function createObjectsMock(db: MockDatabase) {
+export function createObjectsMock(db: MockDatabase): MockObjects {
 	const ret = {
 		getObjectView: ((
-			design: string, search: string,
-			{ startkey, endkey }: { startkey?: string, endkey?: string },
+			design: string,
+			search: string,
+			{ startkey, endkey }: { startkey?: string; endkey?: string },
 			callback?: ioBroker.GetObjectViewCallback,
 		) => {
-			if (design !== "system") throw new Error("If you want to use a custom design for getObjectView, you need to mock it yourself!");
+			if (design !== "system")
+				throw new Error(
+					"If you want to use a custom design for getObjectView, you need to mock it yourself!",
+				);
 			if (typeof callback === "function") {
 				let objects = values(db.getObjects("*"));
 				objects = objects.filter(obj => obj.type === search);
-				if (startkey) objects = objects.filter(obj => obj._id >= startkey);
+				if (startkey)
+					objects = objects.filter(obj => obj._id >= startkey);
 				if (endkey) objects = objects.filter(obj => obj._id <= endkey);
 				callback(null, {
 					rows: objects.map(obj => ({ id: obj._id, value: obj })),
@@ -41,16 +52,26 @@ export function createObjectsMock(db: MockDatabase) {
 		}) as sinon.SinonStub,
 
 		getObjectList: ((
-			{ startkey, endkey, include_docs }: { startkey?: string, endkey?: string, include_docs?: boolean },
+			{
+				startkey,
+				endkey,
+				include_docs,
+			}: { startkey?: string; endkey?: string; include_docs?: boolean },
 			callback?: ioBroker.GetObjectListCallback,
 		) => {
 			if (typeof callback === "function") {
 				let objects = values(db.getObjects("*"));
-				if (startkey) objects = objects.filter(obj => obj._id >= startkey);
+				if (startkey)
+					objects = objects.filter(obj => obj._id >= startkey);
 				if (endkey) objects = objects.filter(obj => obj._id <= endkey);
-				if (!include_docs) objects = objects.filter(obj => !obj._id.startsWith("_"));
+				if (!include_docs)
+					objects = objects.filter(obj => !obj._id.startsWith("_"));
 				callback(null, {
-					rows: objects.map(obj => ({ id: obj._id, value: obj, doc: obj })),
+					rows: objects.map(obj => ({
+						id: obj._id,
+						value: obj,
+						doc: obj,
+					})),
 				});
 			}
 		}) as sinon.SinonStub,
@@ -104,7 +125,10 @@ export function createObjectsMock(db: MockDatabase) {
 		},
 	} as MockObjects;
 
-	stubAndPromisifyImplementedMethods(ret, implementedMethods, ["getObjectView", "getObjectList"]);
+	stubAndPromisifyImplementedMethods(ret, implementedMethods, [
+		"getObjectView",
+		"getObjectList",
+	]);
 
 	return ret;
 }

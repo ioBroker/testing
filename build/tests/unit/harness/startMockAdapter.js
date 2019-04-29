@@ -1,6 +1,5 @@
 "use strict";
 // wotan-disable no-unused-expression
-// tslint:disable:no-unused-expression
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -32,6 +31,7 @@ const loader_1 = require("./loader");
  *
  * @param adapterMainFile The main file of the adapter to start. Must be an absolute path.
  */
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function startMockAdapter(adapterMainFile, options = {}) {
     return __awaiter(this, void 0, void 0, function* () {
         // Setup the mocks

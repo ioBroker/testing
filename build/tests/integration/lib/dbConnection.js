@@ -31,6 +31,7 @@ class DBConnection {
         this.objectsPath = path.join(this.testDataDir, "objects.json");
         this.statesPath = path.join(this.testDataDir, "states.json");
     }
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     readObjectsDB() {
         return __awaiter(this, void 0, void 0, function* () {
             // debug(`reading objects db...`);
@@ -72,6 +73,7 @@ class DBConnection {
      * @param appName The branded name of "iobroker"
      * @param testDir The directory the integration tests are executed in
      */
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     readDB() {
         return __awaiter(this, void 0, void 0, function* () {
             const objects = yield this.readObjectsDB();

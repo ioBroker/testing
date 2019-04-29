@@ -1,5 +1,4 @@
 // wotan-disable no-unused-expression
-// tslint:disable:no-unused-expression
 
 import { expect } from "chai";
 import * as path from "path";
@@ -7,9 +6,11 @@ import { MockAdapter, MockDatabase } from "..";
 import { loadModuleInHarness } from "./harness/loader";
 import { mockAdapterCore } from "./mocks/mockAdapterCore";
 
-function loadAdapterMock(adapterMainFile: string): {
-	adapterMock?: MockAdapter,
-	mainFileExport: any,
+function loadAdapterMock(
+	adapterMainFile: string,
+): {
+	adapterMock?: MockAdapter;
+	mainFileExport: any;
 } {
 	// Setup the mocks
 	const databaseMock = new MockDatabase();
@@ -33,38 +34,60 @@ function loadAdapterMock(adapterMainFile: string): {
 }
 
 describe("The unit test harness correctly picks up the adapter's event handlers", () => {
-
 	function assertAdapterAndHandlers(adapterMock: MockAdapter | undefined) {
-		if (adapterMock == undefined) throw new Error("The adapter was not initialized!");
-		expect(adapterMock.readyHandler, "The adapter's ready method could not be found!").to.exist;
-		expect(adapterMock.unloadHandler, "The adapter's unload method could not be found!").to.exist;
+		if (adapterMock == undefined)
+			throw new Error("The adapter was not initialized!");
+		expect(
+			adapterMock.readyHandler,
+			"The adapter's ready method could not be found!",
+		).to.exist;
+		expect(
+			adapterMock.unloadHandler,
+			"The adapter's unload method could not be found!",
+		).to.exist;
 	}
 
 	it("when the main file is written conventionally", () => {
-		const { adapterMock } = loadAdapterMock(path.join(process.cwd(), "test/unit/loader/adapter/main.js"));
+		const { adapterMock } = loadAdapterMock(
+			path.join(process.cwd(), "test/unit/loader/adapter/main.js"),
+		);
 		assertAdapterAndHandlers(adapterMock);
 	});
 
 	it("when the main file is written as a class with events", () => {
-		const { adapterMock } = loadAdapterMock(path.join(process.cwd(), "test/unit/loader/adapter/main_es6_events.js"));
+		const { adapterMock } = loadAdapterMock(
+			path.join(
+				process.cwd(),
+				"test/unit/loader/adapter/main_es6_events.js",
+			),
+		);
 		assertAdapterAndHandlers(adapterMock);
 	});
 
 	it("when the main file is written as a class which assigns to the options object", () => {
-		const { adapterMock } = loadAdapterMock(path.join(process.cwd(), "test/unit/loader/adapter/main_es6_assign.js"));
+		const { adapterMock } = loadAdapterMock(
+			path.join(
+				process.cwd(),
+				"test/unit/loader/adapter/main_es6_assign.js",
+			),
+		);
 		assertAdapterAndHandlers(adapterMock);
 	});
 });
 
 describe("Regression tests", () => {
 	it("The unit test harness correctly mocks modules that are loaded later", () => {
-		const { mainFileExport } = loadAdapterMock(path.join(process.cwd(), "test/unit/loader/mocks/main.js"));
+		const { mainFileExport } = loadAdapterMock(
+			path.join(process.cwd(), "test/unit/loader/mocks/main.js"),
+		);
 		const testResult = mainFileExport();
 		expect(testResult.main).to.equal(testResult.secondary);
 	});
 
 	it("The adapter methods should be executed in the correct `this` context", () => {
-		const { adapterMock } = loadAdapterMock(path.join(process.cwd(), "test/unit/loader/thisContext/main.js"));
+		const { adapterMock } = loadAdapterMock(
+			path.join(process.cwd(), "test/unit/loader/thisContext/main.js"),
+		);
 		expect(() => adapterMock!.readyHandler!()).not.to.throw();
 	});
 });

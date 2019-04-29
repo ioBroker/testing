@@ -9,6 +9,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const path = __importStar(require("path"));
 const mockAdapter_1 = require("./mockAdapter");
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function mockAdapterCore(database, options = {}) {
     /**
      * The root directory of JS-Controller
@@ -19,12 +20,13 @@ function mockAdapterCore(database, options = {}) {
     function getConfig() {
         return {};
     }
-    // tslint:disable-next-line: variable-name
     const AdapterConstructor = function (nameOrOptions) {
         // This needs to be a class with the correct `this` context or the ES6 tests won't work
         if (!(this instanceof AdapterConstructor))
             return new AdapterConstructor(nameOrOptions);
-        const createAdapterMockOptions = typeof nameOrOptions === "string" ? { name: nameOrOptions } : nameOrOptions;
+        const createAdapterMockOptions = typeof nameOrOptions === "string"
+            ? { name: nameOrOptions }
+            : nameOrOptions;
         mockAdapter_1.createAdapterMock.bind(this)(database, createAdapterMockOptions);
         if (typeof options.onAdapterCreated === "function")
             options.onAdapterCreated(this);

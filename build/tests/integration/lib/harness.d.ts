@@ -41,7 +41,7 @@ export declare class TestHarness extends EventEmitter {
     /** Creates the states DB and sets up listeners for it */
     private createStatesDB;
     /** Checks if the controller instance is running */
-    isControllerRunning(): any;
+    isControllerRunning(): boolean;
     /** Starts the controller instance by creating the databases */
     startController(): Promise<void>;
     /** Stops the controller instance (and the adapter if it is running) */

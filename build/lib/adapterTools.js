@@ -19,12 +19,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // Add debug logging for tests
-const debug_1 = __importDefault(require("debug"));
-const debug = debug_1.default("testing:unit:adapterTools");
-// tslint:disable:unified-signatures
 const typeguards_1 = require("alcalzone-shared/typeguards");
+const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = require("fs-extra");
 const path = __importStar(require("path"));
+const debug = debug_1.default("testing:unit:adapterTools");
 /**
  * Loads an adapter's package.json
  * @param adapterDir The directory the adapter resides in

@@ -1,4 +1,7 @@
 "use strict";
+/* eslint-disable @typescript-eslint/camelcase */
+/* eslint-disable @typescript-eslint/no-var-requires */
+// wotan-disable async-function-assignability
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -18,17 +21,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// Add debug logging for tests
-const debug_1 = __importDefault(require("debug"));
-const debug = debug_1.default("testing:integration:TestHarness");
 const async_1 = require("alcalzone-shared/async");
 const objects_1 = require("alcalzone-shared/objects");
 const child_process_1 = require("child_process");
+const debug_1 = __importDefault(require("debug"));
 const events_1 = require("events");
 const path = __importStar(require("path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
 const dbConnection_1 = require("./dbConnection");
 const tools_1 = require("./tools");
+const debug = debug_1.default("testing:integration:TestHarness");
 const isWindows = /^win/.test(process.platform);
 /** The logger instance for the objects and states DB */
 const logger = {
@@ -38,7 +40,6 @@ const logger = {
     warn: console.warn,
     error: console.error,
 };
-// tslint:enable:unified-signatures
 const fromAdapterID = "system.adapter.test.0";
 /**
  * The test harness capsules the execution of the JS-Controller and the adapter instance and monitors their status.
@@ -86,7 +87,6 @@ class TestHarness extends events_1.EventEmitter {
     createObjectsDB() {
         return __awaiter(this, void 0, void 0, function* () {
             debug("creating objects DB");
-            // tslint:disable-next-line:variable-name
             const Objects = require(path.join(this.testControllerDir, "lib/objects/objectsInMemServer"));
             return new Promise(resolve => {
                 this._objects = new Objects({
@@ -114,7 +114,6 @@ class TestHarness extends events_1.EventEmitter {
     createStatesDB() {
         return __awaiter(this, void 0, void 0, function* () {
             debug("creating states DB");
-            // tslint:disable-next-line:variable-name
             const States = require(path.join(this.testControllerDir, "lib/states/statesInMemServer"));
             return new Promise(resolve => {
                 this._states = new States({
@@ -140,7 +139,7 @@ class TestHarness extends events_1.EventEmitter {
     }
     /** Checks if the controller instance is running */
     isControllerRunning() {
-        return this._objects || this._states;
+        return !!this._objects || !!this._states;
     }
     /** Starts the controller instance by creating the databases */
     startController() {
@@ -170,10 +169,7 @@ class TestHarness extends events_1.EventEmitter {
             // Give the adapter time to stop, but maximum 5s
             if (!this.didAdapterStop()) {
                 debug("Stopping adapter instance...");
-                yield Promise.race([
-                    this.stopAdapter(),
-                    async_1.wait(5000),
-                ]);
+                yield Promise.race([this.stopAdapter(), async_1.wait(5000)]);
                 if (this.isAdapterRunning()) {
                     debug("Adapter did not terminate, killing it");
                     this._adapterProcess.kill("SIGKILL");
@@ -213,14 +209,13 @@ class TestHarness extends events_1.EventEmitter {
                 this._adapterExit = code != undefined ? code : signal;
                 this.emit("failed", this._adapterExit);
             };
-            this._adapterProcess =
-                child_process_1.spawn(isWindows ? "node.exe" : "node", [mainFileRelative, "--console"], {
-                    cwd: this.testAdapterDir,
-                    stdio: ["inherit", "inherit", "inherit"],
-                    env: Object.assign({}, process.env, env),
-                })
-                    .on("close", onClose)
-                    .on("exit", onClose);
+            this._adapterProcess = child_process_1.spawn(isWindows ? "node.exe" : "node", [mainFileRelative, "--console"], {
+                cwd: this.testAdapterDir,
+                stdio: ["inherit", "inherit", "inherit"],
+                env: Object.assign({}, process.env, env),
+            })
+                .on("close", onClose)
+                .on("exit", onClose);
         });
     }
     /**
@@ -230,9 +225,10 @@ class TestHarness extends events_1.EventEmitter {
     startAdapterAndWait(env = {}) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
-                this
-                    .on("stateChange", (id, state) => __awaiter(this, void 0, void 0, function* () {
-                    if (id === `system.adapter.${this.adapterName}.0.alive` && state && state.val === true) {
+                this.on("stateChange", (id, state) => __awaiter(this, void 0, void 0, function* () {
+                    if (id === `system.adapter.${this.adapterName}.0.alive` &&
+                        state &&
+                        state.val === true) {
                         resolve();
                     }
                 }))
@@ -267,8 +263,7 @@ class TestHarness extends events_1.EventEmitter {
                 debug(`  Signal: ${signal}`);
                 resolve();
             };
-            this._adapterProcess
-                .removeAllListeners()
+            this._adapterProcess.removeAllListeners()
                 .on("close", onClose)
                 .on("exit", onClose)
                 .kill("SIGTERM");
