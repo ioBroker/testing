@@ -42,7 +42,7 @@
     "@iobroker/adapter-core": "^1.0.3",
     "@types/chai": "^4.1.7",
     "@types/chai-as-promised": "^7.1.0",
-    "@types/debug": "0.0.31",
+    "@types/debug": "4.1.4",
     "@types/fs-extra": "^5.0.4",
     "@types/iobroker": "^1.4.4",
     "@types/mocha": "^5.2.5",
