@@ -10,6 +10,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// wotan-disable no-unstable-api-use
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const module_1 = __importDefault(require("module"));
 const path = __importStar(require("path"));
