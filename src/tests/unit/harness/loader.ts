@@ -97,9 +97,9 @@ export function monkeyPatchGlobals(
 	globals: Record<string, Record<string, any>>,
 ): string {
 	const codeIsStrict = detectStrictMode(code);
-	const prefix: string = `${
-		codeIsStrict ? '"use strict"; ' : ""
-	}((${Object.keys(globals).join(", ")}) => {`;
+	const prefix = `${codeIsStrict ? '"use strict"; ' : ""}((${Object.keys(
+		globals,
+	).join(", ")}) => {`;
 	const patchedArguments = Object.keys(globals).map(glob => {
 		const patchObj = globals[glob];
 		const patches = Object.keys(patchObj).map(
@@ -107,7 +107,7 @@ export function monkeyPatchGlobals(
 		);
 		return `buildProxy(${glob}, {${patches.join(", ")}})`;
 	});
-	const postfix: string = `
+	const postfix = `
 })(${patchedArguments.join(", ")});
 ${buildProxy}`;
 	return prefix + code + postfix;
