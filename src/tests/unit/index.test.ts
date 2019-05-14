@@ -4,6 +4,7 @@ import { expect } from "chai";
 import * as path from "path";
 import { MockAdapter, MockDatabase } from "..";
 import { loadModuleInHarness } from "./harness/loader";
+import { startMockAdapter } from "./harness/startMockAdapter";
 import { mockAdapterCore } from "./mocks/mockAdapterCore";
 
 function loadAdapterMock(
@@ -89,5 +90,37 @@ describe("Regression tests", () => {
 			path.join(process.cwd(), "test/unit/loader/thisContext/main.js"),
 		);
 		expect(() => adapterMock!.readyHandler!()).not.to.throw();
+	});
+
+	it("The mocked adapter.terminate() accepts strings and numbers", async () => {
+		let { processExitCode, terminateReason } = await startMockAdapter(
+			path.join(
+				process.cwd(),
+				"test/unit/loader/terminate/terminate_code.js",
+			),
+			{ compact: true },
+		);
+		expect(terminateReason).to.be.a("string");
+		expect(processExitCode).to.be.undefined;
+
+		({ processExitCode, terminateReason } = await startMockAdapter(
+			path.join(
+				process.cwd(),
+				"test/unit/loader/terminate/terminate_reason.js",
+			),
+			{ compact: true },
+		));
+		expect(terminateReason).to.be.a("string");
+		expect(processExitCode).to.be.undefined;
+
+		({ processExitCode, terminateReason } = await startMockAdapter(
+			path.join(
+				process.cwd(),
+				"test/unit/loader/terminate/terminate_both.js",
+			),
+			{ compact: true },
+		));
+		expect(terminateReason).to.be.a("string");
+		expect(processExitCode).to.be.undefined;
 	});
 });
