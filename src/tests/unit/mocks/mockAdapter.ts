@@ -364,13 +364,18 @@ export function createAdapterMock(
 		formatValue: stub(),
 		formatDate: stub(),
 
-		terminate: (((reason?: string) => {
+		terminate: (((reason?: string | number, exitCode?: number) => {
+			if (typeof reason === "number") {
+				// Only the exit code was passed
+				exitCode = reason;
+				reason = undefined;
+			}
+
+			const errorMessage = `Adapter.terminate was called${
+				typeof exitCode === "number" ? ` (exit code ${exitCode})` : ""
+			}: ${reason ? reason : "Without reason"}`;
 			// Terminates execution by
-			const err = new Error(
-				`Adapter.terminate was called${
-					reason ? ` with reason: "${reason}"` : ""
-				}!`,
-			);
+			const err = new Error(errorMessage);
 			// @ts-ignore
 			err.terminateReason = reason || "no reason given!";
 			throw err;

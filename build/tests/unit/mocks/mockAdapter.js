@@ -291,9 +291,15 @@ function createAdapterMock(db, options = {}) {
         chmodFile: sinon_1.stub(),
         formatValue: sinon_1.stub(),
         formatDate: sinon_1.stub(),
-        terminate: ((reason) => {
+        terminate: ((reason, exitCode) => {
+            if (typeof reason === "number") {
+                // Only the exit code was passed
+                exitCode = reason;
+                reason = undefined;
+            }
+            const errorMessage = `Adapter.terminate was called${typeof exitCode === "number" ? ` (exit code ${exitCode})` : ""}: ${reason ? reason : "Without reason"}`;
             // Terminates execution by
-            const err = new Error(`Adapter.terminate was called${reason ? ` with reason: "${reason}"` : ""}!`);
+            const err = new Error(errorMessage);
             // @ts-ignore
             err.terminateReason = reason || "no reason given!";
             throw err;
