@@ -145,6 +145,7 @@ export function validatePackageFiles(adapterDir: string): void {
 				"common.name",
 				"common.title",
 				"common.version",
+				"common.news",
 				"common.desc",
 				"common.icon",
 				"common.extIcon",

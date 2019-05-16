@@ -110,6 +110,7 @@ function validatePackageFiles(adapterDir) {
                 "common.name",
                 "common.title",
                 "common.version",
+                "common.news",
                 "common.desc",
                 "common.icon",
                 "common.extIcon",
