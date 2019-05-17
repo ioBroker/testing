@@ -160,27 +160,31 @@ function createAdapterMock(db, options = {}) {
             if (callback)
                 callback(undefined);
         }),
-        setState: ((id, state, ack, ...args) => {
-            if (typeof ack !== "boolean")
-                ack = false;
+        setState: ((id, state, ...args) => {
             const callback = getCallback(...args);
             if (!id.startsWith(ret.namespace))
                 id = ret.namespace + "." + id;
+            let ack;
             if (state != null && typeof state === "object") {
                 ack = !!state.ack;
                 state = state.val;
+            }
+            else {
+                ack = typeof args[0] === "boolean" ? args[0] : false;
             }
             db.publishState(id, { val: state, ack });
             if (callback)
                 callback(null, id);
         }),
-        setStateChanged: ((id, state, ack, ...args) => {
-            if (typeof ack !== "boolean")
-                ack = false;
+        setStateChanged: ((id, state, ...args) => {
             const callback = getCallback(...args);
+            let ack;
             if (state != null && typeof state === "object") {
                 ack = !!state.ack;
                 state = state.val;
+            }
+            else {
+                ack = typeof args[0] === "boolean" ? args[0] : false;
             }
             if (!id.startsWith(ret.namespace))
                 id = ret.namespace + "." + id;
@@ -190,25 +194,29 @@ function createAdapterMock(db, options = {}) {
             if (callback)
                 callback(null, id);
         }),
-        setForeignState: ((id, state, ack, ...args) => {
-            if (typeof ack !== "boolean")
-                ack = false;
+        setForeignState: ((id, state, ...args) => {
             const callback = getCallback(...args);
+            let ack;
             if (state != null && typeof state === "object") {
                 ack = !!state.ack;
                 state = state.val;
+            }
+            else {
+                ack = typeof args[0] === "boolean" ? args[0] : false;
             }
             db.publishState(id, { val: state, ack });
             if (callback)
                 callback(null, id);
         }),
-        setForeignStateChanged: ((id, state, ack, ...args) => {
-            if (typeof ack !== "boolean")
-                ack = false;
+        setForeignStateChanged: ((id, state, ...args) => {
             const callback = getCallback(...args);
+            let ack;
             if (state != null && typeof state === "object") {
                 ack = !!state.ack;
                 state = state.val;
+            }
+            else {
+                ack = typeof args[0] === "boolean" ? args[0] : false;
             }
             if (!db.hasState(id) || db.getState(id).val !== state) {
                 db.publishState(id, { val: state, ack });

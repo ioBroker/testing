@@ -208,32 +208,31 @@ export function createAdapterMock(
 			if (callback) callback(undefined);
 		}) as sinon.SinonStub,
 
-		setState: ((id: string, state: any, ack?: boolean, ...args: any[]) => {
-			if (typeof ack !== "boolean") ack = false;
+		setState: ((id: string, state: any, ...args: any[]) => {
 			const callback = getCallback<ioBroker.SetStateCallback>(...args);
 
 			if (!id.startsWith(ret.namespace)) id = ret.namespace + "." + id;
 
+			let ack: boolean;
 			if (state != null && typeof state === "object") {
 				ack = !!state.ack;
 				state = state.val;
+			} else {
+				ack = typeof args[0] === "boolean" ? args[0] : false;
 			}
 
 			db.publishState(id, { val: state, ack });
 			if (callback) callback(null, id);
 		}) as sinon.SinonStub,
-		setStateChanged: ((
-			id: string,
-			state: any,
-			ack?: boolean,
-			...args: any[]
-		) => {
-			if (typeof ack !== "boolean") ack = false;
+		setStateChanged: ((id: string, state: any, ...args: any[]) => {
 			const callback = getCallback<ioBroker.SetStateCallback>(...args);
 
+			let ack: boolean;
 			if (state != null && typeof state === "object") {
 				ack = !!state.ack;
 				state = state.val;
+			} else {
+				ack = typeof args[0] === "boolean" ? args[0] : false;
 			}
 
 			if (!id.startsWith(ret.namespace)) id = ret.namespace + "." + id;
@@ -242,35 +241,29 @@ export function createAdapterMock(
 			}
 			if (callback) callback(null, id);
 		}) as sinon.SinonStub,
-		setForeignState: ((
-			id: string,
-			state: any,
-			ack?: boolean,
-			...args: any[]
-		) => {
-			if (typeof ack !== "boolean") ack = false;
+		setForeignState: ((id: string, state: any, ...args: any[]) => {
 			const callback = getCallback<ioBroker.SetStateCallback>(...args);
 
+			let ack: boolean;
 			if (state != null && typeof state === "object") {
 				ack = !!state.ack;
 				state = state.val;
+			} else {
+				ack = typeof args[0] === "boolean" ? args[0] : false;
 			}
 
 			db.publishState(id, { val: state, ack });
 			if (callback) callback(null, id);
 		}) as sinon.SinonStub,
-		setForeignStateChanged: ((
-			id: string,
-			state: any,
-			ack?: boolean,
-			...args: any[]
-		) => {
-			if (typeof ack !== "boolean") ack = false;
+		setForeignStateChanged: ((id: string, state: any, ...args: any[]) => {
 			const callback = getCallback<ioBroker.SetStateCallback>(...args);
 
+			let ack: boolean;
 			if (state != null && typeof state === "object") {
 				ack = !!state.ack;
 				state = state.val;
+			} else {
+				ack = typeof args[0] === "boolean" ? args[0] : false;
 			}
 
 			if (!db.hasState(id) || db.getState(id)!.val !== state) {
