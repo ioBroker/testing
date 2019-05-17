@@ -47,6 +47,10 @@ const implementedMethods: ImplementedMethodDictionary<ioBroker.Adapter> = {
 	getForeignState: "normal",
 	setForeignState: "normal",
 	setForeignStateChanged: "normal",
+	subscribeStates: "normal",
+	subscribeForeignStates: "normal",
+	subscribeObjects: "normal",
+	subscribeForeignObjects: "normal",
 	getAdapterObjects: "no error",
 	on: "none",
 	removeListener: "none",
@@ -61,6 +65,12 @@ function getCallback<T extends (...args: any[]) => any>(
 	const lastArg = args[args.length - 1];
 	if (typeof lastArg === "function") return lastArg as T;
 }
+
+/** Stub implementation which can be promisified */
+const asyncEnabledStub = ((...args: any[]) => {
+	const callback = getCallback(...args);
+	if (typeof callback === "function") callback();
+}) as sinon.SinonStub;
 
 /**
  * Creates an adapter mock that is connected to a given database mock
@@ -316,15 +326,15 @@ export function createAdapterMock(
 		addStateToEnum: stub(),
 		deleteStateFromEnum: stub(),
 
-		subscribeObjects: stub(),
-		subscribeForeignObjects: stub(),
-		unsubscribeObjects: stub(),
-		unsubscribeForeignObjects: stub(),
+		subscribeObjects: asyncEnabledStub,
+		subscribeForeignObjects: asyncEnabledStub,
+		unsubscribeObjects: asyncEnabledStub,
+		unsubscribeForeignObjects: asyncEnabledStub,
 
-		subscribeStates: stub(),
-		subscribeForeignStates: stub(),
-		unsubscribeStates: stub(),
-		unsubscribeForeignStates: stub(),
+		subscribeStates: asyncEnabledStub,
+		subscribeForeignStates: asyncEnabledStub,
+		unsubscribeStates: asyncEnabledStub,
+		unsubscribeForeignStates: asyncEnabledStub,
 
 		createDevice: stub(),
 		deleteDevice: stub(),

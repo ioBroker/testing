@@ -21,6 +21,8 @@ function startAdapter(options) {
 				await adapter.setStateAsync("foo", { val: 1, ack: true });
 				// Reported in linkeddevices
 				await adapter.getForeignObjectsAsync("*");
+				await adapter.subscribeStatesAsync("*");
+				await adapter.subscribeForeignStatesAsync("*");
 			},
 
 			// is called when adapter shuts down - callback has to be called under any circumstances!

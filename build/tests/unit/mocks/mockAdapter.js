@@ -25,6 +25,10 @@ const implementedMethods = {
     getForeignState: "normal",
     setForeignState: "normal",
     setForeignStateChanged: "normal",
+    subscribeStates: "normal",
+    subscribeForeignStates: "normal",
+    subscribeObjects: "normal",
+    subscribeForeignObjects: "normal",
     getAdapterObjects: "no error",
     on: "none",
     removeListener: "none",
@@ -37,6 +41,12 @@ function getCallback(...args) {
     if (typeof lastArg === "function")
         return lastArg;
 }
+/** Stub implementation which can be promisified */
+const asyncEnabledStub = ((...args) => {
+    const callback = getCallback(...args);
+    if (typeof callback === "function")
+        callback();
+});
 /**
  * Creates an adapter mock that is connected to a given database mock
  */
@@ -272,14 +282,14 @@ function createAdapterMock(db, options = {}) {
         deleteChannelFromEnum: sinon_1.stub(),
         addStateToEnum: sinon_1.stub(),
         deleteStateFromEnum: sinon_1.stub(),
-        subscribeObjects: sinon_1.stub(),
-        subscribeForeignObjects: sinon_1.stub(),
-        unsubscribeObjects: sinon_1.stub(),
-        unsubscribeForeignObjects: sinon_1.stub(),
-        subscribeStates: sinon_1.stub(),
-        subscribeForeignStates: sinon_1.stub(),
-        unsubscribeStates: sinon_1.stub(),
-        unsubscribeForeignStates: sinon_1.stub(),
+        subscribeObjects: asyncEnabledStub,
+        subscribeForeignObjects: asyncEnabledStub,
+        unsubscribeObjects: asyncEnabledStub,
+        unsubscribeForeignObjects: asyncEnabledStub,
+        subscribeStates: asyncEnabledStub,
+        subscribeForeignStates: asyncEnabledStub,
+        unsubscribeStates: asyncEnabledStub,
+        unsubscribeForeignStates: asyncEnabledStub,
         createDevice: sinon_1.stub(),
         deleteDevice: sinon_1.stub(),
         createChannel: sinon_1.stub(),
