@@ -17,7 +17,10 @@ function startAdapter(options) {
 			// The ready callback is called when databases are connected and adapter received configuration.
 			// start here!
 			ready: async () => {
+				// Reported in worx adapter
 				await adapter.setStateAsync("foo", { val: 1, ack: true });
+				// Reported in linkeddevices
+				await adapter.getForeignObjectsAsync("*");
 			},
 
 			// is called when adapter shuts down - callback has to be called under any circumstances!

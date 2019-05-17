@@ -124,12 +124,9 @@ describe("Regression tests", () => {
 		expect(processExitCode).to.be.undefined;
 	});
 
-	it("The mocked adapter.setStateAsync() resolves when {val, ack} are passed as one object", async () => {
+	it("The mocked async methods don't stall", async () => {
 		await startMockAdapter(
-			path.join(
-				process.cwd(),
-				"test/unit/loader/database/setStateAsync_object.js",
-			),
+			path.join(process.cwd(), "test/unit/loader/asyncMocks/main.js"),
 			{ compact: true },
 		);
 	});

@@ -158,11 +158,9 @@ export function createAdapterMock(
 			const callback = getCallback<ioBroker.GetObjectCallback>(...args);
 			if (callback) callback(null, db.getObject(id));
 		}) as sinon.SinonStub,
-		getForeignObjects: ((
-			pattern: string,
-			type: ioBroker.ObjectType,
-			...args: any[]
-		) => {
+		getForeignObjects: ((pattern: string, ...args: any[]) => {
+			let type: ioBroker.ObjectType =
+				typeof args[0] === "string" ? args[0] : undefined;
 			const callback = getCallback<ioBroker.GetObjectsCallback>(...args);
 			if (callback) callback(null, db.getObjects(pattern, type));
 		}) as sinon.SinonStub,
