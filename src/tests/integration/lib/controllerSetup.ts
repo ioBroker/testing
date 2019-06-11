@@ -72,9 +72,7 @@ export class ControllerSetup {
 			author: "",
 			license: "ISC",
 			dependencies: {
-				[`${this.appName}.js-controller`]: `https://github.com/${
-					this.appName
-				}/${this.appName}.js-controller/tarball/master`,
+				[`${this.appName}.js-controller`]: `https://github.com/${this.appName}/${this.appName}.js-controller/tarball/master`,
 			},
 			description: "",
 		};
@@ -146,9 +144,7 @@ export class ControllerSetup {
 	public async installJsController(): Promise<void> {
 		debug("Installing newest JS-Controller from github...");
 		// First npm install the JS-Controller into the correct directory
-		const installUrl = `https://github.com/${this.appName}/${
-			this.appName
-		}.js-controller/tarball/master`;
+		const installUrl = `https://github.com/${this.appName}/${this.appName}.js-controller/tarball/master`;
 		const installResult = await executeCommand(
 			"npm",
 			["i", installUrl, "--save"],
