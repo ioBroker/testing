@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/AlCalzone/testing#readme",
   "devDependencies": {
-    "@fimbul/mithotyn": "^0.18.0",
+    "@fimbul/mithotyn": "^0.21.0",
     "@fimbul/wotan": "^0.20.0",
     "@iobroker/adapter-core": "^1.0.3",
     "@types/chai": "^4.1.7",
