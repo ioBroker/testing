@@ -15,7 +15,7 @@ export type MockableMethods<
 			? never
 			: All[K] extends ((...args: any[]) => void)
 			? K
-			: never
+			: never;
 	}
 > = NoAny[keyof NoAny];
 

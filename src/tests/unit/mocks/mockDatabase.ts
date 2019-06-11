@@ -209,18 +209,14 @@ export function createAsserts(db: MockDatabase, adapter: MockAdapter) {
 			id = normalizeID(id);
 			db.hasObject(id).should.equal(
 				true,
-				`The object "${
-					adapter.namespace
-				}.${id}" does not exist but it was expected to!`,
+				`The object "${adapter.namespace}.${id}" does not exist but it was expected to!`,
 			);
 		},
 		assertStateExists(id: string | string[]) {
 			id = normalizeID(id);
 			db.hasState(id).should.equal(
 				true,
-				`The state "${
-					adapter.namespace
-				}.${id}" does not exist but it was expected to!`,
+				`The state "${adapter.namespace}.${id}" does not exist but it was expected to!`,
 			);
 		},
 		assertStateHasValue(id: string | string[], value: any) {
