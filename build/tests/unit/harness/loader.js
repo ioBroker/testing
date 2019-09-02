@@ -141,7 +141,7 @@ function loadModuleInternal(require, moduleFilename, options = {}) {
     replaceJsLoader((module, filename) => {
         // If we want to replace some modules with mocks, we need to change the module's require function
         if (typeguards_1.isObject(options.mockedModules)) {
-            module.require = createMockRequire(module.require.bind(module), Object.assign({}, options, { relativeToFile: filename }));
+            module.require = createMockRequire(module.require.bind(module), Object.assign(Object.assign({}, options), { relativeToFile: filename }));
         }
         if (options.fakeNotRequired &&
             path.normalize(filename) === path.normalize(moduleFilename)) {

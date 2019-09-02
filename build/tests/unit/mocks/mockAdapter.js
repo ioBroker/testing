@@ -134,7 +134,9 @@ function createAdapterMock(db, options = {}) {
                 callback(null, db.getObject(id));
         }),
         getForeignObjects: ((pattern, ...args) => {
-            let type = typeof args[0] === "string" ? args[0] : undefined;
+            const type = typeof args[0] === "string"
+                ? args[0]
+                : undefined;
             const callback = getCallback(...args);
             if (callback)
                 callback(null, db.getObjects(pattern, type));
