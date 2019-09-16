@@ -2,10 +2,11 @@
 // wotan-disable async-function-assignability
 // wotan-disable no-unused-expression
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -77,7 +78,7 @@ function testAdapterWithMocks(adapterDir, options = {}) {
                     // If necessary, change the default timeout
                     if (typeof options.startTimeout === "number")
                         this.timeout(options.startTimeout);
-                    const { adapterMock, processExitCode, terminateReason, } = yield startMockAdapter_1.startMockAdapter(mainFilename, Object.assign({}, getStartMockAdapterOptions(), { compact: true }));
+                    const { adapterMock, processExitCode, terminateReason, } = yield startMockAdapter_1.startMockAdapter(mainFilename, Object.assign(Object.assign({}, getStartMockAdapterOptions()), { compact: true }));
                     // In compact mode, only "adapter.terminate" may be called
                     chai_1.expect(processExitCode, "In compact mode, process.exit() must not be called!").to.be.undefined;
                     // Test that the unload callback is called
