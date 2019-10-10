@@ -131,9 +131,14 @@ function validatePackageFiles(adapterDir) {
                 chai_1.expect(typeguards_1.isArray(authors)).to.be.true;
                 chai_1.expect(authors.length).to.be.at.least(1);
             });
-            it("Materialize is supported", () => {
-                chai_1.expect(iopackContent.common.materialize, "Adapters without materialize support will not be accepted!").to.be.true;
-            });
+            if (
+            // Materialize is only necessary if the adapter has a configuration page
+            iopackContent.common.noConfig !== true &&
+                iopackContent.common.noConfig !== "true") {
+                it("Materialize is supported", () => {
+                    chai_1.expect(iopackContent.common.materialize, "Adapters without materialize support will not be accepted!").to.be.true;
+                });
+            }
         });
         describe(`Compare contents of package.json and io-package.json`, () => {
             beforeEach(function () {
