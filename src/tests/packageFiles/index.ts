@@ -171,12 +171,19 @@ export function validatePackageFiles(adapterDir: string): void {
 				expect(isArray(authors)).to.be.true;
 				expect(authors.length).to.be.at.least(1);
 			});
-			it("Materialize is supported", () => {
-				expect(
-					iopackContent.common.materialize,
-					"Adapters without materialize support will not be accepted!",
-				).to.be.true;
-			});
+
+			if (
+				// Materialize is only necessary if the adapter has a configuration page
+				iopackContent.common.noConfig !== true &&
+				iopackContent.common.noConfig !== "true"
+			) {
+				it("Materialize is supported", () => {
+					expect(
+						iopackContent.common.materialize,
+						"Adapters without materialize support will not be accepted!",
+					).to.be.true;
+				});
+			}
 		});
 
 		describe(`Compare contents of package.json and io-package.json`, () => {
