@@ -131,6 +131,11 @@ function validatePackageFiles(adapterDir) {
                 chai_1.expect(typeguards_1.isArray(authors)).to.be.true;
                 chai_1.expect(authors.length).to.be.at.least(1);
             });
+            it(`common.news is an object that contains maximum 20 entries`, () => {
+                const news = iopackContent.common.news;
+                chai_1.expect(typeguards_1.isObject(news)).to.be.true;
+                chai_1.expect(Object.keys(news).length).to.be.at.most(20);
+            });
             if (
             // Materialize is only necessary if the adapter has a configuration page
             iopackContent.common.noConfig !== true &&

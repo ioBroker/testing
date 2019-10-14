@@ -2,7 +2,7 @@
 // wotan-disable async-function-assignability
 // wotan-disable no-unused-expression
 
-import { isArray } from "alcalzone-shared/typeguards";
+import { isArray, isObject } from "alcalzone-shared/typeguards";
 import { expect } from "chai";
 import * as fs from "fs";
 import * as path from "path";
@@ -170,6 +170,12 @@ export function validatePackageFiles(adapterDir: string): void {
 				const authors = iopackContent.common.authors;
 				expect(isArray(authors)).to.be.true;
 				expect(authors.length).to.be.at.least(1);
+			});
+
+			it(`common.news is an object that contains maximum 20 entries`, () => {
+				const news = iopackContent.common.news;
+				expect(isObject(news)).to.be.true;
+				expect(Object.keys(news).length).to.be.at.most(20);
 			});
 
 			if (
