@@ -13,7 +13,7 @@ export type MockableMethods<
 	NoAny = {
 		[K in keyof All]: IsAny<All[K]> extends true
 			? never
-			: All[K] extends ((...args: any[]) => void)
+			: All[K] extends (...args: any[]) => void
 			? K
 			: never;
 	}

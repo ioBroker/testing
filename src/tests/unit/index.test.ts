@@ -93,7 +93,10 @@ describe("Regression tests", () => {
 	});
 
 	it("The mocked adapter.terminate() accepts strings and numbers", async () => {
-		let { processExitCode, terminateReason } = await startMockAdapter(
+		let {
+			processExitCode,
+			terminateReason,
+		} = await startMockAdapter(
 			path.join(
 				process.cwd(),
 				"test/unit/loader/terminate/terminate_code.js",
@@ -103,7 +106,10 @@ describe("Regression tests", () => {
 		expect(terminateReason).to.be.a("string");
 		expect(processExitCode).to.be.undefined;
 
-		({ processExitCode, terminateReason } = await startMockAdapter(
+		({
+			processExitCode,
+			terminateReason,
+		} = await startMockAdapter(
 			path.join(
 				process.cwd(),
 				"test/unit/loader/terminate/terminate_reason.js",
@@ -113,7 +119,10 @@ describe("Regression tests", () => {
 		expect(terminateReason).to.be.a("string");
 		expect(processExitCode).to.be.undefined;
 
-		({ processExitCode, terminateReason } = await startMockAdapter(
+		({
+			processExitCode,
+			terminateReason,
+		} = await startMockAdapter(
 			path.join(
 				process.cwd(),
 				"test/unit/loader/terminate/terminate_both.js",
