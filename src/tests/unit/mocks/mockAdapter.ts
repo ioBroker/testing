@@ -1,8 +1,8 @@
-import { extend } from "alcalzone-shared/objects";
+/* eslint-disable @typescript-eslint/camelcase */
+import { extend, values } from "alcalzone-shared/objects";
 import { stub } from "sinon";
 import { MockDatabase } from "./mockDatabase";
 import { createLoggerMock, MockLogger } from "./mockLogger";
-import { createObjectsMock, MockObjects } from "./mockObjects";
 import {
 	doResetBehavior,
 	doResetHistory,
@@ -19,8 +19,14 @@ export type MockAdapter = Mock<ioBroker.Adapter> & {
 	messageHandler: ioBroker.MessageHandler | undefined;
 	unloadHandler: ioBroker.UnloadHandler | undefined;
 
+	// TODO: Waiting on https://github.com/DefinitelyTyped/DefinitelyTyped/pull/41272
+	getObjectList: (
+		params: ioBroker.GetObjectListParams | null,
+		options: { sorted?: boolean } | Record<string, any>,
+		callback: ioBroker.GetObjectListCallback,
+	) => void;
+
 	log: MockLogger;
-	objects: MockObjects;
 
 	resetMock(): void;
 	resetMockHistory(): void;
@@ -52,6 +58,9 @@ const implementedMethods: ImplementedMethodDictionary<ioBroker.Adapter> = {
 	subscribeObjects: "normal",
 	subscribeForeignObjects: "normal",
 	getAdapterObjects: "no error",
+	getObjectView: "normal",
+	// @ts-ignore Waiting on https://github.com/DefinitelyTyped/DefinitelyTyped/pull/41272
+	getObjectList: "normal",
 	on: "none",
 	removeListener: "none",
 	removeAllListeners: "none",
@@ -82,7 +91,7 @@ export function createAdapterMock(
 ): MockAdapter {
 	// In order to support ES6-style adapters with inheritance, we need to work on the instance directly
 	const ret: MockAdapter = this || ({} as any);
-	Object.assign(ret, {
+	Object.assign(ret, ({
 		name: options.name || "test",
 		host: "testhost",
 		instance: options.instance || 0,
@@ -95,8 +104,6 @@ export function createAdapterMock(
 		pack: {},
 		log: createLoggerMock(),
 		version: "any",
-		states: ({} as any) as ioBroker.States,
-		objects: createObjectsMock(db),
 		connected: true,
 
 		getPort: stub(),
@@ -142,6 +149,61 @@ export function createAdapterMock(
 			callback: (objects: Record<string, ioBroker.Object>) => void,
 		) => {
 			callback(db.getObjects(`${ret.namespace}.*`));
+		}) as sinon.SinonStub,
+
+		getObjectView: ((
+			design: string,
+			search: string,
+			{ startkey, endkey }: { startkey?: string; endkey?: string },
+			...args: any[]
+		) => {
+			if (design !== "system") {
+				throw new Error(
+					"If you want to use a custom design for getObjectView, you need to mock it yourself!",
+				);
+			}
+			const callback = getCallback<ioBroker.GetObjectViewCallback>(
+				...args,
+			);
+			if (typeof callback === "function") {
+				let objects = values(db.getObjects("*"));
+				objects = objects.filter(obj => obj.type === search);
+				if (startkey)
+					objects = objects.filter(obj => obj._id >= startkey);
+				if (endkey) objects = objects.filter(obj => obj._id <= endkey);
+				callback(null, {
+					rows: objects.map(obj => ({ id: obj._id, value: obj })),
+				});
+			}
+		}) as sinon.SinonStub,
+
+		getObjectList: ((
+			{
+				startkey,
+				endkey,
+				include_docs,
+			}: { startkey?: string; endkey?: string; include_docs?: boolean },
+			...args: any[]
+		) => {
+			const callback = getCallback<ioBroker.GetObjectListCallback>(
+				...args,
+			);
+
+			if (typeof callback === "function") {
+				let objects = values(db.getObjects("*"));
+				if (startkey)
+					objects = objects.filter(obj => obj._id >= startkey);
+				if (endkey) objects = objects.filter(obj => obj._id <= endkey);
+				if (!include_docs)
+					objects = objects.filter(obj => !obj._id.startsWith("_"));
+				callback(null, {
+					rows: objects.map(obj => ({
+						id: obj._id,
+						value: obj,
+						doc: obj,
+					})),
+				});
+			}
 		}) as sinon.SinonStub,
 		extendObject: ((
 			id: string,
@@ -456,21 +518,23 @@ export function createAdapterMock(
 			// reset Adapter
 			doResetHistory(ret);
 			(ret.log as MockLogger).resetMockHistory();
-			(ret.objects as MockObjects).resetMockHistory();
 		},
 		resetMockBehavior() {
 			// reset Adapter
 			doResetBehavior(ret, implementedMethods);
 			(ret.log as MockLogger).resetMockBehavior();
-			(ret.objects as MockObjects).resetMockBehavior();
 		},
 		resetMock() {
 			ret.resetMockHistory();
 			ret.resetMockBehavior();
 		},
-	} as MockAdapter);
+	} as unknown) as MockAdapter);
 
-	stubAndPromisifyImplementedMethods(ret, implementedMethods);
+	stubAndPromisifyImplementedMethods(ret, implementedMethods, [
+		"getObjectView",
+		"getObjectList",
+	] as any[]);
+	// TODO: remove the any[] assertion when https://github.com/DefinitelyTyped/DefinitelyTyped/pull/41272 is merged
 
 	// Access the options object directly, so we can react to later changes
 	Object.defineProperties(this, {

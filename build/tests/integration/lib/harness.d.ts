@@ -26,16 +26,16 @@ export declare class TestHarness extends EventEmitter {
     private dbConnection;
     private _objects;
     /** The actual objects DB */
-    readonly objects: any;
+    get objects(): any;
     private _states;
     /** The actual states DB */
-    readonly states: any;
+    get states(): any;
     private _adapterProcess;
     /** The process the adapter is running in */
-    readonly adapterProcess: ChildProcess | undefined;
+    get adapterProcess(): ChildProcess | undefined;
     private _adapterExit;
     /** Contains the adapter exit code or signal if it was terminated unexpectedly */
-    readonly adapterExit: number | string | undefined;
+    get adapterExit(): number | string | undefined;
     /** Creates the objects DB and sets up listeners for it */
     private createObjectsDB;
     /** Creates the states DB and sets up listeners for it */

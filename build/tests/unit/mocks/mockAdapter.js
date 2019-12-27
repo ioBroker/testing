@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+/* eslint-disable @typescript-eslint/camelcase */
 const objects_1 = require("alcalzone-shared/objects");
 const sinon_1 = require("sinon");
 const mockLogger_1 = require("./mockLogger");
-const mockObjects_1 = require("./mockObjects");
 const tools_1 = require("./tools");
 // Define here which methods were implemented manually, so we can hook them up with a real stub
 // The value describes if and how the async version of the callback is constructed
@@ -30,6 +30,9 @@ const implementedMethods = {
     subscribeObjects: "normal",
     subscribeForeignObjects: "normal",
     getAdapterObjects: "no error",
+    getObjectView: "normal",
+    // @ts-ignore Waiting on https://github.com/DefinitelyTyped/DefinitelyTyped/pull/41272
+    getObjectList: "normal",
     on: "none",
     removeListener: "none",
     removeAllListeners: "none",
@@ -66,8 +69,6 @@ function createAdapterMock(db, options = {}) {
         pack: {},
         log: mockLogger_1.createLoggerMock(),
         version: "any",
-        states: {},
-        objects: mockObjects_1.createObjectsMock(db),
         connected: true,
         getPort: sinon_1.stub(),
         stop: sinon_1.stub(),
@@ -109,6 +110,42 @@ function createAdapterMock(db, options = {}) {
         }),
         getAdapterObjects: ((callback) => {
             callback(db.getObjects(`${ret.namespace}.*`));
+        }),
+        getObjectView: ((design, search, { startkey, endkey }, ...args) => {
+            if (design !== "system") {
+                throw new Error("If you want to use a custom design for getObjectView, you need to mock it yourself!");
+            }
+            const callback = getCallback(...args);
+            if (typeof callback === "function") {
+                let objects = objects_1.values(db.getObjects("*"));
+                objects = objects.filter(obj => obj.type === search);
+                if (startkey)
+                    objects = objects.filter(obj => obj._id >= startkey);
+                if (endkey)
+                    objects = objects.filter(obj => obj._id <= endkey);
+                callback(null, {
+                    rows: objects.map(obj => ({ id: obj._id, value: obj })),
+                });
+            }
+        }),
+        getObjectList: (({ startkey, endkey, include_docs, }, ...args) => {
+            const callback = getCallback(...args);
+            if (typeof callback === "function") {
+                let objects = objects_1.values(db.getObjects("*"));
+                if (startkey)
+                    objects = objects.filter(obj => obj._id >= startkey);
+                if (endkey)
+                    objects = objects.filter(obj => obj._id <= endkey);
+                if (!include_docs)
+                    objects = objects.filter(obj => !obj._id.startsWith("_"));
+                callback(null, {
+                    rows: objects.map(obj => ({
+                        id: obj._id,
+                        value: obj,
+                        doc: obj,
+                    })),
+                });
+            }
         }),
         extendObject: ((id, obj, ...args) => {
             if (!id.startsWith(ret.namespace))
@@ -391,20 +428,22 @@ function createAdapterMock(db, options = {}) {
             // reset Adapter
             tools_1.doResetHistory(ret);
             ret.log.resetMockHistory();
-            ret.objects.resetMockHistory();
         },
         resetMockBehavior() {
             // reset Adapter
             tools_1.doResetBehavior(ret, implementedMethods);
             ret.log.resetMockBehavior();
-            ret.objects.resetMockBehavior();
         },
         resetMock() {
             ret.resetMockHistory();
             ret.resetMockBehavior();
         },
     });
-    tools_1.stubAndPromisifyImplementedMethods(ret, implementedMethods);
+    tools_1.stubAndPromisifyImplementedMethods(ret, implementedMethods, [
+        "getObjectView",
+        "getObjectList",
+    ]);
+    // TODO: remove the any[] assertion when https://github.com/DefinitelyTyped/DefinitelyTyped/pull/41272 is merged
     // Access the options object directly, so we can react to later changes
     Object.defineProperties(this, {
         readyHandler: {

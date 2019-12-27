@@ -1,7 +1,6 @@
 /// <reference types="iobroker" />
 import { MockDatabase } from "./mockDatabase";
 import { MockLogger } from "./mockLogger";
-import { MockObjects } from "./mockObjects";
 import { Mock } from "./tools";
 export declare type MockAdapter = Mock<ioBroker.Adapter> & {
     readyHandler: ioBroker.ReadyHandler | undefined;
@@ -9,8 +8,10 @@ export declare type MockAdapter = Mock<ioBroker.Adapter> & {
     stateChangeHandler: ioBroker.StateChangeHandler | undefined;
     messageHandler: ioBroker.MessageHandler | undefined;
     unloadHandler: ioBroker.UnloadHandler | undefined;
+    getObjectList: (params: ioBroker.GetObjectListParams | null, options: {
+        sorted?: boolean;
+    } | Record<string, any>, callback: ioBroker.GetObjectListCallback) => void;
     log: MockLogger;
-    objects: MockObjects;
     resetMock(): void;
     resetMockHistory(): void;
     resetMockBehavior(): void;
