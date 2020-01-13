@@ -1,5 +1,7 @@
 /// <reference types="node" />
 import Module from "module";
+export declare type NodeRequireFunction = (id: string) => any;
+export declare type LoaderFunction = (m: NodeModule, filename: string) => any;
 export declare function createMockRequire(originalRequire: NodeRequire, options: LoadModuleOptions): NodeRequireFunction;
 /**
  * Monkey-patches module code before executing it by wrapping it in an IIFE whose arguments are modified (proxied) globals
@@ -11,7 +13,6 @@ export declare function monkeyPatchGlobals(code: string, globals: Record<string,
 export declare function removeHashbang(code: string): string;
 /** A test-safe replacement for process.exit that throws a specific error instead */
 export declare function fakeProcessExit(code?: number): never;
-declare type LoaderFunction = NodeExtensions[string];
 /**
  * Replaces NodeJS's default loader for .js-files with the given one and returns the original one
  */
