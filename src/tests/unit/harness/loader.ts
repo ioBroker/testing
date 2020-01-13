@@ -4,6 +4,9 @@ import Module from "module";
 import * as path from "path";
 
 const globalRequire = require;
+// This was dropped from the Node.js typings in v13, so we need it here
+export type NodeRequireFunction = (id: string) => any;
+export type LoaderFunction = (m: NodeModule, filename: string) => any;
 
 export function createMockRequire(
 	originalRequire: NodeRequire,
@@ -126,7 +129,6 @@ export function fakeProcessExit(code: number = 0): never {
 	throw err;
 }
 
-type LoaderFunction = NodeExtensions[string];
 let isOriginalLoader = true;
 let originalLoader: LoaderFunction | undefined;
 
