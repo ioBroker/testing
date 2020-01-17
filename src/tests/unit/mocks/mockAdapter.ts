@@ -19,13 +19,6 @@ export type MockAdapter = Mock<ioBroker.Adapter> & {
 	messageHandler: ioBroker.MessageHandler | undefined;
 	unloadHandler: ioBroker.UnloadHandler | undefined;
 
-	// TODO: Waiting on https://github.com/DefinitelyTyped/DefinitelyTyped/pull/41272
-	getObjectList: (
-		params: ioBroker.GetObjectListParams | null,
-		options: { sorted?: boolean } | Record<string, any>,
-		callback: ioBroker.GetObjectListCallback,
-	) => void;
-
 	log: MockLogger;
 
 	resetMock(): void;
@@ -59,7 +52,6 @@ const implementedMethods: ImplementedMethodDictionary<ioBroker.Adapter> = {
 	subscribeForeignObjects: "normal",
 	getAdapterObjects: "no error",
 	getObjectView: "normal",
-	// @ts-ignore Waiting on https://github.com/DefinitelyTyped/DefinitelyTyped/pull/41272
 	getObjectList: "normal",
 	on: "none",
 	removeListener: "none",
@@ -205,6 +197,7 @@ export function createAdapterMock(
 				});
 			}
 		}) as sinon.SinonStub,
+
 		extendObject: ((
 			id: string,
 			obj: ioBroker.PartialObject,
@@ -533,8 +526,7 @@ export function createAdapterMock(
 	stubAndPromisifyImplementedMethods(ret, implementedMethods, [
 		"getObjectView",
 		"getObjectList",
-	] as any[]);
-	// TODO: remove the any[] assertion when https://github.com/DefinitelyTyped/DefinitelyTyped/pull/41272 is merged
+	]);
 
 	// Access the options object directly, so we can react to later changes
 	Object.defineProperties(this, {

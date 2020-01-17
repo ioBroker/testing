@@ -443,7 +443,6 @@ function createAdapterMock(db, options = {}) {
         "getObjectView",
         "getObjectList",
     ]);
-    // TODO: remove the any[] assertion when https://github.com/DefinitelyTyped/DefinitelyTyped/pull/41272 is merged
     // Access the options object directly, so we can react to later changes
     Object.defineProperties(this, {
         readyHandler: {

@@ -1,6 +1,6 @@
 {
   "name": "@iobroker/testing",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Shared utilities for adapter and module testing in ioBroker",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -44,7 +44,7 @@
     "@types/chai-as-promised": "^7.1.0",
     "@types/debug": "4.1.5",
     "@types/fs-extra": "^8.0.0",
-    "@types/iobroker": "^2.0.0",
+    "@types/iobroker": "^2.0.1",
     "@types/mocha": "^5.2.5",
     "@types/node": "^13.1.6",
     "@types/sinon": "^7.0.5",
