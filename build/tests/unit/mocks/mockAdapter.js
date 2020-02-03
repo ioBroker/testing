@@ -31,7 +31,6 @@ const implementedMethods = {
     subscribeForeignObjects: "normal",
     getAdapterObjects: "no error",
     getObjectView: "normal",
-    // @ts-ignore Waiting on https://github.com/DefinitelyTyped/DefinitelyTyped/pull/41272
     getObjectList: "normal",
     on: "none",
     removeListener: "none",

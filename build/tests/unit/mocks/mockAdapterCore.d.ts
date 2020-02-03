@@ -14,5 +14,7 @@ export declare function mockAdapterCore(database: MockDatabase, options?: MockAd
     getConfig: () => Record<string, any>;
     Adapter: MockAdapterConstructor;
     adapter: MockAdapterConstructor;
+    getAbsoluteDefaultDataDir: () => string;
+    getAbsoluteInstanceDataDir: (adapterObject: MockAdapter) => string;
 };
 export {};

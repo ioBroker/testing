@@ -8,9 +8,6 @@ export declare type MockAdapter = Mock<ioBroker.Adapter> & {
     stateChangeHandler: ioBroker.StateChangeHandler | undefined;
     messageHandler: ioBroker.MessageHandler | undefined;
     unloadHandler: ioBroker.UnloadHandler | undefined;
-    getObjectList: (params: ioBroker.GetObjectListParams | null, options: {
-        sorted?: boolean;
-    } | Record<string, any>, callback: ioBroker.GetObjectListCallback) => void;
     log: MockLogger;
     resetMock(): void;
     resetMockHistory(): void;
