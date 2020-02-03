@@ -139,4 +139,15 @@ describe("Regression tests", () => {
 			{ compact: true },
 		);
 	});
+
+	it("The mocked methods to access the data dir don't throw", async () => {
+		await startMockAdapter(
+			path.join(process.cwd(), "test/unit/loader/dataDir/main.js"),
+		);
+
+		await startMockAdapter(
+			path.join(process.cwd(), "test/unit/loader/dataDir/main.js"),
+			{ compact: true },
+		);
+	});
 });

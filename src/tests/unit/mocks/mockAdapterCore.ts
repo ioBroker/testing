@@ -1,3 +1,4 @@
+import * as os from "os";
 import * as path from "path";
 import { createAdapterMock, MockAdapter } from "./mockAdapter";
 import { MockDatabase } from "./mockDatabase";
@@ -27,6 +28,23 @@ export function mockAdapterCore(
 		"iobroker.js-controller",
 	);
 
+	const dataDir = path.join(os.tmpdir(), `test-iobroker-data`);
+	/**
+	 * The test location for iobroker-data
+	 * If this has to exist in the test, the user/tester has to take care of it!
+	 */
+	function getAbsoluteDefaultDataDir(): string {
+		return dataDir;
+	}
+
+	/**
+	 * The test location for adapter-specific data
+	 * If this has to exist in the test, the user/tester has to take care of it!
+	 */
+	function getAbsoluteInstanceDataDir(adapterObject: MockAdapter): string {
+		return path.join(getAbsoluteDefaultDataDir(), adapterObject.namespace);
+	}
+
 	/** Reads the configuration file of JS-Controller */
 	function getConfig(): Record<string, any> {
 		return {};
@@ -55,5 +73,7 @@ export function mockAdapterCore(
 		getConfig,
 		Adapter: AdapterConstructor,
 		adapter: AdapterConstructor,
+		getAbsoluteDefaultDataDir,
+		getAbsoluteInstanceDataDir,
 	};
 }
