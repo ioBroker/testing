@@ -4,7 +4,7 @@ import { createAdapterMock, MockAdapter } from "./mockAdapter";
 import { MockDatabase } from "./mockDatabase";
 
 interface MockAdapterConstructor {
-	new(nameOrOptions: string | ioBroker.AdapterOptions): MockAdapter;
+	new (nameOrOptions: string | ioBroker.AdapterOptions): MockAdapter;
 	(nameOrOptions: string | ioBroker.AdapterOptions): MockAdapter;
 }
 
@@ -50,7 +50,7 @@ export function mockAdapterCore(
 		return {};
 	}
 
-	const AdapterConstructor = function (
+	const AdapterConstructor = function(
 		this: MockAdapter | void,
 		nameOrOptions: string | ioBroker.AdapterOptions,
 	) {
