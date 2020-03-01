@@ -84,6 +84,19 @@ export class ControllerSetup {
 		const pckLockPath = path.join(this.testDir, "package-lock.json");
 		if (await pathExists(pckLockPath)) await unlink(pckLockPath);
 
+		// Set the engineStrict flag on new Node.js versions to be in line with newer ioBroker installations
+		const nodeMajorVersion = parseInt(
+			process.versions.node.split(".")[0],
+			10,
+		);
+		if (nodeMajorVersion >= 10) {
+			await writeFile(
+				path.join(this.testDir, ".npmrc"),
+				"engine-strict=true",
+				"utf8",
+			);
+		}
+
 		debug("  => done!");
 	}
 
