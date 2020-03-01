@@ -16,7 +16,8 @@
     "watch": "tsc -p tsconfig.build.json --watch",
     "lint:ts": "eslint --ext .ts src",
     "lint:wotan": "wotan",
-    "lint": "npm run lint:ts && npm run lint:wotan"
+    "lint": "npm run lint:ts && npm run lint:wotan",
+    "release": "release-script"
   },
   "repository": {
     "type": "git",
@@ -37,6 +38,7 @@
   },
   "homepage": "https://github.com/AlCalzone/testing#readme",
   "devDependencies": {
+    "@alcalzone/release-script": "^1.1.1",
     "@fimbul/mithotyn": "^0.21.0",
     "@fimbul/wotan": "^0.21.0",
     "@iobroker/adapter-core": "^2.0.0",
