@@ -17,7 +17,7 @@ function loadAdapterMock(
 	const databaseMock = new MockDatabase();
 	let adapterMock: MockAdapter | undefined;
 	const adapterCoreMock = mockAdapterCore(databaseMock, {
-		onAdapterCreated: mock => {
+		onAdapterCreated: (mock) => {
 			adapterMock = mock;
 		},
 	});

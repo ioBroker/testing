@@ -50,7 +50,7 @@ export async function startMockAdapter(
 	}
 	let adapterMock: MockAdapter | undefined;
 	const adapterCoreMock = mockAdapterCore(databaseMock, {
-		onAdapterCreated: mock => {
+		onAdapterCreated: (mock) => {
 			adapterMock = mock;
 			// Give the user the chance to change the mock behavior
 			if (typeof options.defineMockBehavior === "function")
@@ -64,6 +64,7 @@ export async function startMockAdapter(
 	// Replace the following modules with mocks
 	const mockedModules: Record<string, any> = {};
 	if (options.additionalMockedModules) {
+		// eslint-disable-next-line prefer-const
 		for (let [mdl, mock] of entries(options.additionalMockedModules)) {
 			mdl = mdl.replace(
 				"{CONTROLLER_DIR}",
@@ -146,7 +147,7 @@ export async function startMockAdapter(
 
 export function unloadMockAdapter(
 	adapter: MockAdapter,
-	timeout: number = 500,
+	timeout = 500,
 ): Promise<boolean> {
 	return new Promise<boolean>((res, rej) => {
 		function finishUnload(): void {

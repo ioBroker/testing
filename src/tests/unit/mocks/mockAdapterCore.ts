@@ -50,7 +50,7 @@ export function mockAdapterCore(
 		return {};
 	}
 
-	const AdapterConstructor = function(
+	const AdapterConstructor = function (
 		this: MockAdapter | void,
 		nameOrOptions: string | ioBroker.AdapterOptions,
 	) {

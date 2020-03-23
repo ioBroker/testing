@@ -42,7 +42,7 @@ export function testAdapter(
 		let objectsBackup: any;
 		let statesBackup: any;
 
-		before(async function() {
+		before(async function () {
 			// Installation may take a while - especially if rsa-compat needs to be installed
 			const oneMinute = 60000;
 			this.timeout(30 * oneMinute);
@@ -87,7 +87,7 @@ export function testAdapter(
 			} = await dbConnection.readDB());
 		});
 
-		beforeEach(async function() {
+		beforeEach(async function () {
 			this.timeout(30000);
 
 			// Clean up before every single test
@@ -115,7 +115,7 @@ export function testAdapter(
 			await harness.enableSendTo();
 		});
 
-		afterEach(async function() {
+		afterEach(async function () {
 			// Stopping the processes may take a while
 			this.timeout(30000);
 			// Stop the controller again
@@ -124,7 +124,7 @@ export function testAdapter(
 			harness.removeAllListeners();
 		});
 
-		it("The adapter starts", function() {
+		it("The adapter starts", function () {
 			this.timeout(60000);
 
 			return new Promise<string>((resolve, reject) => {
@@ -145,7 +145,7 @@ export function testAdapter(
 							resolve(`The adapter started successfully.`);
 						}
 					})
-					.on("failed", code => {
+					.on("failed", (code) => {
 						if (
 							options.allowedExitCodes == undefined ||
 							options.allowedExitCodes.indexOf(code) === -1
@@ -171,7 +171,7 @@ export function testAdapter(
 						}
 					});
 				harness.startAdapter();
-			}).then(msg => console.log(msg));
+			}).then((msg) => console.log(msg));
 		});
 
 		// Call the user's tests

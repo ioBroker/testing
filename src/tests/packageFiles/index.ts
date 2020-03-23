@@ -24,7 +24,7 @@ export function validatePackageFiles(adapterDir: string): void {
 		this: Mocha.Context,
 		...filenames: string[]
 	): void | never {
-		if (filenames.some(f => invalidFiles[f])) return this.skip();
+		if (filenames.some((f) => invalidFiles[f])) return this.skip();
 	}
 	function markAsInvalid(this: Mocha.Context, filename: string): void {
 		if (
@@ -56,10 +56,10 @@ export function validatePackageFiles(adapterDir: string): void {
 				const packagePath = path.join(adapterDir, filename);
 
 				describe(`${filename}`, () => {
-					afterEach(function() {
+					afterEach(function () {
 						markAsInvalid.call(this, filename);
 					});
-					beforeEach(function() {
+					beforeEach(function () {
 						skipIfInvalid.call(this, filename);
 					});
 
@@ -87,7 +87,7 @@ export function validatePackageFiles(adapterDir: string): void {
 		});
 
 		describe(`Check contents of package.json`, () => {
-			beforeEach(function() {
+			beforeEach(function () {
 				skipIfInvalid.call(this, "package.json");
 			});
 
@@ -103,7 +103,7 @@ export function validatePackageFiles(adapterDir: string): void {
 				"repository",
 				"repository.type",
 			];
-			requiredProperties.forEach(prop =>
+			requiredProperties.forEach((prop) =>
 				ensurePropertyExists(prop, packageContent),
 			);
 
@@ -135,7 +135,7 @@ export function validatePackageFiles(adapterDir: string): void {
 		});
 
 		describe(`Check contents of io-package.json`, () => {
-			beforeEach(function() {
+			beforeEach(function () {
 				skipIfInvalid.call(this, "io-package.json");
 			});
 
@@ -154,7 +154,7 @@ export function validatePackageFiles(adapterDir: string): void {
 				"common.authors",
 				"native",
 			];
-			requiredProperties.forEach(prop =>
+			requiredProperties.forEach((prop) =>
 				ensurePropertyExists(prop, iopackContent),
 			);
 
@@ -193,7 +193,7 @@ export function validatePackageFiles(adapterDir: string): void {
 		});
 
 		describe(`Compare contents of package.json and io-package.json`, () => {
-			beforeEach(function() {
+			beforeEach(function () {
 				skipIfInvalid.call(this, "package.json", "io-package.json");
 			});
 
