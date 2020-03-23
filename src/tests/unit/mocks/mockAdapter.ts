@@ -159,12 +159,13 @@ export function createAdapterMock(
 			);
 			if (typeof callback === "function") {
 				let objects = values(db.getObjects("*"));
-				objects = objects.filter(obj => obj.type === search);
+				objects = objects.filter((obj) => obj.type === search);
 				if (startkey)
-					objects = objects.filter(obj => obj._id >= startkey);
-				if (endkey) objects = objects.filter(obj => obj._id <= endkey);
+					objects = objects.filter((obj) => obj._id >= startkey);
+				if (endkey)
+					objects = objects.filter((obj) => obj._id <= endkey);
 				callback(null, {
-					rows: objects.map(obj => ({ id: obj._id, value: obj })),
+					rows: objects.map((obj) => ({ id: obj._id, value: obj })),
 				});
 			}
 		}) as sinon.SinonStub,
@@ -184,12 +185,13 @@ export function createAdapterMock(
 			if (typeof callback === "function") {
 				let objects = values(db.getObjects("*"));
 				if (startkey)
-					objects = objects.filter(obj => obj._id >= startkey);
-				if (endkey) objects = objects.filter(obj => obj._id <= endkey);
+					objects = objects.filter((obj) => obj._id >= startkey);
+				if (endkey)
+					objects = objects.filter((obj) => obj._id <= endkey);
 				if (!include_docs)
-					objects = objects.filter(obj => !obj._id.startsWith("_"));
+					objects = objects.filter((obj) => !obj._id.startsWith("_"));
 				callback(null, {
-					rows: objects.map(obj => ({
+					rows: objects.map((obj) => ({
 						id: obj._id,
 						value: obj,
 						doc: obj,

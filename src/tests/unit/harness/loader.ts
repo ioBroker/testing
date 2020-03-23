@@ -103,10 +103,10 @@ export function monkeyPatchGlobals(
 	const prefix = `${codeIsStrict ? '"use strict"; ' : ""}((${Object.keys(
 		globals,
 	).join(", ")}) => {`;
-	const patchedArguments = Object.keys(globals).map(glob => {
+	const patchedArguments = Object.keys(globals).map((glob) => {
 		const patchObj = globals[glob];
 		const patches = Object.keys(patchObj).map(
-			fn => `${fn}: ${patchObj[fn]}`,
+			(fn) => `${fn}: ${patchObj[fn]}`,
 		);
 		return `buildProxy(${glob}, {${patches.join(", ")}})`;
 	});
@@ -122,7 +122,7 @@ export function removeHashbang(code: string): string {
 }
 
 /** A test-safe replacement for process.exit that throws a specific error instead */
-export function fakeProcessExit(code: number = 0): never {
+export function fakeProcessExit(code = 0): never {
 	const err = new Error(`process.exit was called with code ${code}`);
 	// @ts-ignore
 	err.processExitCode = code;

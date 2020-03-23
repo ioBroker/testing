@@ -120,7 +120,7 @@ export class ControllerSetup {
 	 */
 	public isJsControllerRunning(): Promise<boolean> {
 		debug("Testing if JS-Controller is running...");
-		return new Promise<boolean>(resolve => {
+		return new Promise<boolean>((resolve) => {
 			const client = new Socket();
 			// Try to connect to an existing ObjectsDB
 			client

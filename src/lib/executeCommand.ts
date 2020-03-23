@@ -47,7 +47,7 @@ export function executeCommand(
 	argsOrOptions?: string[] | Partial<ExecuteCommandOptions>,
 	options?: Partial<ExecuteCommandOptions>,
 ): Promise<ExecuteCommandResult> {
-	return new Promise(resolve => {
+	return new Promise((resolve) => {
 		let args: string[] | undefined;
 		if (isArray(argsOrOptions)) {
 			args = argsOrOptions;

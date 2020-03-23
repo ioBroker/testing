@@ -95,7 +95,7 @@ export function testAdapterWithMocks(
 			mainFilename = await locateAdapterMainFile(adapterDir);
 		});
 
-		it("The adapter starts in normal mode", async function() {
+		it("The adapter starts in normal mode", async function () {
 			// If necessary, change the default timeout
 			if (typeof options.startTimeout === "number")
 				this.timeout(options.startTimeout);
@@ -119,7 +119,7 @@ export function testAdapterWithMocks(
 		});
 
 		if (supportsCompactMode) {
-			it("The adapter starts in compact mode", async function() {
+			it("The adapter starts in compact mode", async function () {
 				// If necessary, change the default timeout
 				if (typeof options.startTimeout === "number")
 					this.timeout(options.startTimeout);

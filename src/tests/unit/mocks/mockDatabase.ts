@@ -48,17 +48,17 @@ export class MockDatabase {
 	}
 	public publishStateObjects(...objects: ioBroker.PartialObject[]): void {
 		objects
-			.map(obj => extend({}, obj, { type: "state" }))
+			.map((obj) => extend({}, obj, { type: "state" }))
 			.forEach(this.publishObject.bind(this));
 	}
 	public publishChannelObjects(...objects: ioBroker.PartialObject[]): void {
 		objects
-			.map(obj => extend({}, obj, { type: "channel" }))
+			.map((obj) => extend({}, obj, { type: "channel" }))
 			.forEach(this.publishObject.bind(this));
 	}
 	public publishDeviceObjects(...objects: ioBroker.PartialObject[]): void {
 		objects
-			.map(obj => extend({}, obj, { type: "device" }))
+			.map((obj) => extend({}, obj, { type: "device" }))
 			.forEach(this.publishObject.bind(this));
 	}
 
@@ -222,7 +222,7 @@ export function createAsserts(db: MockDatabase, adapter: MockAdapter) {
 		assertStateHasValue(id: string | string[], value: any) {
 			ret.assertStateProperty(id, "val", value);
 		},
-		assertStateIsAcked(id: string | string[], ack: boolean = true) {
+		assertStateIsAcked(id: string | string[], ack = true) {
 			ret.assertStateProperty(id, "ack", ack);
 		},
 		assertStateProperty(

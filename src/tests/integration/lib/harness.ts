@@ -103,7 +103,7 @@ export class TestHarness extends EventEmitter {
 			"lib/objects/objectsInMemServer",
 		));
 
-		return new Promise<void>(resolve => {
+		return new Promise<void>((resolve) => {
 			this._objects = new Objects({
 				connection: {
 					type: "file",
@@ -134,7 +134,7 @@ export class TestHarness extends EventEmitter {
 			"lib/states/statesInMemServer",
 		));
 
-		return new Promise<void>(resolve => {
+		return new Promise<void>((resolve) => {
 			this._states = new States({
 				connection: {
 					type: "file",
@@ -266,7 +266,7 @@ export class TestHarness extends EventEmitter {
 					resolve();
 				}
 			})
-				.on("failed", code => {
+				.on("failed", (code) => {
 					reject(
 						new Error(
 							`The adapter startup was interrupted unexpectedly with ${
@@ -293,7 +293,7 @@ export class TestHarness extends EventEmitter {
 	public stopAdapter(): Promise<void> | undefined {
 		if (!this.isAdapterRunning()) return;
 
-		return new Promise<void>(resolve => {
+		return new Promise<void>((resolve) => {
 			const onClose = (
 				code: number | undefined,
 				signal: string,
@@ -336,7 +336,7 @@ export class TestHarness extends EventEmitter {
 
 	/** Enables the sendTo method */
 	public enableSendTo(): Promise<void> {
-		return new Promise<void>(resolve => {
+		return new Promise<void>((resolve) => {
 			this._objects.setObject(
 				fromAdapterID,
 				{
@@ -351,7 +351,7 @@ export class TestHarness extends EventEmitter {
 		});
 	}
 
-	private sendToID: number = 1;
+	private sendToID = 1;
 
 	/** Sends a message to an adapter instance */
 	public sendTo(
