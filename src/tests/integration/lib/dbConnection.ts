@@ -29,9 +29,10 @@ export class DBConnection {
 
 		if (await pathExists(this.objectsPath)) {
 			// debug(`  exists:      true`);
-			return readJSON(this.objectsPath, { encoding: "utf8" }) as Promise<
-				Record<string, ioBroker.Object>
-			>;
+			return (
+				readJSON(this.objectsPath, { encoding: "utf8" }) as
+				Promise<Record<string, ioBroker.Object>>
+			);
 		}
 	}
 

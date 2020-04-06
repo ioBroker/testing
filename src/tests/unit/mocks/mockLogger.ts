@@ -22,28 +22,29 @@ const implementedMethods: ImplementedMethodDictionary<ioBroker.Logger> = {};
  * Creates an adapter mock that is connected to a given database mock
  */
 export function createLoggerMock(): MockLogger {
-	const ret = {
-		info: stub(),
-		warn: stub(),
-		error: stub(),
-		debug: stub(),
-		silly: stub(),
-		level: "info",
+	const ret =
+		{
+			info: stub(),
+			warn: stub(),
+			error: stub(),
+			debug: stub(),
+			silly: stub(),
+			level: "info",
 
-		// Mock-specific methods
-		resetMockHistory() {
-			// reset Logger
-			doResetHistory(ret);
-		},
-		resetMockBehavior() {
-			// reset Logger
-			doResetBehavior(ret, implementedMethods);
-		},
-		resetMock() {
-			ret.resetMockHistory();
-			ret.resetMockBehavior();
-		},
-	} as MockLogger;
+			// Mock-specific methods
+			resetMockHistory() {
+				// reset Logger
+				doResetHistory(ret);
+			},
+			resetMockBehavior() {
+				// reset Logger
+				doResetBehavior(ret, implementedMethods);
+			},
+			resetMock() {
+				ret.resetMockHistory();
+				ret.resetMockBehavior();
+			},
+		} as MockLogger;
 
 	stubAndPromisifyImplementedMethods(ret, implementedMethods);
 
