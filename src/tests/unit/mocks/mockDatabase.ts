@@ -36,8 +36,11 @@ export class MockDatabase {
 		if (obj._id == null) throw new Error("An object must have an ID");
 		if (obj.type == null) throw new Error("An object must have a type");
 
-		const completeObject =
-			extend({}, objectTemplate, obj) as ioBroker.Object;
+		const completeObject = extend(
+			{},
+			objectTemplate,
+			obj,
+		) as ioBroker.Object;
 		this.objects.set(obj._id, completeObject);
 	}
 	public publishObjects(...objects: ioBroker.PartialObject[]): void {
@@ -76,8 +79,11 @@ export class MockDatabase {
 			this.deleteState(id);
 			return;
 		}
-		const completeState =
-			extend({}, stateTemplate, state) as ioBroker.State;
+		const completeState = extend(
+			{},
+			stateTemplate,
+			state,
+		) as ioBroker.State;
 		this.states.set(id, completeState);
 	}
 	public deleteState(id: string): void {
@@ -172,11 +178,9 @@ export class MockDatabase {
 	public getStates(pattern: string): Record<string, ioBroker.State> {
 		// combines getStates and getForeignStates into one
 		const idRegExp = str2regex(pattern);
-		return (
-			composeObject(
-				[...this.states.entries()].filter(([id]) => idRegExp.test(id)),
-			) as Record<string, ioBroker.State>
-		);
+		return composeObject(
+			[...this.states.entries()].filter(([id]) => idRegExp.test(id)),
+		) as Record<string, ioBroker.State>;
 	}
 }
 
