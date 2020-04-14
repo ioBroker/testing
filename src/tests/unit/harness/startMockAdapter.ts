@@ -112,8 +112,9 @@ export async function startMockAdapter(
 		).to.exist;
 
 		// Execute the ready method (synchronously or asynchronously)
-		const readyResult =
-			adapterMock.readyHandler!() as undefined | Promise<void>;
+		const readyResult = adapterMock.readyHandler!() as
+			| undefined
+			| Promise<void>;
 		if (readyResult instanceof Promise) await readyResult;
 	} catch (e) {
 		// We give special handling to Errors here, as we also use them to convey that

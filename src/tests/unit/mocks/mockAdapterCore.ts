@@ -50,24 +50,23 @@ export function mockAdapterCore(
 		return {};
 	}
 
-	const AdapterConstructor =
-		function (
-			this: MockAdapter | void,
-			nameOrOptions: string | ioBroker.AdapterOptions,
-		) {
-			// This needs to be a class with the correct `this` context or the ES6 tests won't work
-			if (!(this instanceof AdapterConstructor))
-				return new AdapterConstructor(nameOrOptions);
+	const AdapterConstructor = function (
+		this: MockAdapter | void,
+		nameOrOptions: string | ioBroker.AdapterOptions,
+	) {
+		// This needs to be a class with the correct `this` context or the ES6 tests won't work
+		if (!(this instanceof AdapterConstructor))
+			return new AdapterConstructor(nameOrOptions);
 
-			const createAdapterMockOptions =
-				typeof nameOrOptions === "string"
-					? { name: nameOrOptions }
-					: nameOrOptions;
-			createAdapterMock.bind(this)(database, createAdapterMockOptions);
-			if (typeof options.onAdapterCreated === "function")
-				options.onAdapterCreated(this);
-			return this;
-		} as MockAdapterConstructor;
+		const createAdapterMockOptions =
+			typeof nameOrOptions === "string"
+				? { name: nameOrOptions }
+				: nameOrOptions;
+		createAdapterMock.bind(this)(database, createAdapterMockOptions);
+		if (typeof options.onAdapterCreated === "function")
+			options.onAdapterCreated(this);
+		return this;
+	} as MockAdapterConstructor;
 
 	return {
 		controllerDir,
