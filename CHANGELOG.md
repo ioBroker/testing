@@ -5,7 +5,7 @@
 	## __WORK IN PROGRESS__
 -->
 
-## __WORK IN PROGRESS__
+## 2.2.0 (2020-04-15)
 * Upgrade to `@types/iobroker` v3.0.2
 * Added mocks for `supportsFeature`, `getPluginInstance`, `getPluginConfig`
 
