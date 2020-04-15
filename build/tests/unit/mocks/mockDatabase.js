@@ -43,17 +43,17 @@ class MockDatabase {
     }
     publishStateObjects(...objects) {
         objects
-            .map(obj => objects_1.extend({}, obj, { type: "state" }))
+            .map((obj) => objects_1.extend({}, obj, { type: "state" }))
             .forEach(this.publishObject.bind(this));
     }
     publishChannelObjects(...objects) {
         objects
-            .map(obj => objects_1.extend({}, obj, { type: "channel" }))
+            .map((obj) => objects_1.extend({}, obj, { type: "channel" }))
             .forEach(this.publishObject.bind(this));
     }
     publishDeviceObjects(...objects) {
         objects
-            .map(obj => objects_1.extend({}, obj, { type: "device" }))
+            .map((obj) => objects_1.extend({}, obj, { type: "device" }))
             .forEach(this.publishObject.bind(this));
     }
     deleteObject(objOrID) {

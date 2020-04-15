@@ -120,7 +120,7 @@ function testAdapter(adapterDir, options = {}) {
                         resolve(`The adapter started successfully.`);
                     }
                 }))
-                    .on("failed", code => {
+                    .on("failed", (code) => {
                     if (options.allowedExitCodes == undefined ||
                         options.allowedExitCodes.indexOf(code) === -1) {
                         reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === "number"
@@ -135,7 +135,7 @@ function testAdapter(adapterDir, options = {}) {
                     }
                 });
                 harness.startAdapter();
-            }).then(msg => console.log(msg));
+            }).then((msg) => console.log(msg));
         });
         // Call the user's tests
         if (typeof options.defineAdditionalTests === "function") {

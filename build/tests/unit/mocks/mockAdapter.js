@@ -117,13 +117,16 @@ function createAdapterMock(db, options = {}) {
             const callback = getCallback(...args);
             if (typeof callback === "function") {
                 let objects = objects_1.values(db.getObjects("*"));
-                objects = objects.filter(obj => obj.type === search);
+                objects = objects.filter((obj) => obj.type === search);
                 if (startkey)
-                    objects = objects.filter(obj => obj._id >= startkey);
+                    objects = objects.filter((obj) => obj._id >= startkey);
                 if (endkey)
-                    objects = objects.filter(obj => obj._id <= endkey);
+                    objects = objects.filter((obj) => obj._id <= endkey);
                 callback(null, {
-                    rows: objects.map(obj => ({ id: obj._id, value: obj })),
+                    rows: objects.map((obj) => ({
+                        id: obj._id,
+                        value: obj,
+                    })),
                 });
             }
         }),
@@ -132,13 +135,13 @@ function createAdapterMock(db, options = {}) {
             if (typeof callback === "function") {
                 let objects = objects_1.values(db.getObjects("*"));
                 if (startkey)
-                    objects = objects.filter(obj => obj._id >= startkey);
+                    objects = objects.filter((obj) => obj._id >= startkey);
                 if (endkey)
-                    objects = objects.filter(obj => obj._id <= endkey);
+                    objects = objects.filter((obj) => obj._id <= endkey);
                 if (!include_docs)
-                    objects = objects.filter(obj => !obj._id.startsWith("_"));
+                    objects = objects.filter((obj) => !obj._id.startsWith("_"));
                 callback(null, {
-                    rows: objects.map(obj => ({
+                    rows: objects.map((obj) => ({
                         id: obj._id,
                         value: obj,
                         doc: obj,
@@ -361,6 +364,9 @@ function createAdapterMock(db, options = {}) {
             err.terminateReason = reason || "no reason given!";
             throw err;
         }),
+        supportsFeature: sinon_1.stub(),
+        getPluginInstance: sinon_1.stub(),
+        getPluginConfig: sinon_1.stub(),
         // EventEmitter methods
         on: ((event, handler) => {
             // Remember the event handlers so we can call them on demand

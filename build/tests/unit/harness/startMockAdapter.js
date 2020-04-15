@@ -46,7 +46,7 @@ function startMockAdapter(adapterMainFile, options = {}) {
         }
         let adapterMock;
         const adapterCoreMock = mockAdapterCore_1.mockAdapterCore(databaseMock, {
-            onAdapterCreated: mock => {
+            onAdapterCreated: (mock) => {
                 adapterMock = mock;
                 // Give the user the chance to change the mock behavior
                 if (typeof options.defineMockBehavior === "function")
@@ -60,6 +60,7 @@ function startMockAdapter(adapterMainFile, options = {}) {
         // Replace the following modules with mocks
         const mockedModules = {};
         if (options.additionalMockedModules) {
+            // eslint-disable-next-line prefer-const
             for (let [mdl, mock] of objects_1.entries(options.additionalMockedModules)) {
                 mdl = mdl.replace("{CONTROLLER_DIR}", adapterCoreMock.controllerDir);
                 if (mdl.startsWith(".") || path.isAbsolute(mdl))

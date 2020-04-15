@@ -4,7 +4,7 @@ const typeguards_1 = require("alcalzone-shared/typeguards");
 const child_process_1 = require("child_process");
 const isWindows = /^win/.test(process.platform);
 function executeCommand(command, argsOrOptions, options) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         let args;
         if (typeguards_1.isArray(argsOrOptions)) {
             args = argsOrOptions;

@@ -448,6 +448,10 @@ export function createAdapterMock(
 			throw err;
 		}) as any) as sinon.SinonStub,
 
+		supportsFeature: stub(),
+		getPluginInstance: stub(),
+		getPluginConfig: stub(),
+
 		// EventEmitter methods
 		on: ((event: string, handler: (...args: any[]) => void) => {
 			// Remember the event handlers so we can call them on demand

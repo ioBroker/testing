@@ -103,7 +103,7 @@ class ControllerSetup {
      */
     isJsControllerRunning() {
         debug("Testing if JS-Controller is running...");
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             const client = new net_1.Socket();
             // Try to connect to an existing ObjectsDB
             client

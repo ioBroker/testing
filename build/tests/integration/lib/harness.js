@@ -89,7 +89,7 @@ class TestHarness extends events_1.EventEmitter {
         return __awaiter(this, void 0, void 0, function* () {
             debug("creating objects DB");
             const Objects = require(path.join(this.testControllerDir, "lib/objects/objectsInMemServer"));
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
                 this._objects = new Objects({
                     connection: {
                         type: "file",
@@ -116,7 +116,7 @@ class TestHarness extends events_1.EventEmitter {
         return __awaiter(this, void 0, void 0, function* () {
             debug("creating states DB");
             const States = require(path.join(this.testControllerDir, "lib/states/statesInMemServer"));
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
                 this._states = new States({
                     connection: {
                         type: "file",
@@ -233,7 +233,7 @@ class TestHarness extends events_1.EventEmitter {
                         resolve();
                     }
                 }))
-                    .on("failed", code => {
+                    .on("failed", (code) => {
                     reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === "number" ? "code" : "signal"} ${code}`));
                 })
                     .startAdapter(env);
@@ -252,7 +252,7 @@ class TestHarness extends events_1.EventEmitter {
     stopAdapter() {
         if (!this.isAdapterRunning())
             return;
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             const onClose = (code, signal) => {
                 if (!this._adapterProcess)
                     return;
@@ -286,7 +286,7 @@ class TestHarness extends events_1.EventEmitter {
     }
     /** Enables the sendTo method */
     enableSendTo() {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             this._objects.setObject(fromAdapterID, {
                 common: {},
                 type: "instance",

@@ -93,9 +93,9 @@ function detectStrictMode(code) {
 function monkeyPatchGlobals(code, globals) {
     const codeIsStrict = detectStrictMode(code);
     const prefix = `${codeIsStrict ? '"use strict"; ' : ""}((${Object.keys(globals).join(", ")}) => {`;
-    const patchedArguments = Object.keys(globals).map(glob => {
+    const patchedArguments = Object.keys(globals).map((glob) => {
         const patchObj = globals[glob];
-        const patches = Object.keys(patchObj).map(fn => `${fn}: ${patchObj[fn]}`);
+        const patches = Object.keys(patchObj).map((fn) => `${fn}: ${patchObj[fn]}`);
         return `buildProxy(${glob}, {${patches.join(", ")}})`;
     });
     const postfix = `

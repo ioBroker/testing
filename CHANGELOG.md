@@ -5,6 +5,10 @@
 	## __WORK IN PROGRESS__
 -->
 
+## __WORK IN PROGRESS__
+* Upgrade to `@types/iobroker` v3.0.2
+* Added mocks for `supportsFeature`, `getPluginInstance`, `getPluginConfig`
+
 ## 2.1.0 (2020-03-01)
 * **Integration tests:** For Node.js >= 10, the `engine-strict` flag is now set to `true` to be in line with newer ioBroker installations
 

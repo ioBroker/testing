@@ -27,7 +27,7 @@ function validatePackageFiles(adapterDir) {
         "io-package.json": false,
     };
     function skipIfInvalid(...filenames) {
-        if (filenames.some(f => invalidFiles[f]))
+        if (filenames.some((f) => invalidFiles[f]))
             return this.skip();
     }
     function markAsInvalid(filename) {
@@ -88,7 +88,7 @@ function validatePackageFiles(adapterDir) {
                 "repository",
                 "repository.type",
             ];
-            requiredProperties.forEach(prop => ensurePropertyExists(prop, packageContent));
+            requiredProperties.forEach((prop) => ensurePropertyExists(prop, packageContent));
             it("The package name is correct", () => {
                 let name = packageContent.name;
                 chai_1.expect(name).to.match(/^iobroker\./, `The npm package name must start with lowercase "iobroker."!`);
@@ -119,7 +119,7 @@ function validatePackageFiles(adapterDir) {
                 "common.authors",
                 "native",
             ];
-            requiredProperties.forEach(prop => ensurePropertyExists(prop, iopackContent));
+            requiredProperties.forEach((prop) => ensurePropertyExists(prop, iopackContent));
             it(`The title does not contain "adapter" or "iobroker"`, () => {
                 chai_1.expect(iopackContent.common.title).not.to.match(/iobroker|adapter/i);
             });
