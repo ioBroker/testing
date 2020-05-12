@@ -18,7 +18,8 @@
     "lint:ts": "eslint --ext .ts src",
     "lint:wotan": "wotan",
     "lint": "npm run lint:ts && npm run lint:wotan",
-    "release": "release-script"
+    "release": "release-script",
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
