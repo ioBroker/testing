@@ -3,6 +3,7 @@
 import { expect } from "chai";
 import * as path from "path";
 import { MockAdapter, MockDatabase } from "..";
+import { createMocks } from "./harness/createMocks";
 import { loadModuleInHarness } from "./harness/loader";
 import { startMockAdapter } from "./harness/startMockAdapter";
 import { mockAdapterCore } from "./mocks/mockAdapterCore";
@@ -149,5 +150,15 @@ describe("Regression tests", () => {
 			path.join(process.cwd(), "test/unit/loader/dataDir/main.js"),
 			{ compact: true },
 		);
+	});
+
+	it("The function createMocks() can be called multiple times", () => {
+		expect(() => {
+			createMocks({});
+		}).not.to.throw();
+
+		expect(() => {
+			createMocks({});
+		}).not.to.throw();
 	});
 });
