@@ -1,0 +1,7 @@
+path_classifiers:
+    generated:
+        - "build/**/*.*"
+        - "**/*.d.ts"
+        - "**/*.js"
+    library:
+        - gulpfile.js
