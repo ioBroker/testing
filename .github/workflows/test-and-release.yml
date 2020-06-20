@@ -21,7 +21,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -52,7 +52,7 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                node-version: [8.x, 10.x, 12.x]
+                node-version: [10.x, 12.x, 14.x]
                 os: [ubuntu-latest]
 
         steps:
@@ -86,7 +86,7 @@ jobs:
         runs-on: ubuntu-latest
         strategy:
             matrix:
-                node-version: [12.x]
+                node-version: [14.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -106,13 +106,3 @@ jobs:
                   npm config set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
                   npm whoami
                   npm publish
-
-    # ===================
-
-    # Dummy job for skipped builds - without this, github reports the build as failed
-    skip-ci:
-        if: contains(github.event.head_commit.message, '[skip ci]')
-        runs-on: ubuntu-latest
-        steps:
-            - name: Skip build
-              run: echo "Build skipped!"
