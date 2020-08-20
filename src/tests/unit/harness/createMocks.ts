@@ -8,7 +8,10 @@ import { MockDatabase } from "../mocks/mockDatabase";
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function createMocks(adapterOptions: Partial<ioBroker.AdapterOptions>) {
 	const databaseMock = new MockDatabase();
-	const adapterMock = createAdapterMock(databaseMock, adapterOptions);
+	const adapterMock = createAdapterMock.bind(undefined)(
+		databaseMock,
+		adapterOptions,
+	);
 	return {
 		database: databaseMock,
 		adapter: adapterMock,

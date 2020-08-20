@@ -575,7 +575,7 @@ export function createAdapterMock(
 	]);
 
 	// Access the options object directly, so we can react to later changes
-	Object.defineProperties(this, {
+	Object.defineProperties(ret, {
 		readyHandler: {
 			get(): typeof options.ready {
 				return options.ready;

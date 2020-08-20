@@ -449,7 +449,7 @@ function createAdapterMock(db, options = {}) {
         "getObjectList",
     ]);
     // Access the options object directly, so we can react to later changes
-    Object.defineProperties(this, {
+    Object.defineProperties(ret, {
         readyHandler: {
             get() {
                 return options.ready;
