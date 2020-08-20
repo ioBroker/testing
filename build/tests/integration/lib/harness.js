@@ -105,7 +105,9 @@ class TestHarness extends events_1.EventEmitter {
                         debug("  => done!");
                         resolve();
                     },
-                    change: this.emit.bind(this, "objectChange"),
+                    change: (id, obj) => {
+                        this.emit("objectChange", id, obj);
+                    },
                 });
                 this._objects.subscribe("*");
             });

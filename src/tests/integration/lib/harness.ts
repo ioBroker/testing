@@ -119,7 +119,9 @@ export class TestHarness extends EventEmitter {
 					debug("  => done!");
 					resolve();
 				},
-				change: this.emit.bind(this, "objectChange"),
+				change: (id: string, obj: ioBroker.Object) => {
+					this.emit("objectChange", id, obj);
+				},
 			});
 			this._objects.subscribe("*");
 		});
