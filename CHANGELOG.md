@@ -5,6 +5,11 @@
 	## __WORK IN PROGRESS__
 -->
 
+## __WORK IN PROGRESS__
+* Added missing async functions to adapter mock
+* Fixed: `TypeError "Cannot redefine property readyHandler"` when using `createMocks` more than once
+* Upgrade to `@types/iobroker` v3.0.12
+
 ## 2.2.0 (2020-04-15)
 * Upgrade to `@types/iobroker` v3.0.2
 * Added mocks for `supportsFeature`, `getPluginInstance`, `getPluginConfig`
