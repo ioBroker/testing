@@ -5,7 +5,7 @@
 	## __WORK IN PROGRESS__
 -->
 
-## __WORK IN PROGRESS__
+## 2.3.0 (2020-08-20)
 * Added missing async functions to adapter mock
 * Fixed: `TypeError "Cannot redefine property readyHandler"` when using `createMocks` more than once
 * Upgrade to `@types/iobroker` v3.0.12
