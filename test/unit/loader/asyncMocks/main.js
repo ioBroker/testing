@@ -23,18 +23,20 @@ function startAdapter(options) {
 				await adapter.getForeignObjectsAsync("*");
 				await adapter.subscribeStatesAsync("*");
 				await adapter.subscribeForeignStatesAsync("*");
+				// Added after https://github.com/ioBroker/testing/issues/249
+				await adapter.getPortAsync(1000);
 			},
 
 			// is called when adapter shuts down - callback has to be called under any circumstances!
-			unload: callback => {
+			unload: (callback) => {
 				callback();
 			},
 
 			// is called if a subscribed object changes
-			objectChange: (id, obj) => { },
+			objectChange: (id, obj) => {},
 
 			// is called if a subscribed state changes
-			stateChange: (id, state) => { },
+			stateChange: (id, state) => {},
 		}),
 	);
 	return adapter;
