@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.testAdapterWithMocks = void 0;
 const chai_1 = require("chai");
 const adapterTools_1 = require("../../lib/adapterTools");
 const startMockAdapter_1 = require("./harness/startMockAdapter");

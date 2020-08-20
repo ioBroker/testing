@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createLoggerMock = void 0;
 const sinon_1 = require("sinon");
 const tools_1 = require("./tools");
 // Define here which methods were implemented manually, so we can hook them up with a real stub

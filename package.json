@@ -39,7 +39,7 @@
   },
   "homepage": "https://github.com/AlCalzone/testing#readme",
   "devDependencies": {
-    "@alcalzone/release-script": "^1.1.1",
+    "@alcalzone/release-script": "^1.6.0",
     "@fimbul/mithotyn": "^0.21.0",
     "@fimbul/wotan": "^0.21.0",
     "@iobroker/adapter-core": "^2.0.0",
@@ -47,7 +47,7 @@
     "@types/chai-as-promised": "^7.1.0",
     "@types/debug": "4.1.5",
     "@types/fs-extra": "^9.0.1",
-    "@types/iobroker": "^3.0.2",
+    "@types/iobroker": "^3.0.12",
     "@types/mocha": "^8.0.1",
     "@types/node": "^14.0.6",
     "@types/sinon": "^9.0.0",

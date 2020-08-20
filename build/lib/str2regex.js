@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.str2regex = void 0;
 function str2regex(pattern) {
     return new RegExp(pattern
         .replace(/\\/g, "\\\\") // Backslashes escapen

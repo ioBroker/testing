@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.executeCommand = void 0;
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const child_process_1 = require("child_process");
 const isWindows = /^win/.test(process.platform);

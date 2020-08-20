@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.stubAndPromisifyImplementedMethods = exports.doResetBehavior = exports.doResetHistory = void 0;
 const async_1 = require("alcalzone-shared/async");
 const sinon_1 = require("sinon");
 function doResetHistory(parent) {
