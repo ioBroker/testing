@@ -1,6 +1,3 @@
-// wotan-disable async-function-assignability
-// wotan-disable no-unused-expression
-
 import { expect } from "chai";
 import {
 	adapterShouldSupportCompactMode,

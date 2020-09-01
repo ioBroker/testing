@@ -1,5 +1,3 @@
-// wotan-disable no-unused-expression
-
 import { entries } from "alcalzone-shared/objects";
 import { expect } from "chai";
 import * as path from "path";

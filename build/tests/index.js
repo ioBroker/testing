@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.utils = exports.tests = void 0;
+exports.utils = exports.tests = exports.MockDatabase = exports.IntegrationTestHarness = void 0;
 const integration_1 = require("./integration");
 const packageFiles_1 = require("./packageFiles");
 const unit_1 = require("./unit");

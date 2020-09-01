@@ -93,7 +93,6 @@ const implementedMethods: ImplementedMethodDictionary<ioBroker.Adapter> = {
 	chmodFile: "normal",
 };
 
-// wotan-disable no-misused-generics
 function getCallback<T extends (...args: any[]) => any>(
 	...args: any[]
 ): T | undefined {

@@ -1,5 +1,3 @@
-// wotan-disable async-function-assignability
-
 import { wait } from "alcalzone-shared/async";
 import * as os from "os";
 import * as path from "path";

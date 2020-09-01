@@ -1,4 +1,3 @@
-// wotan-disable no-unstable-api-use
 import { isObject } from "alcalzone-shared/typeguards";
 import Module from "module";
 import * as path from "path";
