@@ -1,7 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-// wotan-disable async-function-assignability
-// wotan-disable no-unused-expression
-
 import { isArray, isObject } from "alcalzone-shared/typeguards";
 import { expect } from "chai";
 import * as fs from "fs";

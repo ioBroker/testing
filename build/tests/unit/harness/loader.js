@@ -14,7 +14,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -23,7 +23,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.loadModuleInHarness = exports.restoreJsLoader = exports.replaceJsLoader = exports.fakeProcessExit = exports.removeHashbang = exports.monkeyPatchGlobals = exports.createMockRequire = void 0;
-// wotan-disable no-unstable-api-use
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const module_1 = __importDefault(require("module"));
 const path = __importStar(require("path"));

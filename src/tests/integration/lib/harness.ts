@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/camelcase */
 /* eslint-disable @typescript-eslint/no-var-requires */
-// wotan-disable async-function-assignability
-
 import { wait } from "alcalzone-shared/async";
 import { extend } from "alcalzone-shared/objects";
 import { ChildProcess, spawn } from "child_process";

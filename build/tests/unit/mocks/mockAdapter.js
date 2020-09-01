@@ -72,7 +72,6 @@ const implementedMethods = {
     rename: "normal",
     chmodFile: "normal",
 };
-// wotan-disable no-misused-generics
 function getCallback(...args) {
     const lastArg = args[args.length - 1];
     if (typeof lastArg === "function")
