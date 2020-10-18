@@ -75,5 +75,6 @@ export function mockAdapterCore(
 		adapter: AdapterConstructor,
 		getAbsoluteDefaultDataDir,
 		getAbsoluteInstanceDataDir,
+		EXIT_CODES: Object.freeze(Object.assign({}, require(path.join(controllerDir, "lib/exitCodes.js"))))
 	};
 }
