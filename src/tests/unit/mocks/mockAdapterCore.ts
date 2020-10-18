@@ -75,6 +75,6 @@ export function mockAdapterCore(
 		adapter: AdapterConstructor,
 		getAbsoluteDefaultDataDir,
 		getAbsoluteInstanceDataDir,
-		EXIT_CODES: {}
+		EXIT_CODES: {},
 	};
 }
