@@ -188,6 +188,7 @@ function createAdapterMock(db, options = {}) {
                 id = ret.namespace + "." + id;
             const existing = db.getObject(id) || {};
             const target = objects_1.extend({}, existing, obj);
+            target._id = id;
             db.publishObject(target);
             const callback = getCallback(...args);
             if (callback)
@@ -234,6 +235,7 @@ function createAdapterMock(db, options = {}) {
         extendForeignObject: ((id, obj, ...args) => {
             const target = db.getObject(id) || {};
             Object.assign(target, obj);
+            target._id = id;
             db.publishObject(target);
             const callback = getCallback(...args);
             if (callback)

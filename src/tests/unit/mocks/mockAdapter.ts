@@ -248,6 +248,7 @@ export function createAdapterMock(
 			if (!id.startsWith(ret.namespace)) id = ret.namespace + "." + id;
 			const existing = db.getObject(id) || {};
 			const target = extend({}, existing, obj) as ioBroker.Object;
+			target._id = id;
 			db.publishObject(target);
 			const callback = getCallback<ioBroker.ExtendObjectCallback>(
 				...args,
@@ -302,6 +303,7 @@ export function createAdapterMock(
 		) => {
 			const target = db.getObject(id) || ({} as ioBroker.Object);
 			Object.assign(target, obj);
+			target._id = id;
 			db.publishObject(target);
 			const callback = getCallback<ioBroker.ExtendObjectCallback>(
 				...args,
