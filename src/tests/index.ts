@@ -2,7 +2,6 @@ import { testAdapter } from "./integration";
 import { validatePackageFiles } from "./packageFiles";
 import { testAdapterWithMocks } from "./unit";
 import { createMocks } from "./unit/harness/createMocks";
-import { startMockAdapter } from "./unit/harness/startMockAdapter";
 import { createAsserts } from "./unit/mocks/mockDatabase";
 
 export { TestHarness as IntegrationTestHarness } from "./integration/lib/harness";
@@ -11,6 +10,7 @@ export { MockDatabase } from "./unit/mocks/mockDatabase";
 
 /** Predefined test sets */
 export const tests = {
+	/** @deprecated Adapter startup unit tests are no longer supported */
 	unit: testAdapterWithMocks,
 	integration: testAdapter,
 	packageFiles: validatePackageFiles,
@@ -21,6 +21,7 @@ export const utils = {
 	unit: {
 		createMocks,
 		createAsserts,
-		startMockAdapter,
+		/** @deprecated Adapter startup unit tests are no longer supported */
+		startMockAdapter: () => ({}),
 	},
 };
