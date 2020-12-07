@@ -8,8 +8,8 @@
     "build/"
   ],
   "scripts": {
-    "test": "mocha",
-    "test:watch": "mocha --watch",
+    "test": "mocha src/**/*.test.ts",
+    "test:watch": "mocha src/**/*.test.ts --watch",
     "prebuild": "rimraf ./build",
     "build": "tsc -p tsconfig.build.json",
     "prewatch": "rimraf ./build",
