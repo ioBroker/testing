@@ -7,6 +7,7 @@
 
 ## __WORK IN PROGRESS__
 * Unit tests for adapter startup were removed and only log a warning that you can remove them
+* Upgrade many packages
 
 ## 2.3.0 (2020-08-20)
 * Added missing async functions to adapter mock
