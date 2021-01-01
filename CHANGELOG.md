@@ -5,7 +5,7 @@
 	## __WORK IN PROGRESS__
 -->
 
-## __WORK IN PROGRESS__
+## 2.4.1 (2021-01-01)
 * Fixed a bug where the wrong `js-controller` dependency would be installed
 
 ## 2.4.0 (2020-12-07)
