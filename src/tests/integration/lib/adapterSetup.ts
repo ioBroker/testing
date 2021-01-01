@@ -92,6 +92,8 @@ export class AdapterSetup {
 		for (const [dep, version] of entries(
 			getAdapterDependencies(this.adapterDir),
 		)) {
+			// Don't overwrite the js-controller github dependency with a probably lower one
+			if (dep === "js-controller") continue;
 			packageJson.dependencies[`${this.appName}.${dep}`] = version;
 		}
 		await writeJSON(packageJsonPath, packageJson, { spaces: 2 });

@@ -90,6 +90,9 @@ class AdapterSetup {
             const packageJson = yield fs_extra_1.readJSON(packageJsonPath);
             packageJson.dependencies[this.adapterFullName] = `file:./${tarballName}`;
             for (const [dep, version] of objects_1.entries(adapterTools_1.getAdapterDependencies(this.adapterDir))) {
+                // Don't overwrite the js-controller github dependency with a probably lower one
+                if (dep === "js-controller")
+                    continue;
                 packageJson.dependencies[`${this.appName}.${dep}`] = version;
             }
             yield fs_extra_1.writeJSON(packageJsonPath, packageJson, { spaces: 2 });

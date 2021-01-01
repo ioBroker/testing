@@ -143,24 +143,26 @@ class ControllerSetup {
             }, 1000);
         });
     }
-    /**
-     * Installs a new instance of JS-Controller into the test directory
-     * @param appName The branded name of "iobroker"
-     * @param testDir The directory the integration tests are executed in
-     */
-    installJsController() {
-        return __awaiter(this, void 0, void 0, function* () {
-            debug("Installing newest JS-Controller from github...");
-            // First npm install the JS-Controller into the correct directory
-            const installUrl = `https://github.com/${this.appName}/${this.appName}.js-controller/tarball/master`;
-            const installResult = yield executeCommand_1.executeCommand("npm", ["i", installUrl, "--save"], {
-                cwd: this.testDir,
-            });
-            if (installResult.exitCode !== 0)
-                throw new Error("JS-Controller could not be installed!");
-            debug("  => done!");
-        });
-    }
+    // /**
+    //  * Installs a new instance of JS-Controller into the test directory
+    //  * @param appName The branded name of "iobroker"
+    //  * @param testDir The directory the integration tests are executed in
+    //  */
+    // public async installJsController(): Promise<void> {
+    // 	debug("Installing newest JS-Controller from github...");
+    // 	// First npm install the JS-Controller into the correct directory
+    // 	const installUrl = `${this.appName}/${this.appName}.js-controller`;
+    // 	const installResult = await executeCommand(
+    // 		"npm",
+    // 		["i", installUrl, "--save"],
+    // 		{
+    // 			cwd: this.testDir,
+    // 		},
+    // 	);
+    // 	if (installResult.exitCode !== 0)
+    // 		throw new Error("JS-Controller could not be installed!");
+    // 	debug("  => done!");
+    // }
     /**
      * Sets up an existing JS-Controller instance for testing by executing "iobroker setup first"
      * @param appName The branded name of "iobroker"

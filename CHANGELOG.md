@@ -5,6 +5,9 @@
 	## __WORK IN PROGRESS__
 -->
 
+## __WORK IN PROGRESS__
+* Fixed a bug where the wrong `js-controller` dependency would be installed
+
 ## 2.4.0 (2020-12-07)
 * Unit tests for adapter startup were removed and only log a warning that you can remove them
 * Upgrade many packages
