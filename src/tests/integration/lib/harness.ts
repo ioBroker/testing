@@ -115,11 +115,11 @@ export class TestHarness extends EventEmitter {
 				logger,
 				connected: () => {
 					debug("  => done!");
+					this._objects.subscribe("*");
 					resolve();
 				},
 				change: this.emit.bind(this, "objectChange"),
 			});
-			this._objects.subscribe("*");
 		});
 	}
 
@@ -146,11 +146,11 @@ export class TestHarness extends EventEmitter {
 				logger,
 				connected: () => {
 					debug("  => done!");
+					this._states.subscribe("*");
 					resolve();
 				},
 				change: this.emit.bind(this, "stateChange"),
 			});
-			this._states.subscribe("*");
 		});
 	}
 
