@@ -315,7 +315,7 @@ export class TestHarness extends EventEmitter {
 				.on("exit", onClose);
 
 			// Tell adapter to stop
-			if (this._objects) {
+			if (this._states) {
 				await this._states.setStateAsync(
 					`system.adapter.${this.adapterName}.0.sigKill`,
 					{

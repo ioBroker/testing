@@ -281,7 +281,7 @@ class TestHarness extends events_1.EventEmitter {
                 .on("close", onClose)
                 .on("exit", onClose);
             // Tell adapter to stop
-            if (this._objects) {
+            if (this._states) {
                 yield this._states.setStateAsync(`system.adapter.${this.adapterName}.0.sigKill`, {
                     val: -1,
                     from: "system.host.testing",
