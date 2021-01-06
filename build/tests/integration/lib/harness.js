@@ -170,19 +170,18 @@ class TestHarness extends events_1.EventEmitter {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.isControllerRunning())
                 return;
-            debug("Stopping controller instance...");
-            if (this._objects) {
-                // Set adapter instance disabled
-                this._objects.setObject(`system.adapter.${this.adapterName}.0`, {
-                    common: {
-                        enabled: false,
-                    },
-                });
-            }
-            // Give the adapter time to stop, but maximum 5s
             if (!this.didAdapterStop()) {
                 debug("Stopping adapter instance...");
-                yield Promise.race([this.stopAdapter(), async_1.wait(5000)]);
+                // Give the adapter time to stop (as long as configured in the io-package.json)
+                let stopTimeout;
+                try {
+                    stopTimeout = (yield this._objects.getObjectAsync(`system.adapter.${this.adapterName}.0`)).common.stopTimeout;
+                    stopTimeout += 1000;
+                }
+                catch (_a) { }
+                stopTimeout || (stopTimeout = 5000); // default 5s
+                debug(`  => giving it ${stopTimeout}ms to terminate`);
+                yield Promise.race([this.stopAdapter(), async_1.wait(stopTimeout)]);
                 if (this.isAdapterRunning()) {
                     debug("Adapter did not terminate, killing it");
                     this._adapterProcess.kill("SIGKILL");
@@ -194,6 +193,7 @@ class TestHarness extends events_1.EventEmitter {
             else {
                 debug("Adapter failed to start - no need to terminate!");
             }
+            debug("Stopping controller instance...");
             if (this._objects) {
                 yield this._objects.destroy();
                 this._objects = null;
@@ -264,7 +264,8 @@ class TestHarness extends events_1.EventEmitter {
     stopAdapter() {
         if (!this.isAdapterRunning())
             return;
-        return new Promise((resolve) => {
+        return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+            var _a;
             const onClose = (code, signal) => {
                 if (!this._adapterProcess)
                     return;
@@ -278,9 +279,18 @@ class TestHarness extends events_1.EventEmitter {
             };
             this._adapterProcess.removeAllListeners()
                 .on("close", onClose)
-                .on("exit", onClose)
-                .kill("SIGTERM");
-        });
+                .on("exit", onClose);
+            // Tell adapter to stop
+            if (this._objects) {
+                yield this._states.setStateAsync(`system.adapter.${this.adapterName}.0.sigKill`, {
+                    val: -1,
+                    from: "system.host.testing",
+                });
+            }
+            else {
+                (_a = this._adapterProcess) === null || _a === void 0 ? void 0 : _a.kill("SIGTERM");
+            }
+        }));
     }
     /**
      * Updates the adapter config. The changes can be a subset of the target object
@@ -299,7 +309,7 @@ class TestHarness extends events_1.EventEmitter {
     /** Enables the sendTo method */
     enableSendTo() {
         return new Promise((resolve) => {
-            this._objects.setObject(fromAdapterID, {
+            this._objects.extendObject(fromAdapterID, {
                 common: {},
                 type: "instance",
             }, () => {

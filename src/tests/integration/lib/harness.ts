@@ -173,20 +173,22 @@ export class TestHarness extends EventEmitter {
 	public async stopController(): Promise<void> {
 		if (!this.isControllerRunning()) return;
 
-		debug("Stopping controller instance...");
-		if (this._objects) {
-			// Set adapter instance disabled
-			this._objects.setObject(`system.adapter.${this.adapterName}.0`, {
-				common: {
-					enabled: false,
-				},
-			});
-		}
-
-		// Give the adapter time to stop, but maximum 5s
 		if (!this.didAdapterStop()) {
 			debug("Stopping adapter instance...");
-			await Promise.race([this.stopAdapter(), wait(5000)]);
+			// Give the adapter time to stop (as long as configured in the io-package.json)
+			let stopTimeout: number;
+			try {
+				stopTimeout = (
+					await this._objects.getObjectAsync(
+						`system.adapter.${this.adapterName}.0`,
+					)
+				).common.stopTimeout;
+				stopTimeout += 1000;
+			} catch {}
+			stopTimeout ||= 5000; // default 5s
+			debug(`  => giving it ${stopTimeout}ms to terminate`);
+			await Promise.race([this.stopAdapter(), wait(stopTimeout)]);
+
 			if (this.isAdapterRunning()) {
 				debug("Adapter did not terminate, killing it");
 				this._adapterProcess!.kill("SIGKILL");
@@ -197,6 +199,7 @@ export class TestHarness extends EventEmitter {
 			debug("Adapter failed to start - no need to terminate!");
 		}
 
+		debug("Stopping controller instance...");
 		if (this._objects) {
 			await this._objects.destroy();
 			this._objects = null;
@@ -291,7 +294,7 @@ export class TestHarness extends EventEmitter {
 	public stopAdapter(): Promise<void> | undefined {
 		if (!this.isAdapterRunning()) return;
 
-		return new Promise<void>((resolve) => {
+		return new Promise<void>(async (resolve) => {
 			const onClose = (
 				code: number | undefined,
 				signal: string,
@@ -309,8 +312,20 @@ export class TestHarness extends EventEmitter {
 
 			this._adapterProcess!.removeAllListeners()
 				.on("close", onClose)
-				.on("exit", onClose)
-				.kill("SIGTERM");
+				.on("exit", onClose);
+
+			// Tell adapter to stop
+			if (this._objects) {
+				await this._states.setStateAsync(
+					`system.adapter.${this.adapterName}.0.sigKill`,
+					{
+						val: -1,
+						from: "system.host.testing",
+					},
+				);
+			} else {
+				this._adapterProcess?.kill("SIGTERM");
+			}
 		});
 	}
 
@@ -335,7 +350,7 @@ export class TestHarness extends EventEmitter {
 	/** Enables the sendTo method */
 	public enableSendTo(): Promise<void> {
 		return new Promise<void>((resolve) => {
-			this._objects.setObject(
+			this._objects.extendObject(
 				fromAdapterID,
 				{
 					common: {},
