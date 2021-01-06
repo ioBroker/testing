@@ -195,11 +195,11 @@ class TestHarness extends events_1.EventEmitter {
                 debug("Adapter failed to start - no need to terminate!");
             }
             if (this._objects) {
-                this._objects.destroy();
+                yield this._objects.destroy();
                 this._objects = null;
             }
             if (this._states) {
-                this._states.destroy();
+                yield this._states.destroy();
                 this._states = null;
             }
             debug("Controller instance stopped");

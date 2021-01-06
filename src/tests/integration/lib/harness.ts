@@ -198,11 +198,11 @@ export class TestHarness extends EventEmitter {
 		}
 
 		if (this._objects) {
-			this._objects.destroy();
+			await this._objects.destroy();
 			this._objects = null;
 		}
 		if (this._states) {
-			this._states.destroy();
+			await this._states.destroy();
 			this._states = null;
 		}
 		debug("Controller instance stopped");
