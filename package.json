@@ -38,7 +38,7 @@
   },
   "homepage": "https://github.com/AlCalzone/testing#readme",
   "devDependencies": {
-    "@alcalzone/release-script": "^1.8.1",
+    "@alcalzone/release-script": "^1.8.2",
     "@iobroker/adapter-core": "^2.4.0",
     "@types/chai": "^4.2.14",
     "@types/chai-as-promised": "^7.1.3",
