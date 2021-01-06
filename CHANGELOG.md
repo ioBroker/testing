@@ -5,6 +5,10 @@
 	## __WORK IN PROGRESS__
 -->
 
+## 2.4.2 (2021-01-06)
+* Fixed compatibility with the reworked database classes
+* Improved shutdown behavior of the adapter
+
 ## 2.4.1 (2021-01-01)
 * Fixed a bug where the wrong `js-controller` dependency would be installed
 
