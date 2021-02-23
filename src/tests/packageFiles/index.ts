@@ -140,7 +140,7 @@ export function validatePackageFiles(adapterDir: string): void {
 
 			const requiredProperties = [
 				"common.name",
-				"common.title",
+				"common.titleLang",
 				"common.version",
 				"common.news",
 				"common.desc",
@@ -156,9 +156,18 @@ export function validatePackageFiles(adapterDir: string): void {
 			);
 
 			it(`The title does not contain "adapter" or "iobroker"`, () => {
+				if (!iopackContent.title) return;
 				expect(iopackContent.common.title).not.to.match(
 					/iobroker|adapter/i,
 				);
+			});
+			it(`titleLang is an object to support multiple languages`, () => {
+				expect(iopackContent.common.titleLang).to.be.an("object");
+			});
+			it(`titleLang does not contain "adapter" or "iobroker"`, () => {
+				for (const title of iopackContent.common.titleLang) {
+					expect(title).not.to.match(/iobroker|adapter/i);
+				}
 			});
 			it(`The description is an object to support multiple languages`, () => {
 				expect(iopackContent.common.desc).to.be.an("object");
