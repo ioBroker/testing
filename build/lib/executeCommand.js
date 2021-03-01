@@ -47,8 +47,8 @@ function executeCommand(command, argsOrOptions, options) {
             let bufferedStderr;
             const cmd = child_process_1.spawn(command, args, spawnOptions).on("close", (code, signal) => {
                 resolve({
-                    exitCode: code,
-                    signal,
+                    exitCode: code !== null && code !== void 0 ? code : undefined,
+                    signal: signal !== null && signal !== void 0 ? signal : undefined,
                     stdout: bufferedStdout,
                     stderr: bufferedStderr,
                 });

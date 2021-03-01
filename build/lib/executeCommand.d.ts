@@ -13,7 +13,7 @@ export interface ExecuteCommandOptions {
 }
 export interface ExecuteCommandResult {
     /** The exit code of the spawned process */
-    exitCode: number;
+    exitCode?: number;
     /** The signal the process received before termination */
     signal?: string;
     /** If options.stdout was set to "buffer", this contains the stdout of the spawned process */
