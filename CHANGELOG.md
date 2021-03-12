@@ -5,7 +5,7 @@
 	## __WORK IN PROGRESS__
 -->
 
-## __WORK IN PROGRESS__
+## 2.4.3 (2021-03-12)
 * Fix: The adapter main file now correctly gets located when it is only defined in `package.json`, not `io-package.json`
 
 ## 2.4.2 (2021-01-06)
