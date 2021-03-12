@@ -68,10 +68,13 @@ function locateAdapterMainFile(adapterDir) {
     return __awaiter(this, void 0, void 0, function* () {
         debug(`locating adapter main file in ${adapterDir}...`);
         const ioPackage = loadIoPackage(adapterDir);
-        // First look for the file defined in io-package.json or use "main.js" as a fallback
+        const npmPackage = loadNpmPackage(adapterDir);
+        // First look for the file defined in io-package.json or package.json or use "main.js" as a fallback
         const mainFile = typeof ioPackage.common.main === "string"
             ? ioPackage.common.main
-            : "main.js";
+            : typeof npmPackage.main === "string"
+                ? npmPackage.main
+                : "main.js";
         let ret = path.join(adapterDir, mainFile);
         debug(`  => trying ${ret}`);
         if (yield fs_extra_1.pathExists(ret)) {
