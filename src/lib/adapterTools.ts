@@ -50,11 +50,14 @@ export async function locateAdapterMainFile(
 ): Promise<string> {
 	debug(`locating adapter main file in ${adapterDir}...`);
 	const ioPackage = loadIoPackage(adapterDir);
+	const npmPackage = loadNpmPackage(adapterDir);
 
-	// First look for the file defined in io-package.json or use "main.js" as a fallback
+	// First look for the file defined in io-package.json or package.json or use "main.js" as a fallback
 	const mainFile =
 		typeof ioPackage.common.main === "string"
 			? ioPackage.common.main
+			: typeof npmPackage.main === "string"
+			? npmPackage.main
 			: "main.js";
 
 	let ret = path.join(adapterDir, mainFile);

@@ -5,6 +5,9 @@
 	## __WORK IN PROGRESS__
 -->
 
+## __WORK IN PROGRESS__
+* Fix: The adapter main file now correctly gets located when it is only defined in `package.json`, not `io-package.json`
+
 ## 2.4.2 (2021-01-06)
 * Fixed compatibility with the reworked database classes
 * Improved shutdown behavior of the adapter
