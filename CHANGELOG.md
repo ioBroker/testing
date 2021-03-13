@@ -4,7 +4,7 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
-## __WORK IN PROGRESS__
+## 2.4.4 (2021-03-14)
 * Fix error: `iopackContent.common.titleLang` is not iterable
 
 ## 2.4.3 (2021-03-12)
