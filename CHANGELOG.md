@@ -4,6 +4,8 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
+## __WORK IN PROGRESS__
+* Fix error: `iopackContent.common.titleLang` is not iterable
 
 ## 2.4.3 (2021-03-12)
 * Fix: The adapter main file now correctly gets located when it is only defined in `package.json`, not `io-package.json`

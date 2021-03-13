@@ -165,7 +165,9 @@ export function validatePackageFiles(adapterDir: string): void {
 				expect(iopackContent.common.titleLang).to.be.an("object");
 			});
 			it(`titleLang does not contain "adapter" or "iobroker"`, () => {
-				for (const title of iopackContent.common.titleLang) {
+				for (const title of Object.values(
+					iopackContent.common.titleLang,
+				)) {
 					expect(title).not.to.match(/iobroker|adapter/i);
 				}
 			});

@@ -140,7 +140,7 @@ function validatePackageFiles(adapterDir) {
                 chai_1.expect(iopackContent.common.titleLang).to.be.an("object");
             });
             it(`titleLang does not contain "adapter" or "iobroker"`, () => {
-                for (const title of iopackContent.common.titleLang) {
+                for (const title of Object.values(iopackContent.common.titleLang)) {
                     chai_1.expect(title).not.to.match(/iobroker|adapter/i);
                 }
             });
