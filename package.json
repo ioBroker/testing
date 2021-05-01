@@ -43,7 +43,7 @@
     "@types/chai": "^4.2.17",
     "@types/chai-as-promised": "^7.1.3",
     "@types/debug": "4.1.5",
-    "@types/fs-extra": "^9.0.4",
+    "@types/fs-extra": "^9.0.11",
     "@types/iobroker": "^3.2.9",
     "@types/mocha": "^8.2.2",
     "@types/node": "^15.0.1",
