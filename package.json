@@ -47,7 +47,7 @@
     "@types/iobroker": "^3.2.9",
     "@types/mocha": "^8.2.2",
     "@types/node": "^15.0.1",
-    "@types/sinon": "^9.0.9",
+    "@types/sinon": "^10.0.2",
     "@types/sinon-chai": "^3.2.5",
     "@typescript-eslint/eslint-plugin": "^2.24.0",
     "@typescript-eslint/parser": "^2.24.0",
