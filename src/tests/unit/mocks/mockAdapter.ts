@@ -116,7 +116,7 @@ export function createAdapterMock(
 ): MockAdapter {
 	// In order to support ES6-style adapters with inheritance, we need to work on the instance directly
 	const ret: MockAdapter = this || ({} as any);
-	Object.assign(ret, ({
+	Object.assign(ret, {
 		name: options.name || "test",
 		host: "testhost",
 		instance: options.instance || 0,
@@ -465,7 +465,7 @@ export function createAdapterMock(
 		formatValue: stub(),
 		formatDate: stub(),
 
-		terminate: (((reason?: string | number, exitCode?: number) => {
+		terminate: ((reason?: string | number, exitCode?: number) => {
 			if (typeof reason === "number") {
 				// Only the exit code was passed
 				exitCode = reason;
@@ -480,7 +480,7 @@ export function createAdapterMock(
 			// @ts-ignore
 			err.terminateReason = reason || "no reason given!";
 			throw err;
-		}) as any) as sinon.SinonStub,
+		}) as any as sinon.SinonStub,
 
 		supportsFeature: stub(),
 		getPluginInstance: stub(),
@@ -568,7 +568,7 @@ export function createAdapterMock(
 			ret.resetMockHistory();
 			ret.resetMockBehavior();
 		},
-	} as unknown) as MockAdapter);
+	} as unknown as MockAdapter);
 
 	stubAndPromisifyImplementedMethods(ret, implementedMethods, [
 		"getObjectView",

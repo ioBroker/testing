@@ -62,7 +62,8 @@ export function testAdapter(
 			await adapterSetup.copyAdapterFilesToTestDir();
 
 			// Remember if JS-Controller is installed already. If so, we need to call setup first later
-			const wasJsControllerInstalled = await controllerSetup.isJsControllerInstalled();
+			const wasJsControllerInstalled =
+				await controllerSetup.isJsControllerInstalled();
 
 			// Call npm install
 			await executeCommand("npm", ["i", "--production"], {
@@ -79,10 +80,8 @@ export function testAdapter(
 			await adapterSetup.addAdapterInstance();
 
 			// Create a copy of the databases that we can restore later
-			({
-				objects: objectsBackup,
-				states: statesBackup,
-			} = await dbConnection.readDB());
+			({ objects: objectsBackup, states: statesBackup } =
+				await dbConnection.readDB());
 		});
 
 		beforeEach(async function () {

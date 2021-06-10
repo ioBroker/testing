@@ -16,7 +16,7 @@ export type MockableMethods<
 			: All[K] extends (...args: any[]) => void
 			? K
 			: never;
-	}
+	},
 > = NoAny[keyof NoAny];
 
 export type Mock<T> = Overwrite<
