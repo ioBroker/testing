@@ -61,7 +61,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "alcalzone-shared": "~3.0.4",
+    "alcalzone-shared": "~4.0.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "debug": "^4.3.2",
