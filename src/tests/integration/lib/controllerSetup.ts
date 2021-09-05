@@ -72,7 +72,7 @@ export class ControllerSetup {
 			author: "",
 			license: "ISC",
 			dependencies: {
-				[`${this.appName}.js-controller`]: `https://github.com/${this.appName}/${this.appName}.js-controller/tarball/master`,
+				[`${this.appName}.js-controller`]: "dev",
 			},
 			description: "",
 		};
