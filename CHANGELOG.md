@@ -4,7 +4,7 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
-## 2.5.0 (2021-09-05)
+## 2.5.1 (2021-09-05)
 * We now use the nightly js-controller dev builds instead of GitHub installation
 
 ## 2.4.4 (2021-03-14)
