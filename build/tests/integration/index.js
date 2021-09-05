@@ -77,10 +77,8 @@ function testAdapter(adapterDir, options = {}) {
                 yield adapterSetup.deleteOldInstances();
                 yield adapterSetup.addAdapterInstance();
                 // Create a copy of the databases that we can restore later
-                ({
-                    objects: objectsBackup,
-                    states: statesBackup,
-                } = yield dbConnection.readDB());
+                ({ objects: objectsBackup, states: statesBackup } =
+                    yield dbConnection.readDB());
             });
         });
         beforeEach(function () {
