@@ -189,7 +189,9 @@ export function validatePackageFiles(adapterDir: string): void {
 			if (
 				// Materialize is only necessary if the adapter has a configuration page
 				iopackContent.common.noConfig !== true &&
-				iopackContent.common.noConfig !== "true"
+				iopackContent.common.noConfig !== "true" && 
+				(!iopackContent.common.adminUI || iopackContent.common.adminUI.config !== "json") &&
+				(!iopackContent.common.adminUI || iopackContent.common.adminUI.config !== "materialize")
 			) {
 				it("Materialize is supported", () => {
 					expect(
