@@ -246,7 +246,7 @@ export function createAsserts(db: MockDatabase, adapter: MockAdapter) {
 			dbObj.should.be.an("object").that.has.property("common");
 			dbObj.common.should.be.an("object").that.nested.include(common);
 		},
-		assertObjectNative(id: string | string[], native: object) {
+		assertObjectNative(id: string | string[], native: Record<string, any>) {
 			id = normalizeID(id);
 			ret.assertObjectExists(id);
 			const dbObj = db.getObject(id)!;

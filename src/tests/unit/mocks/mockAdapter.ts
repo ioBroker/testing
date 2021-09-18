@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { extend, values } from "alcalzone-shared/objects";
 import { stub } from "sinon";
 import type { MockDatabase } from "./mockDatabase";
@@ -477,7 +476,7 @@ export function createAdapterMock(
 			}: ${reason ? reason : "Without reason"}`;
 			// Terminates execution by
 			const err = new Error(errorMessage);
-			// @ts-ignore
+			// @ts-expect-error I'm too lazy to add terminateReason to the error type
 			err.terminateReason = reason || "no reason given!";
 			throw err;
 		}) as any as sinon.SinonStub,

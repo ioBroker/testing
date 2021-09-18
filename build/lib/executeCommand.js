@@ -24,7 +24,6 @@ function executeCommand(command, argsOrOptions, options) {
                 options.stdout || process.stdout,
                 options.stderr || process.stderr,
             ],
-            // @ts-ignore This option exists starting with NodeJS 8
             windowsHide: true,
         };
         if (options.cwd != null)

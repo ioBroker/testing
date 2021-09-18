@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createAdapterMock = void 0;
-/* eslint-disable @typescript-eslint/camelcase */
 const objects_1 = require("alcalzone-shared/objects");
 const sinon_1 = require("sinon");
 const mockLogger_1 = require("./mockLogger");
@@ -396,7 +395,7 @@ function createAdapterMock(db, options = {}) {
             const errorMessage = `Adapter.terminate was called${typeof exitCode === "number" ? ` (exit code ${exitCode})` : ""}: ${reason ? reason : "Without reason"}`;
             // Terminates execution by
             const err = new Error(errorMessage);
-            // @ts-ignore
+            // @ts-expect-error I'm too lazy to add terminateReason to the error type
             err.terminateReason = reason || "no reason given!";
             throw err;
         }),

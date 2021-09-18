@@ -23,7 +23,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TestHarness = void 0;
-/* eslint-disable @typescript-eslint/camelcase */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const async_1 = require("alcalzone-shared/async");
 const objects_1 = require("alcalzone-shared/objects");

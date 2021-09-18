@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { wait } from "alcalzone-shared/async";
 import { extend } from "alcalzone-shared/objects";
