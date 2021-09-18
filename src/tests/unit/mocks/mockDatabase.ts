@@ -1,7 +1,7 @@
 import { composeObject, extend } from "alcalzone-shared/objects";
 import { isArray } from "alcalzone-shared/typeguards";
 import { str2regex } from "../../../lib/str2regex";
-import { MockAdapter } from "./mockAdapter";
+import type { MockAdapter } from "./mockAdapter";
 
 const objectTemplate = Object.freeze({
 	type: "state",

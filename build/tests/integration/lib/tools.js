@@ -64,7 +64,7 @@ exports.getTestDBDir = getTestDBDir;
  * @param testDir The directory the integration tests are executed in
  */
 function getTestAdapterDir(adapterDir, testDir) {
-    const adapterName = adapterTools_1.getAdapterFullName(adapterDir);
+    const adapterName = (0, adapterTools_1.getAdapterFullName)(adapterDir);
     return path.resolve(testDir, "node_modules", adapterName);
 }
 exports.getTestAdapterDir = getTestAdapterDir;

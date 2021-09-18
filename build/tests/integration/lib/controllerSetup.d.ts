@@ -1,4 +1,4 @@
-import { DBConnection } from "./dbConnection";
+import type { DBConnection } from "./dbConnection";
 export declare class ControllerSetup {
     private adapterDir;
     private testDir;

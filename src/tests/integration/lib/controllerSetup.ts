@@ -13,7 +13,7 @@ import { Socket } from "net";
 import * as path from "path";
 import { getAdapterName, getAppName } from "../../../lib/adapterTools";
 import { executeCommand } from "../../../lib/executeCommand";
-import { DBConnection } from "./dbConnection";
+import type { DBConnection } from "./dbConnection";
 import {
 	getTestAdapterDir,
 	getTestControllerDir,

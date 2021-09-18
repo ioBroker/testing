@@ -100,11 +100,11 @@ function createAdapterMock(db, options = {}) {
         adapterDir: "",
         ioPack: {},
         pack: {},
-        log: mockLogger_1.createLoggerMock(),
+        log: (0, mockLogger_1.createLoggerMock)(),
         version: "any",
         connected: true,
         getPort: asyncEnabledStub,
-        stop: sinon_1.stub(),
+        stop: (0, sinon_1.stub)(),
         checkPassword: asyncEnabledStub,
         setPassword: asyncEnabledStub,
         checkGroup: asyncEnabledStub,
@@ -112,7 +112,7 @@ function createAdapterMock(db, options = {}) {
         getCertificates: asyncEnabledStub,
         sendTo: asyncEnabledStub,
         sendToHost: asyncEnabledStub,
-        idToDCS: sinon_1.stub(),
+        idToDCS: (0, sinon_1.stub)(),
         getObject: ((id, ...args) => {
             if (!id.startsWith(ret.namespace))
                 id = ret.namespace + "." + id;
@@ -150,7 +150,7 @@ function createAdapterMock(db, options = {}) {
             }
             const callback = getCallback(...args);
             if (typeof callback === "function") {
-                let objects = objects_1.values(db.getObjects("*"));
+                let objects = (0, objects_1.values)(db.getObjects("*"));
                 objects = objects.filter((obj) => obj.type === search);
                 if (startkey)
                     objects = objects.filter((obj) => obj._id >= startkey);
@@ -167,7 +167,7 @@ function createAdapterMock(db, options = {}) {
         getObjectList: (({ startkey, endkey, include_docs, }, ...args) => {
             const callback = getCallback(...args);
             if (typeof callback === "function") {
-                let objects = objects_1.values(db.getObjects("*"));
+                let objects = (0, objects_1.values)(db.getObjects("*"));
                 if (startkey)
                     objects = objects.filter((obj) => obj._id >= startkey);
                 if (endkey)
@@ -187,7 +187,7 @@ function createAdapterMock(db, options = {}) {
             if (!id.startsWith(ret.namespace))
                 id = ret.namespace + "." + id;
             const existing = db.getObject(id) || {};
-            const target = objects_1.extend({}, existing, obj);
+            const target = (0, objects_1.extend)({}, existing, obj);
             target._id = id;
             db.publishObject(target);
             const callback = getCallback(...args);
@@ -241,7 +241,7 @@ function createAdapterMock(db, options = {}) {
             if (callback)
                 callback(null, { id: target._id, value: target }, id);
         }),
-        findForeignObject: sinon_1.stub(),
+        findForeignObject: (0, sinon_1.stub)(),
         delForeignObject: ((id, ...args) => {
             db.deleteObject(id);
             const callback = getCallback(...args);
@@ -374,7 +374,7 @@ function createAdapterMock(db, options = {}) {
         createState: asyncEnabledStub,
         deleteState: asyncEnabledStub,
         getDevices: asyncEnabledStub,
-        getChannels: sinon_1.stub(),
+        getChannels: (0, sinon_1.stub)(),
         getChannelsOf: asyncEnabledStub,
         getStatesOf: asyncEnabledStub,
         readDir: asyncEnabledStub,
@@ -385,8 +385,8 @@ function createAdapterMock(db, options = {}) {
         unlink: asyncEnabledStub,
         rename: asyncEnabledStub,
         chmodFile: asyncEnabledStub,
-        formatValue: sinon_1.stub(),
-        formatDate: sinon_1.stub(),
+        formatValue: (0, sinon_1.stub)(),
+        formatDate: (0, sinon_1.stub)(),
         terminate: ((reason, exitCode) => {
             if (typeof reason === "number") {
                 // Only the exit code was passed
@@ -400,9 +400,9 @@ function createAdapterMock(db, options = {}) {
             err.terminateReason = reason || "no reason given!";
             throw err;
         }),
-        supportsFeature: sinon_1.stub(),
-        getPluginInstance: sinon_1.stub(),
-        getPluginConfig: sinon_1.stub(),
+        supportsFeature: (0, sinon_1.stub)(),
+        getPluginInstance: (0, sinon_1.stub)(),
+        getPluginConfig: (0, sinon_1.stub)(),
         // EventEmitter methods
         on: ((event, handler) => {
             // Remember the event handlers so we can call them on demand
@@ -467,12 +467,12 @@ function createAdapterMock(db, options = {}) {
         // Mock-specific methods
         resetMockHistory() {
             // reset Adapter
-            tools_1.doResetHistory(ret);
+            (0, tools_1.doResetHistory)(ret);
             ret.log.resetMockHistory();
         },
         resetMockBehavior() {
             // reset Adapter
-            tools_1.doResetBehavior(ret, implementedMethods);
+            (0, tools_1.doResetBehavior)(ret, implementedMethods);
             ret.log.resetMockBehavior();
         },
         resetMock() {
@@ -480,7 +480,7 @@ function createAdapterMock(db, options = {}) {
             ret.resetMockBehavior();
         },
     });
-    tools_1.stubAndPromisifyImplementedMethods(ret, implementedMethods, [
+    (0, tools_1.stubAndPromisifyImplementedMethods)(ret, implementedMethods, [
         "getObjectView",
         "getObjectList",
     ]);

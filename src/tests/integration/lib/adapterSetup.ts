@@ -17,7 +17,7 @@ import {
 	getAppName,
 } from "../../../lib/adapterTools";
 import { executeCommand } from "../../../lib/executeCommand";
-import { DBConnection } from "./dbConnection";
+import type { DBConnection } from "./dbConnection";
 import { getTestAdapterDir, getTestControllerDir } from "./tools";
 const debug = debugModule("testing:integration:AdapterSetup");
 

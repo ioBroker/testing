@@ -7,10 +7,10 @@ const isWindows = /^win/.test(process.platform);
 function executeCommand(command, argsOrOptions, options) {
     return new Promise((resolve) => {
         let args;
-        if (typeguards_1.isArray(argsOrOptions)) {
+        if ((0, typeguards_1.isArray)(argsOrOptions)) {
             args = argsOrOptions;
         }
-        else if (typeguards_1.isObject(argsOrOptions)) {
+        else if ((0, typeguards_1.isObject)(argsOrOptions)) {
             // no args were given
             options = argsOrOptions;
         }
@@ -45,7 +45,7 @@ function executeCommand(command, argsOrOptions, options) {
         try {
             let bufferedStdout;
             let bufferedStderr;
-            const cmd = child_process_1.spawn(command, args, spawnOptions).on("close", (code, signal) => {
+            const cmd = (0, child_process_1.spawn)(command, args, spawnOptions).on("close", (code, signal) => {
                 resolve({
                     exitCode: code !== null && code !== void 0 ? code : undefined,
                     signal: signal !== null && signal !== void 0 ? signal : undefined,

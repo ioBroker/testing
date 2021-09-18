@@ -36,7 +36,7 @@ class MockDatabase {
             throw new Error("An object must have an ID");
         if (obj.type == null)
             throw new Error("An object must have a type");
-        const completeObject = objects_1.extend({}, objectTemplate, obj);
+        const completeObject = (0, objects_1.extend)({}, objectTemplate, obj);
         this.objects.set(obj._id, completeObject);
     }
     publishObjects(...objects) {
@@ -44,17 +44,17 @@ class MockDatabase {
     }
     publishStateObjects(...objects) {
         objects
-            .map((obj) => objects_1.extend({}, obj, { type: "state" }))
+            .map((obj) => (0, objects_1.extend)({}, obj, { type: "state" }))
             .forEach(this.publishObject.bind(this));
     }
     publishChannelObjects(...objects) {
         objects
-            .map((obj) => objects_1.extend({}, obj, { type: "channel" }))
+            .map((obj) => (0, objects_1.extend)({}, obj, { type: "channel" }))
             .forEach(this.publishObject.bind(this));
     }
     publishDeviceObjects(...objects) {
         objects
-            .map((obj) => objects_1.extend({}, obj, { type: "device" }))
+            .map((obj) => (0, objects_1.extend)({}, obj, { type: "device" }))
             .forEach(this.publishObject.bind(this));
     }
     deleteObject(objOrID) {
@@ -66,7 +66,7 @@ class MockDatabase {
             this.deleteState(id);
             return;
         }
-        const completeState = objects_1.extend({}, stateTemplate, state);
+        const completeState = (0, objects_1.extend)({}, stateTemplate, state);
         this.states.set(id, completeState);
     }
     deleteState(id) {
@@ -114,15 +114,15 @@ class MockDatabase {
         else {
             pattern = namespaceOrPattern;
         }
-        const idRegExp = str2regex_1.str2regex(pattern);
-        return objects_1.composeObject([...this.objects.entries()]
+        const idRegExp = (0, str2regex_1.str2regex)(pattern);
+        return (0, objects_1.composeObject)([...this.objects.entries()]
             .filter(([id]) => idRegExp.test(id))
             .filter(([, obj]) => type == null || obj.type === type));
     }
     getStates(pattern) {
         // combines getStates and getForeignStates into one
-        const idRegExp = str2regex_1.str2regex(pattern);
-        return objects_1.composeObject([...this.states.entries()].filter(([id]) => idRegExp.test(id)));
+        const idRegExp = (0, str2regex_1.str2regex)(pattern);
+        return (0, objects_1.composeObject)([...this.states.entries()].filter(([id]) => idRegExp.test(id)));
     }
 }
 exports.MockDatabase = MockDatabase;
@@ -139,7 +139,7 @@ exports.MockDatabase = MockDatabase;
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function createAsserts(db, adapter) {
     function normalizeID(id) {
-        if (typeguards_1.isArray(id))
+        if ((0, typeguards_1.isArray)(id))
             id = id.join(".");
         // Test if this ID is fully qualified
         if (!/^[a-z0-9\-_]+\.\d+\./.test(id)) {

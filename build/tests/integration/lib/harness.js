@@ -18,15 +18,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -43,7 +34,7 @@ const path = __importStar(require("path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
 const dbConnection_1 = require("./dbConnection");
 const tools_1 = require("./tools");
-const debug = debug_1.default("testing:integration:TestHarness");
+const debug = (0, debug_1.default)("testing:integration:TestHarness");
 const isWindows = /^win/.test(process.platform);
 /** The logger instance for the objects and states DB */
 const logger = {
@@ -69,10 +60,10 @@ class TestHarness extends events_1.EventEmitter {
         this.testDir = testDir;
         this.sendToID = 1;
         debug("Creating instance");
-        this.adapterName = adapterTools_1.getAdapterName(this.adapterDir);
-        this.appName = adapterTools_1.getAppName(adapterDir);
-        this.testControllerDir = tools_1.getTestControllerDir(this.appName, testDir);
-        this.testAdapterDir = tools_1.getTestAdapterDir(this.adapterDir, testDir);
+        this.adapterName = (0, adapterTools_1.getAdapterName)(this.adapterDir);
+        this.appName = (0, adapterTools_1.getAppName)(adapterDir);
+        this.testControllerDir = (0, tools_1.getTestControllerDir)(this.appName, testDir);
+        this.testAdapterDir = (0, tools_1.getTestAdapterDir)(this.adapterDir, testDir);
         debug(`  directories:`);
         debug(`    controller: ${this.testControllerDir}`);
         debug(`    adapter:    ${this.testAdapterDir}`);
@@ -97,56 +88,52 @@ class TestHarness extends events_1.EventEmitter {
         return this._adapterExit;
     }
     /** Creates the objects DB and sets up listeners for it */
-    createObjectsDB() {
-        return __awaiter(this, void 0, void 0, function* () {
-            debug("creating objects DB");
-            const Objects = require(path.join(this.testControllerDir, "lib/objects/objectsInMemServer"));
-            return new Promise((resolve) => {
-                this._objects = new Objects({
-                    connection: {
-                        type: "file",
-                        host: "127.0.0.1",
-                        port: 19001,
-                        user: "",
-                        pass: "",
-                        noFileCache: false,
-                        connectTimeout: 2000,
-                    },
-                    logger,
-                    connected: () => {
-                        debug("  => done!");
-                        this._objects.subscribe("*");
-                        resolve();
-                    },
-                    change: this.emit.bind(this, "objectChange"),
-                });
+    async createObjectsDB() {
+        debug("creating objects DB");
+        const Objects = require(path.join(this.testControllerDir, "lib/objects/objectsInMemServer"));
+        return new Promise((resolve) => {
+            this._objects = new Objects({
+                connection: {
+                    type: "file",
+                    host: "127.0.0.1",
+                    port: 19001,
+                    user: "",
+                    pass: "",
+                    noFileCache: false,
+                    connectTimeout: 2000,
+                },
+                logger,
+                connected: () => {
+                    debug("  => done!");
+                    this._objects.subscribe("*");
+                    resolve();
+                },
+                change: this.emit.bind(this, "objectChange"),
             });
         });
     }
     /** Creates the states DB and sets up listeners for it */
-    createStatesDB() {
-        return __awaiter(this, void 0, void 0, function* () {
-            debug("creating states DB");
-            const States = require(path.join(this.testControllerDir, "lib/states/statesInMemServer"));
-            return new Promise((resolve) => {
-                this._states = new States({
-                    connection: {
-                        type: "file",
-                        host: "127.0.0.1",
-                        port: 19000,
-                        options: {
-                            auth_pass: null,
-                            retry_max_delay: 15000,
-                        },
+    async createStatesDB() {
+        debug("creating states DB");
+        const States = require(path.join(this.testControllerDir, "lib/states/statesInMemServer"));
+        return new Promise((resolve) => {
+            this._states = new States({
+                connection: {
+                    type: "file",
+                    host: "127.0.0.1",
+                    port: 19000,
+                    options: {
+                        auth_pass: null,
+                        retry_max_delay: 15000,
                     },
-                    logger,
-                    connected: () => {
-                        debug("  => done!");
-                        this._states.subscribe("*");
-                        resolve();
-                    },
-                    change: this.emit.bind(this, "stateChange"),
-                });
+                },
+                logger,
+                connected: () => {
+                    debug("  => done!");
+                    this._states.subscribe("*");
+                    resolve();
+                },
+                change: this.emit.bind(this, "stateChange"),
             });
         });
     }
@@ -155,101 +142,93 @@ class TestHarness extends events_1.EventEmitter {
         return !!this._objects || !!this._states;
     }
     /** Starts the controller instance by creating the databases */
-    startController() {
-        return __awaiter(this, void 0, void 0, function* () {
-            debug("starting controller instance...");
-            if (this.isControllerRunning())
-                throw new Error("The Controller is already running!");
-            yield this.createObjectsDB();
-            yield this.createStatesDB();
-            debug("controller instance created");
-        });
+    async startController() {
+        debug("starting controller instance...");
+        if (this.isControllerRunning())
+            throw new Error("The Controller is already running!");
+        await this.createObjectsDB();
+        await this.createStatesDB();
+        debug("controller instance created");
     }
     /** Stops the controller instance (and the adapter if it is running) */
-    stopController() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this.isControllerRunning())
-                return;
-            if (!this.didAdapterStop()) {
-                debug("Stopping adapter instance...");
-                // Give the adapter time to stop (as long as configured in the io-package.json)
-                let stopTimeout;
-                try {
-                    stopTimeout = (yield this._objects.getObjectAsync(`system.adapter.${this.adapterName}.0`)).common.stopTimeout;
-                    stopTimeout += 1000;
-                }
-                catch (_a) { }
-                stopTimeout || (stopTimeout = 5000); // default 5s
-                debug(`  => giving it ${stopTimeout}ms to terminate`);
-                yield Promise.race([this.stopAdapter(), async_1.wait(stopTimeout)]);
-                if (this.isAdapterRunning()) {
-                    debug("Adapter did not terminate, killing it");
-                    this._adapterProcess.kill("SIGKILL");
-                }
-                else {
-                    debug("Adapter terminated");
-                }
+    async stopController() {
+        if (!this.isControllerRunning())
+            return;
+        if (!this.didAdapterStop()) {
+            debug("Stopping adapter instance...");
+            // Give the adapter time to stop (as long as configured in the io-package.json)
+            let stopTimeout;
+            try {
+                stopTimeout = (await this._objects.getObjectAsync(`system.adapter.${this.adapterName}.0`)).common.stopTimeout;
+                stopTimeout += 1000;
+            }
+            catch { }
+            stopTimeout || (stopTimeout = 5000); // default 5s
+            debug(`  => giving it ${stopTimeout}ms to terminate`);
+            await Promise.race([this.stopAdapter(), (0, async_1.wait)(stopTimeout)]);
+            if (this.isAdapterRunning()) {
+                debug("Adapter did not terminate, killing it");
+                this._adapterProcess.kill("SIGKILL");
             }
             else {
-                debug("Adapter failed to start - no need to terminate!");
+                debug("Adapter terminated");
             }
-            debug("Stopping controller instance...");
-            if (this._objects) {
-                yield this._objects.destroy();
-                this._objects = null;
-            }
-            if (this._states) {
-                yield this._states.destroy();
-                this._states = null;
-            }
-            debug("Controller instance stopped");
-        });
+        }
+        else {
+            debug("Adapter failed to start - no need to terminate!");
+        }
+        debug("Stopping controller instance...");
+        if (this._objects) {
+            await this._objects.destroy();
+            this._objects = null;
+        }
+        if (this._states) {
+            await this._states.destroy();
+            this._states = null;
+        }
+        debug("Controller instance stopped");
     }
     /**
      * Starts the adapter in a separate process and monitors its status
      * @param env Additional environment variables to set
      */
-    startAdapter(env = {}) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.isAdapterRunning())
-                throw new Error("The adapter is already running!");
-            else if (this.didAdapterStop())
-                throw new Error("This test harness has already been used. Please create a new one for each test!");
-            const mainFileAbsolute = yield adapterTools_1.locateAdapterMainFile(this.testAdapterDir);
-            const mainFileRelative = path.relative(this.testAdapterDir, mainFileAbsolute);
-            const onClose = (code, signal) => {
-                this._adapterProcess.removeAllListeners();
-                this._adapterExit = code != undefined ? code : signal;
-                this.emit("failed", this._adapterExit);
-            };
-            this._adapterProcess = child_process_1.spawn(isWindows ? "node.exe" : "node", [mainFileRelative, "--console"], {
-                cwd: this.testAdapterDir,
-                stdio: ["inherit", "inherit", "inherit"],
-                env: Object.assign(Object.assign({}, process.env), env),
-            })
-                .on("close", onClose)
-                .on("exit", onClose);
-        });
+    async startAdapter(env = {}) {
+        if (this.isAdapterRunning())
+            throw new Error("The adapter is already running!");
+        else if (this.didAdapterStop())
+            throw new Error("This test harness has already been used. Please create a new one for each test!");
+        const mainFileAbsolute = await (0, adapterTools_1.locateAdapterMainFile)(this.testAdapterDir);
+        const mainFileRelative = path.relative(this.testAdapterDir, mainFileAbsolute);
+        const onClose = (code, signal) => {
+            this._adapterProcess.removeAllListeners();
+            this._adapterExit = code != undefined ? code : signal;
+            this.emit("failed", this._adapterExit);
+        };
+        this._adapterProcess = (0, child_process_1.spawn)(isWindows ? "node.exe" : "node", [mainFileRelative, "--console"], {
+            cwd: this.testAdapterDir,
+            stdio: ["inherit", "inherit", "inherit"],
+            env: { ...process.env, ...env },
+        })
+            .on("close", onClose)
+            .on("exit", onClose);
     }
     /**
      * Starts the adapter in a separate process and resolves after it has started
      * @param env Additional environment variables to set
      */
-    startAdapterAndWait(env = {}) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                this.on("stateChange", (id, state) => __awaiter(this, void 0, void 0, function* () {
-                    if (id === `system.adapter.${this.adapterName}.0.alive` &&
-                        state &&
-                        state.val === true) {
-                        resolve();
-                    }
-                }))
-                    .on("failed", (code) => {
-                    reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === "number" ? "code" : "signal"} ${code}`));
-                })
-                    .startAdapter(env);
-            });
+    async startAdapterAndWait(env = {}) {
+        return new Promise((resolve, reject) => {
+            this.on("stateChange", async (id, state) => {
+                if (id === `system.adapter.${this.adapterName}.0.alive` &&
+                    state &&
+                    state.val === true) {
+                    resolve();
+                }
+            })
+                .on("failed", (code) => {
+                reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === "number" ? "code" : "signal"} ${code}`));
+            })
+                .startAdapter(env);
         });
     }
     /** Tests if the adapter process is still running */
@@ -264,7 +243,7 @@ class TestHarness extends events_1.EventEmitter {
     stopAdapter() {
         if (!this.isAdapterRunning())
             return;
-        return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
+        return new Promise(async (resolve) => {
             var _a;
             const onClose = (code, signal) => {
                 if (!this._adapterProcess)
@@ -282,7 +261,7 @@ class TestHarness extends events_1.EventEmitter {
                 .on("exit", onClose);
             // Tell adapter to stop
             if (this._states) {
-                yield this._states.setStateAsync(`system.adapter.${this.adapterName}.0.sigKill`, {
+                await this._states.setStateAsync(`system.adapter.${this.adapterName}.0.sigKill`, {
                     val: -1,
                     from: "system.host.testing",
                 });
@@ -290,21 +269,19 @@ class TestHarness extends events_1.EventEmitter {
             else {
                 (_a = this._adapterProcess) === null || _a === void 0 ? void 0 : _a.kill("SIGTERM");
             }
-        }));
+        });
     }
     /**
      * Updates the adapter config. The changes can be a subset of the target object
      */
-    changeAdapterConfig(appName, testDir, adapterName, changes) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const objects = yield this.dbConnection.readObjectsDB();
-            const adapterInstanceId = `system.adapter.${adapterName}.0`;
-            if (objects && adapterInstanceId in objects) {
-                const target = objects[adapterInstanceId];
-                objects_1.extend(target, changes);
-                yield this.dbConnection.writeObjectsDB(objects);
-            }
-        });
+    async changeAdapterConfig(appName, testDir, adapterName, changes) {
+        const objects = await this.dbConnection.readObjectsDB();
+        const adapterInstanceId = `system.adapter.${adapterName}.0`;
+        if (objects && adapterInstanceId in objects) {
+            const target = objects[adapterInstanceId];
+            (0, objects_1.extend)(target, changes);
+            await this.dbConnection.writeObjectsDB(objects);
+        }
     }
     /** Enables the sendTo method */
     enableSendTo() {

@@ -1,5 +1,5 @@
 /// <reference types="iobroker" />
-import { MockAdapter } from "./mockAdapter";
+import type { MockAdapter } from "./mockAdapter";
 /**
  * A minimalistic version of ioBroker's Objects and States DB that just operates on a Map
  */

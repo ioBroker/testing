@@ -1,6 +1,6 @@
 /// <reference types="iobroker" />
 import { MockAdapter } from "./mockAdapter";
-import { MockDatabase } from "./mockDatabase";
+import type { MockDatabase } from "./mockDatabase";
 interface MockAdapterConstructor {
     new (nameOrOptions: string | ioBroker.AdapterOptions): MockAdapter;
     (nameOrOptions: string | ioBroker.AdapterOptions): MockAdapter;

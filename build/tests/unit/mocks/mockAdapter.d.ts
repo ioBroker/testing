@@ -1,5 +1,5 @@
 /// <reference types="iobroker" />
-import { MockDatabase } from "./mockDatabase";
+import type { MockDatabase } from "./mockDatabase";
 import { MockLogger } from "./mockLogger";
 import { Mock } from "./tools";
 export declare type MockAdapter = Mock<ioBroker.Adapter> & {
