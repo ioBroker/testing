@@ -186,17 +186,21 @@ export function validatePackageFiles(adapterDir: string): void {
 				expect(Object.keys(news).length).to.be.at.most(20);
 			});
 
-			if (
-				// Materialize is only necessary if the adapter has a configuration page
-				iopackContent.common.noConfig !== true &&
-				iopackContent.common.noConfig !== "true" && 
-				(!iopackContent.common.adminUI || iopackContent.common.adminUI.config !== "json") &&
-				(!iopackContent.common.adminUI || iopackContent.common.adminUI.config !== "materialize")
-			) {
-				it("Materialize is supported", () => {
+			// If the adapter has a configuration page, check that a supported admin UI is used
+			const hasNoConfigPage =
+				iopackContent.common.noConfig === true ||
+				iopackContent.common.noConfig === "true" ||
+				iopackContent.common.adminUI?.config === "none";
+			if (!hasNoConfigPage) {
+				it("The adapter uses Material UI or JSON Config for the admin UI", () => {
+					const hasSupportedUI =
+						!!iopackContent.common.materialize ||
+						iopackContent.common.adminUI?.config === "json" ||
+						iopackContent.common.adminUI?.config === "materialize";
+
 					expect(
-						iopackContent.common.materialize,
-						"Adapters without materialize support will not be accepted!",
+						hasSupportedUI,
+						"Unsupported Admin UI, must be materialize or json config!",
 					).to.be.true;
 				});
 			}
