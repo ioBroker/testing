@@ -1,7 +1,7 @@
 import { composeObject, extend } from "alcalzone-shared/objects";
 import { isArray } from "alcalzone-shared/typeguards";
 import { str2regex } from "../../../lib/str2regex";
-import { MockAdapter } from "./mockAdapter";
+import type { MockAdapter } from "./mockAdapter";
 
 const objectTemplate = Object.freeze({
 	type: "state",
@@ -246,7 +246,7 @@ export function createAsserts(db: MockDatabase, adapter: MockAdapter) {
 			dbObj.should.be.an("object").that.has.property("common");
 			dbObj.common.should.be.an("object").that.nested.include(common);
 		},
-		assertObjectNative(id: string | string[], native: object) {
+		assertObjectNative(id: string | string[], native: Record<string, any>) {
 			id = normalizeID(id);
 			ret.assertObjectExists(id);
 			const dbObj = db.getObject(id)!;

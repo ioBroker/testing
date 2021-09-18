@@ -1,7 +1,7 @@
 import * as os from "os";
 import * as path from "path";
 import { createAdapterMock, MockAdapter } from "./mockAdapter";
-import { MockDatabase } from "./mockDatabase";
+import type { MockDatabase } from "./mockDatabase";
 
 interface MockAdapterConstructor {
 	new (nameOrOptions: string | ioBroker.AdapterOptions): MockAdapter;

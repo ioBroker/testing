@@ -32,7 +32,7 @@ function stubAndPromisifyImplementedMethods(parent, implementedMethods, allowUse
         if (methodName.endsWith("Async"))
             continue;
         const originalMethod = parent[methodName];
-        const callbackFake = (parent[methodName] = sinon_1.stub());
+        const callbackFake = (parent[methodName] = (0, sinon_1.stub)());
         callbackFake.callsFake(originalMethod);
         // Prevent the user from changing the stub's behavior
         if (allowUserOverrides.indexOf(methodName) === -1) {
@@ -44,7 +44,7 @@ function stubAndPromisifyImplementedMethods(parent, implementedMethods, allowUse
         if (asyncType === "none")
             continue;
         const promisifyMethod = asyncType === "no error" ? async_1.promisifyNoError : async_1.promisify;
-        const asyncFake = sinon_1.stub().callsFake(promisifyMethod(originalMethod, parent));
+        const asyncFake = (0, sinon_1.stub)().callsFake(promisifyMethod(originalMethod, parent));
         parent[`${methodName}Async`] = asyncFake;
         // Prevent the user from changing the stub's behavior
         if (allowUserOverrides.indexOf(methodName) === -1 ||

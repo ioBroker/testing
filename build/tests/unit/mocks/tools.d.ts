@@ -1,5 +1,5 @@
 /// <reference types="sinon" />
-import { Equals, Overwrite } from "alcalzone-shared/types";
+import type { Equals, Overwrite } from "alcalzone-shared/types";
 export declare type IsAny<T> = Equals<T extends never ? false : true, boolean>;
 export declare type MockableMethods<T, All = Required<T>, NoAny = {
     [K in keyof All]: IsAny<All[K]> extends true ? never : All[K] extends (...args: any[]) => void ? K : never;

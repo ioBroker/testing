@@ -1,5 +1,5 @@
 /// <reference types="iobroker" />
-import { MockAdapter } from "./mockAdapter";
+import type { MockAdapter } from "./mockAdapter";
 /**
  * A minimalistic version of ioBroker's Objects and States DB that just operates on a Map
  */
@@ -48,5 +48,5 @@ export declare function createAsserts(db: MockDatabase, adapter: MockAdapter): {
     assertStateIsAcked(id: string | string[], ack?: boolean): void;
     assertStateProperty(id: string | string[], property: string, value: any): void;
     assertObjectCommon(id: string | string[], common: ioBroker.ObjectCommon): void;
-    assertObjectNative(id: string | string[], native: object): void;
+    assertObjectNative(id: string | string[], native: Record<string, any>): void;
 };

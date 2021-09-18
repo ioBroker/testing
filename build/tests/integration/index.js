@@ -18,15 +18,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.testAdapter = void 0;
 const async_1 = require("alcalzone-shared/async");
@@ -39,8 +30,8 @@ const controllerSetup_1 = require("./lib/controllerSetup");
 const dbConnection_1 = require("./lib/dbConnection");
 const harness_1 = require("./lib/harness");
 function testAdapter(adapterDir, options = {}) {
-    const appName = adapterTools_1.getAppName(adapterDir);
-    const adapterName = adapterTools_1.getAdapterName(adapterDir);
+    const appName = (0, adapterTools_1.getAppName)(adapterDir);
+    const adapterName = (0, adapterTools_1.getAdapterName)(adapterDir);
     const testDir = path.join(os.tmpdir(), `test-${appName}.${adapterName}`);
     let harness;
     const dbConnection = new dbConnection_1.DBConnection(appName, testDir);
@@ -51,85 +42,79 @@ function testAdapter(adapterDir, options = {}) {
     describe(`Test the adapter (in a live environment)`, () => {
         let objectsBackup;
         let statesBackup;
-        before(function () {
-            return __awaiter(this, void 0, void 0, function* () {
-                // Installation may take a while - especially if rsa-compat needs to be installed
-                const oneMinute = 60000;
-                this.timeout(30 * oneMinute);
-                if (yield controllerSetup.isJsControllerRunning()) {
-                    throw new Error("JS-Controller is already running! Stop it for the first test run and try again!");
-                }
-                const adapterSetup = new adapterSetup_1.AdapterSetup(adapterDir, testDir, dbConnection);
-                // First we need to copy all files and execute an npm install
-                yield controllerSetup.prepareTestDir();
-                yield adapterSetup.copyAdapterFilesToTestDir();
-                // Remember if JS-Controller is installed already. If so, we need to call setup first later
-                const wasJsControllerInstalled = yield controllerSetup.isJsControllerInstalled();
-                // Call npm install
-                yield executeCommand_1.executeCommand("npm", ["i", "--production"], {
-                    cwd: testDir,
-                });
-                // Prepare/clean the databases and config
-                if (wasJsControllerInstalled)
-                    yield controllerSetup.setupJsController();
-                yield controllerSetup.setupSystemConfig();
-                yield controllerSetup.disableAdminInstances();
-                yield adapterSetup.deleteOldInstances();
-                yield adapterSetup.addAdapterInstance();
-                // Create a copy of the databases that we can restore later
-                ({ objects: objectsBackup, states: statesBackup } =
-                    yield dbConnection.readDB());
+        before(async function () {
+            // Installation may take a while - especially if rsa-compat needs to be installed
+            const oneMinute = 60000;
+            this.timeout(30 * oneMinute);
+            if (await controllerSetup.isJsControllerRunning()) {
+                throw new Error("JS-Controller is already running! Stop it for the first test run and try again!");
+            }
+            const adapterSetup = new adapterSetup_1.AdapterSetup(adapterDir, testDir, dbConnection);
+            // First we need to copy all files and execute an npm install
+            await controllerSetup.prepareTestDir();
+            await adapterSetup.copyAdapterFilesToTestDir();
+            // Remember if JS-Controller is installed already. If so, we need to call setup first later
+            const wasJsControllerInstalled = await controllerSetup.isJsControllerInstalled();
+            // Call npm install
+            await (0, executeCommand_1.executeCommand)("npm", ["i", "--production"], {
+                cwd: testDir,
             });
+            // Prepare/clean the databases and config
+            if (wasJsControllerInstalled)
+                await controllerSetup.setupJsController();
+            await controllerSetup.setupSystemConfig();
+            await controllerSetup.disableAdminInstances();
+            await adapterSetup.deleteOldInstances();
+            await adapterSetup.addAdapterInstance();
+            // Create a copy of the databases that we can restore later
+            ({ objects: objectsBackup, states: statesBackup } =
+                await dbConnection.readDB());
         });
-        beforeEach(function () {
-            return __awaiter(this, void 0, void 0, function* () {
-                this.timeout(30000);
-                // Clean up before every single test
-                yield Promise.all([
-                    controllerSetup.clearDBDir(),
-                    controllerSetup.clearLogDir(),
-                    dbConnection.writeDB(objectsBackup, statesBackup),
-                ]);
-                // Create a new test harness
-                harness = new harness_1.TestHarness(adapterDir, testDir);
-                // Enable the adapter and set its loglevel to debug
-                yield harness.changeAdapterConfig(appName, testDir, adapterName, {
-                    common: {
-                        enabled: true,
-                        loglevel: "debug",
-                    },
-                });
-                // Start the controller instance
-                yield harness.startController();
-                // And enable the sendTo emulation
-                yield harness.enableSendTo();
+        beforeEach(async function () {
+            this.timeout(30000);
+            // Clean up before every single test
+            await Promise.all([
+                controllerSetup.clearDBDir(),
+                controllerSetup.clearLogDir(),
+                dbConnection.writeDB(objectsBackup, statesBackup),
+            ]);
+            // Create a new test harness
+            harness = new harness_1.TestHarness(adapterDir, testDir);
+            // Enable the adapter and set its loglevel to debug
+            await harness.changeAdapterConfig(appName, testDir, adapterName, {
+                common: {
+                    enabled: true,
+                    loglevel: "debug",
+                },
             });
+            // Start the controller instance
+            await harness.startController();
+            // And enable the sendTo emulation
+            await harness.enableSendTo();
         });
-        afterEach(function () {
-            return __awaiter(this, void 0, void 0, function* () {
-                // Stopping the processes may take a while
-                this.timeout(30000);
-                // Stop the controller again
-                yield harness.stopController();
-                harness.removeAllListeners();
-            });
+        afterEach(async function () {
+            // Stopping the processes may take a while
+            this.timeout(30000);
+            // Stop the controller again
+            await harness.stopController();
+            harness.removeAllListeners();
         });
         it("The adapter starts", function () {
             this.timeout(60000);
             return new Promise((resolve, reject) => {
                 // Register a handler to check the alive state and exit codes
                 harness
-                    .on("stateChange", (id, state) => __awaiter(this, void 0, void 0, function* () {
+                    .on("stateChange", async (id, state) => {
                     if (id === `system.adapter.${adapterName}.0.alive` &&
                         state &&
                         state.val === true) {
                         // Wait a bit so we can catch errors that do not happen immediately
-                        yield async_1.wait(options.waitBeforeStartupSuccess != undefined
+                        await (0, async_1.wait)(options.waitBeforeStartupSuccess != undefined
                             ? options.waitBeforeStartupSuccess
                             : 5000);
                         resolve(`The adapter started successfully.`);
                     }
-                }))
+                })
                     .on("failed", (code) => {
                     if (options.allowedExitCodes == undefined ||
                         options.allowedExitCodes.indexOf(code) === -1) {

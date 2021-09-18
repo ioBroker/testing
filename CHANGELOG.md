@@ -4,6 +4,11 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
+## __WORK IN PROGRESS__
+* Fix: `adminUI.config` is now respected for the config UI check and JSON config is allowed too
+* Updated dependencies
+* Modernized build process
+
 ## 2.5.1 (2021-09-05)
 * We now use the nightly js-controller dev builds instead of GitHub installation
 

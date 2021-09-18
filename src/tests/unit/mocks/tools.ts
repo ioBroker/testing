@@ -1,5 +1,5 @@
 import { promisify, promisifyNoError } from "alcalzone-shared/async";
-import { Equals, Overwrite } from "alcalzone-shared/types";
+import type { Equals, Overwrite } from "alcalzone-shared/types";
 import { stub } from "sinon";
 
 // IsAny exploits the fact that `any` may or may not be assignable to `never`, whereas all other types are
