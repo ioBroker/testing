@@ -4,6 +4,9 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
+## __WORK IN PROGRESS__
+* Fix: Ensure the tests use the `file` DB type
+
 ## 2.5.2 (2021-09-18)
 * Fix: `adminUI.config` is now respected for the config UI check and JSON config is allowed too
 * Updated dependencies

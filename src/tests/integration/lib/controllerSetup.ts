@@ -202,7 +202,7 @@ export class ControllerSetup {
 	 * @param testDir The directory the integration tests are executed in
 	 */
 	public async setupSystemConfig(): Promise<void> {
-		debug("Moving databases to different ports...");
+		debug(`Moving databases to different ports and setting type "file"...`);
 
 		const systemFilename = path.join(
 			this.testDataDir,
@@ -210,7 +210,9 @@ export class ControllerSetup {
 		);
 		const systemConfig = require(systemFilename);
 		systemConfig.objects.port = 19001;
+		systemConfig.objects.type = "file";
 		systemConfig.states.port = 19000;
+		systemConfig.states.type = "file";
 		await writeFile(systemFilename, JSON.stringify(systemConfig, null, 2));
 		debug("  => done!");
 	}
