@@ -4,7 +4,7 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
-## __WORK IN PROGRESS__
+## 2.5.3 (2022-01-29)
 * Fix: Ensure the tests use the `file` DB type
 
 ## 2.5.2 (2021-09-18)
