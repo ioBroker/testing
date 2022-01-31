@@ -4,8 +4,8 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
-## 2.5.3 (2022-01-29)
-* Fix: Ensure the tests use the `file` DB type
+## __WORK IN PROGRESS__
+* Modifying ioBroker databases now uses the same methods that JS-Controller uses internally. This ensures that the testing is compatible with the `jsonl` database format.
 
 ## 2.5.2 (2021-09-18)
 * Fix: `adminUI.config` is now respected for the config UI check and JSON config is allowed too
