@@ -24,21 +24,18 @@ export function testAdapter(
 	const adapterName = getAdapterName(adapterDir);
 	const testDir = path.join(os.tmpdir(), `test-${appName}.${adapterName}`);
 
+	/** This db connection is only used for the lifetime of a test and then re-created */
+	let dbConnection: DBConnection;
 	let harness: TestHarness;
-	const dbConnection = new DBConnection(appName, testDir);
-	const controllerSetup = new ControllerSetup(
-		adapterDir,
-		testDir,
-		dbConnection,
-	);
+	const controllerSetup = new ControllerSetup(adapterDir, testDir);
 
 	console.log();
 	console.log(`Running tests in ${testDir}`);
 	console.log();
 
 	describe(`Test the adapter (in a live environment)`, () => {
-		let objectsBackup: any;
-		let statesBackup: any;
+		let objectsBackup: Buffer;
+		let statesBackup: Buffer;
 
 		before(async function () {
 			// Installation may take a while - especially if rsa-compat needs to be installed
@@ -51,11 +48,7 @@ export function testAdapter(
 				);
 			}
 
-			const adapterSetup = new AdapterSetup(
-				adapterDir,
-				testDir,
-				dbConnection,
-			);
+			const adapterSetup = new AdapterSetup(adapterDir, testDir);
 
 			// First we need to copy all files and execute an npm install
 			await controllerSetup.prepareTestDir();
@@ -73,32 +66,39 @@ export function testAdapter(
 			// Prepare/clean the databases and config
 			if (wasJsControllerInstalled)
 				await controllerSetup.setupJsController();
-			await controllerSetup.setupSystemConfig();
-			await controllerSetup.disableAdminInstances();
 
-			await adapterSetup.deleteOldInstances();
+			const dbConnection = new DBConnection(appName, testDir);
+			await dbConnection.start();
+			controllerSetup.setupSystemConfig(dbConnection);
+			await controllerSetup.disableAdminInstances(dbConnection);
+
+			await adapterSetup.deleteOldInstances(dbConnection);
 			await adapterSetup.addAdapterInstance();
+			await dbConnection.stop();
 
 			// Create a copy of the databases that we can restore later
 			({ objects: objectsBackup, states: statesBackup } =
-				await dbConnection.readDB());
+				await dbConnection.backup());
 		});
 
 		beforeEach(async function () {
 			this.timeout(30000);
 
+			dbConnection = new DBConnection(appName, testDir);
+
 			// Clean up before every single test
 			await Promise.all([
 				controllerSetup.clearDBDir(),
 				controllerSetup.clearLogDir(),
-				dbConnection.writeDB(objectsBackup, statesBackup),
+				dbConnection.restore(objectsBackup, statesBackup),
 			]);
 
 			// Create a new test harness
-			harness = new TestHarness(adapterDir, testDir);
+			await dbConnection.start();
+			harness = new TestHarness(adapterDir, testDir, dbConnection);
 
 			// Enable the adapter and set its loglevel to debug
-			await harness.changeAdapterConfig(appName, testDir, adapterName, {
+			await harness.changeAdapterConfig(adapterName, {
 				common: {
 					enabled: true,
 					loglevel: "debug",
@@ -119,6 +119,8 @@ export function testAdapter(
 			await harness.stopController();
 
 			harness.removeAllListeners();
+
+			await dbConnection.stop();
 		});
 
 		it("The adapter starts", function () {

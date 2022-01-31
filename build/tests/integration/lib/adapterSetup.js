@@ -23,6 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdapterSetup = void 0;
+/* eslint-disable @typescript-eslint/no-empty-function */
 // Add debug logging for tests
 const objects_1 = require("alcalzone-shared/objects");
 const debug_1 = __importDefault(require("debug"));
@@ -33,10 +34,9 @@ const executeCommand_1 = require("../../../lib/executeCommand");
 const tools_1 = require("./tools");
 const debug = (0, debug_1.default)("testing:integration:AdapterSetup");
 class AdapterSetup {
-    constructor(adapterDir, testDir, dbConnection) {
+    constructor(adapterDir, testDir) {
         this.adapterDir = adapterDir;
         this.testDir = testDir;
-        this.dbConnection = dbConnection;
         debug("Creating AdapterSetup...");
         this.adapterName = (0, adapterTools_1.getAdapterName)(this.adapterDir);
         this.adapterFullName = (0, adapterTools_1.getAdapterFullName)(this.adapterDir);
@@ -109,9 +109,12 @@ class AdapterSetup {
             throw new Error(`Adding the adapter instance failed!`);
         debug("  => done!");
     }
-    async deleteOldInstances() {
+    async deleteOldInstances(dbConnection) {
         debug("Removing old adapter instances...");
-        const { objects, states } = await this.dbConnection.readDB();
+        const allKeys = new Set([
+            ...(await dbConnection.getObjectIDs()),
+            ...(await dbConnection.getStateIDs()),
+        ]);
         const instanceRegex = new RegExp(`^system\\.adapter\\.${this.adapterName}\\.\\d+`);
         const instanceObjsRegex = new RegExp(`^${this.adapterName}\\.\\d+\.`);
         const belongsToAdapter = (id) => {
@@ -120,19 +123,12 @@ class AdapterSetup {
                 id === this.adapterName ||
                 id === `${this.adapterName}.admin`);
         };
-        if (objects) {
-            for (const id of Object.keys(objects)) {
-                if (belongsToAdapter(id))
-                    delete objects[id];
-            }
+        const idsToDelete = [...allKeys].filter((id) => belongsToAdapter(id));
+        for (const id of idsToDelete) {
+            await dbConnection.delObject(id).catch(() => { });
+            await dbConnection.delState(id).catch(() => { });
         }
-        if (states) {
-            for (const id of Object.keys(states)) {
-                if (belongsToAdapter(id))
-                    delete states[id];
-            }
-        }
-        await this.dbConnection.writeDB(objects, states);
+        debug("  => done!");
     }
 }
 exports.AdapterSetup = AdapterSetup;

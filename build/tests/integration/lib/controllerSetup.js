@@ -23,7 +23,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ControllerSetup = void 0;
-/* eslint-disable @typescript-eslint/no-var-requires */
 // Add debug logging for tests
 const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = require("fs-extra");
@@ -34,10 +33,9 @@ const executeCommand_1 = require("../../../lib/executeCommand");
 const tools_1 = require("./tools");
 const debug = (0, debug_1.default)("testing:integration:ControllerSetup");
 class ControllerSetup {
-    constructor(adapterDir, testDir, dbConnection) {
+    constructor(adapterDir, testDir) {
         this.adapterDir = adapterDir;
         this.testDir = testDir;
-        this.dbConnection = dbConnection;
         debug("Creating ControllerSetup...");
         this.adapterName = (0, adapterTools_1.getAdapterName)(this.adapterDir);
         this.appName = (0, adapterTools_1.getAppName)(this.adapterDir);
@@ -175,15 +173,12 @@ class ControllerSetup {
      * @param appName The branded name of "iobroker"
      * @param testDir The directory the integration tests are executed in
      */
-    async setupSystemConfig() {
-        debug(`Moving databases to different ports and setting type "file"...`);
-        const systemFilename = path.join(this.testDataDir, `${this.appName}.json`);
-        const systemConfig = require(systemFilename);
+    setupSystemConfig(dbConnection) {
+        debug(`Moving databases to different ports...`);
+        const systemConfig = dbConnection.getSystemConfig();
         systemConfig.objects.port = 19001;
-        systemConfig.objects.type = "file";
         systemConfig.states.port = 19000;
-        systemConfig.states.type = "file";
-        await (0, fs_extra_1.writeFile)(systemFilename, JSON.stringify(systemConfig, null, 2));
+        dbConnection.setSystemConfig(systemConfig);
         debug("  => done!");
     }
     /**
@@ -208,18 +203,17 @@ class ControllerSetup {
      * Disables all admin instances in the objects DB
      * @param objects The contents of objects.json
      */
-    async disableAdminInstances() {
+    async disableAdminInstances(dbConnection) {
         debug("Disabling admin instances...");
-        const objects = await this.dbConnection.readObjectsDB();
-        if (objects) {
-            for (const id of Object.keys(objects)) {
-                if (/^system\.adapter\.admin\.\d.+$/.test(id)) {
-                    const obj = objects[id];
-                    if (obj && obj.common)
-                        obj.common.enabled = false;
-                }
+        const instanceObjects = await dbConnection.getObjectViewAsync("system", "instance", {
+            startkey: "system.adapter.admin.",
+            endkey: "system.adapter.admin.\u9999",
+        });
+        for (const { id, value: obj } of instanceObjects.rows) {
+            if (obj && obj.common) {
+                obj.common.enabled = false;
+                await dbConnection.setObject(id, obj);
             }
-            await this.dbConnection.writeObjectsDB(objects);
         }
         debug("  => done!");
     }

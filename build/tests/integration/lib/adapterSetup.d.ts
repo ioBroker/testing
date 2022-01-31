@@ -2,8 +2,7 @@ import type { DBConnection } from "./dbConnection";
 export declare class AdapterSetup {
     private adapterDir;
     private testDir;
-    private dbConnection;
-    constructor(adapterDir: string, testDir: string, dbConnection: DBConnection);
+    constructor(adapterDir: string, testDir: string);
     private testAdapterDir;
     private adapterName;
     private adapterFullName;
@@ -19,5 +18,5 @@ export declare class AdapterSetup {
      * Adds an instance for an already installed adapter in the test directory
      */
     addAdapterInstance(): Promise<void>;
-    deleteOldInstances(): Promise<void>;
+    deleteOldInstances(dbConnection: DBConnection): Promise<void>;
 }

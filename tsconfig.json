@@ -13,6 +13,7 @@
 
 		"outDir": "build/",
 		"removeComments": false,
+		"newLine": "lf",
 
 		// Avoid runtime imports that are unnecessary
 		"importsNotUsedAsValues": "error",
