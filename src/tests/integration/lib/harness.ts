@@ -52,6 +52,13 @@ export class TestHarness extends EventEmitter {
 		debug(`    adapter:    ${this.testAdapterDir}`);
 		debug(`  appName:           ${this.appName}`);
 		debug(`  adapterName:       ${this.adapterName}`);
+
+		dbConnection.on("objectChange", (id, obj) => {
+			this.emit("objectChange", id, obj);
+		});
+		dbConnection.on("stateChange", (id, state) => {
+			this.emit("stateChange", id, state);
+		});
 	}
 
 	private adapterName: string;
@@ -267,6 +274,7 @@ export class TestHarness extends EventEmitter {
 	public sendTo(
 		target: string,
 		command: string,
+		// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 		message: any,
 		callback: ioBroker.MessageCallback,
 	): void {

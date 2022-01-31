@@ -105,9 +105,6 @@ export function testAdapter(
 				},
 			});
 
-			// Start the controller instance
-			await harness.startController();
-
 			// And enable the sendTo emulation
 			await harness.enableSendTo();
 		});
@@ -119,8 +116,6 @@ export function testAdapter(
 			await harness.stopController();
 
 			harness.removeAllListeners();
-
-			await dbConnection.stop();
 		});
 
 		it("The adapter starts", function () {

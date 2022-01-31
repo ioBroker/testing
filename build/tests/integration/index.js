@@ -93,8 +93,6 @@ function testAdapter(adapterDir, options = {}) {
                     loglevel: "debug",
                 },
             });
-            // Start the controller instance
-            await harness.startController();
             // And enable the sendTo emulation
             await harness.enableSendTo();
         });
@@ -104,7 +102,6 @@ function testAdapter(adapterDir, options = {}) {
             // Stop the controller again
             await harness.stopController();
             harness.removeAllListeners();
-            await dbConnection.stop();
         });
         it("The adapter starts", function () {
             this.timeout(60000);
