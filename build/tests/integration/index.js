@@ -24,7 +24,6 @@ const async_1 = require("alcalzone-shared/async");
 const os = __importStar(require("os"));
 const path = __importStar(require("path"));
 const adapterTools_1 = require("../../lib/adapterTools");
-const executeCommand_1 = require("../../lib/executeCommand");
 const adapterSetup_1 = require("./lib/adapterSetup");
 const controllerSetup_1 = require("./lib/controllerSetup");
 const dbConnection_1 = require("./lib/dbConnection");
@@ -33,9 +32,10 @@ function testAdapter(adapterDir, options = {}) {
     const appName = (0, adapterTools_1.getAppName)(adapterDir);
     const adapterName = (0, adapterTools_1.getAdapterName)(adapterDir);
     const testDir = path.join(os.tmpdir(), `test-${appName}.${adapterName}`);
+    /** This db connection is only used for the lifetime of a test and then re-created */
+    let dbConnection;
     let harness;
-    const dbConnection = new dbConnection_1.DBConnection(appName, testDir);
-    const controllerSetup = new controllerSetup_1.ControllerSetup(adapterDir, testDir, dbConnection);
+    const controllerSetup = new controllerSetup_1.ControllerSetup(adapterDir, testDir);
     console.log();
     console.log(`Running tests in ${testDir}`);
     console.log();
@@ -49,46 +49,44 @@ function testAdapter(adapterDir, options = {}) {
             if (await controllerSetup.isJsControllerRunning()) {
                 throw new Error("JS-Controller is already running! Stop it for the first test run and try again!");
             }
-            const adapterSetup = new adapterSetup_1.AdapterSetup(adapterDir, testDir, dbConnection);
+            const adapterSetup = new adapterSetup_1.AdapterSetup(adapterDir, testDir);
+            // Installation happens in two steps:
+            // First we need to set up JS Controller, so the databases etc. can be created
             // First we need to copy all files and execute an npm install
             await controllerSetup.prepareTestDir();
-            await adapterSetup.copyAdapterFilesToTestDir();
-            // Remember if JS-Controller is installed already. If so, we need to call setup first later
-            const wasJsControllerInstalled = await controllerSetup.isJsControllerInstalled();
-            // Call npm install
-            await (0, executeCommand_1.executeCommand)("npm", ["i", "--production"], {
-                cwd: testDir,
-            });
-            // Prepare/clean the databases and config
-            if (wasJsControllerInstalled)
-                await controllerSetup.setupJsController();
-            await controllerSetup.setupSystemConfig();
-            await controllerSetup.disableAdminInstances();
-            await adapterSetup.deleteOldInstances();
+            // Only then we can install the adapter, because some (including VIS) try to access
+            // the databases if JS Controller is installed
+            await adapterSetup.installAdapterInTestDir();
+            const dbConnection = new dbConnection_1.DBConnection(appName, testDir);
+            await dbConnection.start();
+            controllerSetup.setupSystemConfig(dbConnection);
+            await controllerSetup.disableAdminInstances(dbConnection);
+            await adapterSetup.deleteOldInstances(dbConnection);
             await adapterSetup.addAdapterInstance();
+            await dbConnection.stop();
             // Create a copy of the databases that we can restore later
             ({ objects: objectsBackup, states: statesBackup } =
-                await dbConnection.readDB());
+                await dbConnection.backup());
         });
         beforeEach(async function () {
             this.timeout(30000);
+            dbConnection = new dbConnection_1.DBConnection(appName, testDir);
             // Clean up before every single test
             await Promise.all([
                 controllerSetup.clearDBDir(),
                 controllerSetup.clearLogDir(),
-                dbConnection.writeDB(objectsBackup, statesBackup),
+                dbConnection.restore(objectsBackup, statesBackup),
             ]);
             // Create a new test harness
-            harness = new harness_1.TestHarness(adapterDir, testDir);
+            await dbConnection.start();
+            harness = new harness_1.TestHarness(adapterDir, testDir, dbConnection);
             // Enable the adapter and set its loglevel to debug
-            await harness.changeAdapterConfig(appName, testDir, adapterName, {
+            await harness.changeAdapterConfig(adapterName, {
                 common: {
                     enabled: true,
                     loglevel: "debug",
                 },
             });
-            // Start the controller instance
-            await harness.startController();
             // And enable the sendTo emulation
             await harness.enableSendTo();
         });

@@ -2,6 +2,7 @@
 /// <reference types="node" />
 import { ChildProcess } from "child_process";
 import { EventEmitter } from "events";
+import type { DBConnection } from "./dbConnection";
 export interface TestHarness {
     on(event: "objectChange", handler: ioBroker.ObjectChangeHandler): this;
     on(event: "stateChange", handler: ioBroker.StateChangeHandler): this;
@@ -14,21 +15,19 @@ export interface TestHarness {
 export declare class TestHarness extends EventEmitter {
     private adapterDir;
     private testDir;
+    private dbConnection;
     /**
      * @param adapterDir The root directory of the adapter
      * @param testDir The directory the integration tests are executed in
      */
-    constructor(adapterDir: string, testDir: string);
+    constructor(adapterDir: string, testDir: string, dbConnection: DBConnection);
     private adapterName;
     private appName;
     private testControllerDir;
     private testAdapterDir;
-    private dbConnection;
-    private _objects;
-    /** The actual objects DB */
+    /** Gives direct access to the Objects DB */
     get objects(): any;
-    private _states;
-    /** The actual states DB */
+    /** Gives direct access to the States DB */
     get states(): any;
     private _adapterProcess;
     /** The process the adapter is running in */
@@ -36,10 +35,6 @@ export declare class TestHarness extends EventEmitter {
     private _adapterExit;
     /** Contains the adapter exit code or signal if it was terminated unexpectedly */
     get adapterExit(): number | string | undefined;
-    /** Creates the objects DB and sets up listeners for it */
-    private createObjectsDB;
-    /** Creates the states DB and sets up listeners for it */
-    private createStatesDB;
     /** Checks if the controller instance is running */
     isControllerRunning(): boolean;
     /** Starts the controller instance by creating the databases */
@@ -65,7 +60,7 @@ export declare class TestHarness extends EventEmitter {
     /**
      * Updates the adapter config. The changes can be a subset of the target object
      */
-    changeAdapterConfig(appName: string, testDir: string, adapterName: string, changes: any): Promise<void>;
+    changeAdapterConfig(adapterName: string, changes: Record<string, any>): Promise<void>;
     /** Enables the sendTo method */
     enableSendTo(): Promise<void>;
     private sendToID;

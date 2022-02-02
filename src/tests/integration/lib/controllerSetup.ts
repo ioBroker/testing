@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 // Add debug logging for tests
 import debugModule from "debug";
 import {
@@ -25,11 +24,7 @@ import {
 const debug = debugModule("testing:integration:ControllerSetup");
 
 export class ControllerSetup {
-	public constructor(
-		private adapterDir: string,
-		private testDir: string,
-		private dbConnection: DBConnection,
-	) {
+	public constructor(private adapterDir: string, private testDir: string) {
 		debug("Creating ControllerSetup...");
 
 		this.adapterName = getAdapterName(this.adapterDir);
@@ -97,6 +92,16 @@ export class ControllerSetup {
 			);
 		}
 
+		// Remember if JS-Controller is installed already. If so, we need to call `setup first` afterwards
+		const wasJsControllerInstalled = await this.isJsControllerInstalled();
+		// Defer to npm to install the controller (if it wasn't already)
+		debug("(Re-)installing JS Controller...");
+		await executeCommand("npm", ["i", "--production"], {
+			cwd: this.testDir,
+		});
+		// Prepare/clean the databases and config
+		if (wasJsControllerInstalled) await this.setupJsController();
+
 		debug("  => done!");
 	}
 
@@ -105,7 +110,7 @@ export class ControllerSetup {
 	 * @param appName The branded name of "iobroker"
 	 * @param testDir The directory the integration tests are executed in
 	 */
-	public async isJsControllerInstalled(): Promise<boolean> {
+	async isJsControllerInstalled(): Promise<boolean> {
 		debug("Testing if JS-Controller is installed...");
 		// We expect js-controller to be installed if the dir in <testDir>/node_modules and the data directory exist
 		const isInstalled =
@@ -172,10 +177,8 @@ export class ControllerSetup {
 
 	/**
 	 * Sets up an existing JS-Controller instance for testing by executing "iobroker setup first"
-	 * @param appName The branded name of "iobroker"
-	 * @param testDir The directory the integration tests are executed in
 	 */
-	public async setupJsController(): Promise<void> {
+	async setupJsController(): Promise<void> {
 		debug("Initializing JS-Controller installation...");
 		// Stop the controller before calling setup first
 		await executeCommand("node", [`${this.appName}.js`, "stop"], {
@@ -201,19 +204,13 @@ export class ControllerSetup {
 	 * @param appName The branded name of "iobroker"
 	 * @param testDir The directory the integration tests are executed in
 	 */
-	public async setupSystemConfig(): Promise<void> {
-		debug(`Moving databases to different ports and setting type "file"...`);
+	public setupSystemConfig(dbConnection: DBConnection): void {
+		debug(`Moving databases to different ports...`);
 
-		const systemFilename = path.join(
-			this.testDataDir,
-			`${this.appName}.json`,
-		);
-		const systemConfig = require(systemFilename);
+		const systemConfig = dbConnection.getSystemConfig();
 		systemConfig.objects.port = 19001;
-		systemConfig.objects.type = "file";
 		systemConfig.states.port = 19000;
-		systemConfig.states.type = "file";
-		await writeFile(systemFilename, JSON.stringify(systemConfig, null, 2));
+		dbConnection.setSystemConfig(systemConfig);
 		debug("  => done!");
 	}
 
@@ -241,17 +238,23 @@ export class ControllerSetup {
 	 * Disables all admin instances in the objects DB
 	 * @param objects The contents of objects.json
 	 */
-	public async disableAdminInstances(): Promise<void> {
+	public async disableAdminInstances(
+		dbConnection: DBConnection,
+	): Promise<void> {
 		debug("Disabling admin instances...");
-		const objects = await this.dbConnection.readObjectsDB();
-		if (objects) {
-			for (const id of Object.keys(objects)) {
-				if (/^system\.adapter\.admin\.\d.+$/.test(id)) {
-					const obj = objects[id] as any;
-					if (obj && obj.common) obj.common.enabled = false;
-				}
+		const instanceObjects = await dbConnection.getObjectViewAsync(
+			"system",
+			"instance",
+			{
+				startkey: "system.adapter.admin.",
+				endkey: "system.adapter.admin.\u9999",
+			},
+		);
+		for (const { id, value: obj } of instanceObjects.rows) {
+			if (obj && obj.common) {
+				obj.common.enabled = false;
+				await dbConnection.setObject(id, obj);
 			}
-			await this.dbConnection.writeObjectsDB(objects);
 		}
 		debug("  => done!");
 	}

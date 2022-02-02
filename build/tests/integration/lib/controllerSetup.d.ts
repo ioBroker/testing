@@ -2,8 +2,7 @@ import type { DBConnection } from "./dbConnection";
 export declare class ControllerSetup {
     private adapterDir;
     private testDir;
-    private dbConnection;
-    constructor(adapterDir: string, testDir: string, dbConnection: DBConnection);
+    constructor(adapterDir: string, testDir: string);
     private appName;
     private adapterName;
     private testAdapterDir;
@@ -22,8 +21,6 @@ export declare class ControllerSetup {
     isJsControllerRunning(): Promise<boolean>;
     /**
      * Sets up an existing JS-Controller instance for testing by executing "iobroker setup first"
-     * @param appName The branded name of "iobroker"
-     * @param testDir The directory the integration tests are executed in
      */
     setupJsController(): Promise<void>;
     /**
@@ -31,7 +28,7 @@ export declare class ControllerSetup {
      * @param appName The branded name of "iobroker"
      * @param testDir The directory the integration tests are executed in
      */
-    setupSystemConfig(): Promise<void>;
+    setupSystemConfig(dbConnection: DBConnection): void;
     /**
      * Clears the log dir for integration tests (and creates it if it doesn't exist)
      * @param appName The branded name of "iobroker"
@@ -48,5 +45,5 @@ export declare class ControllerSetup {
      * Disables all admin instances in the objects DB
      * @param objects The contents of objects.json
      */
-    disableAdminInstances(): Promise<void>;
+    disableAdminInstances(dbConnection: DBConnection): Promise<void>;
 }

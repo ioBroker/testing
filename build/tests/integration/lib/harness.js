@@ -23,7 +23,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TestHarness = void 0;
-/* eslint-disable @typescript-eslint/no-var-requires */
 const async_1 = require("alcalzone-shared/async");
 const objects_1 = require("alcalzone-shared/objects");
 const child_process_1 = require("child_process");
@@ -31,18 +30,9 @@ const debug_1 = __importDefault(require("debug"));
 const events_1 = require("events");
 const path = __importStar(require("path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
-const dbConnection_1 = require("./dbConnection");
 const tools_1 = require("./tools");
 const debug = (0, debug_1.default)("testing:integration:TestHarness");
 const isWindows = /^win/.test(process.platform);
-/** The logger instance for the objects and states DB */
-const logger = {
-    silly: console.log,
-    debug: console.log,
-    info: console.log,
-    warn: console.warn,
-    error: console.error,
-};
 const fromAdapterID = "system.adapter.test.0";
 /**
  * The test harness capsules the execution of the JS-Controller and the adapter instance and monitors their status.
@@ -53,10 +43,11 @@ class TestHarness extends events_1.EventEmitter {
      * @param adapterDir The root directory of the adapter
      * @param testDir The directory the integration tests are executed in
      */
-    constructor(adapterDir, testDir) {
+    constructor(adapterDir, testDir, dbConnection) {
         super();
         this.adapterDir = adapterDir;
         this.testDir = testDir;
+        this.dbConnection = dbConnection;
         this.sendToID = 1;
         debug("Creating instance");
         this.adapterName = (0, adapterTools_1.getAdapterName)(this.adapterDir);
@@ -68,15 +59,26 @@ class TestHarness extends events_1.EventEmitter {
         debug(`    adapter:    ${this.testAdapterDir}`);
         debug(`  appName:           ${this.appName}`);
         debug(`  adapterName:       ${this.adapterName}`);
-        this.dbConnection = new dbConnection_1.DBConnection(this.appName, this.testDir);
+        dbConnection.on("objectChange", (id, obj) => {
+            this.emit("objectChange", id, obj);
+        });
+        dbConnection.on("stateChange", (id, state) => {
+            this.emit("stateChange", id, state);
+        });
     }
-    /** The actual objects DB */
+    /** Gives direct access to the Objects DB */
     get objects() {
-        return this._objects;
+        if (!this.dbConnection.objectsClient) {
+            throw new Error("Objects DB is not running");
+        }
+        return this.dbConnection.objectsClient;
     }
-    /** The actual states DB */
+    /** Gives direct access to the States DB */
     get states() {
-        return this._states;
+        if (!this.dbConnection.statesClient) {
+            throw new Error("States DB is not running");
+        }
+        return this.dbConnection.statesClient;
     }
     /** The process the adapter is running in */
     get adapterProcess() {
@@ -86,68 +88,15 @@ class TestHarness extends events_1.EventEmitter {
     get adapterExit() {
         return this._adapterExit;
     }
-    /** Creates the objects DB and sets up listeners for it */
-    async createObjectsDB() {
-        debug("creating objects DB");
-        const Objects = require(path.join(this.testControllerDir, "lib/objects/objectsInMemServer"));
-        return new Promise((resolve) => {
-            this._objects = new Objects({
-                connection: {
-                    type: "file",
-                    host: "127.0.0.1",
-                    port: 19001,
-                    user: "",
-                    pass: "",
-                    noFileCache: false,
-                    connectTimeout: 2000,
-                },
-                logger,
-                connected: () => {
-                    debug("  => done!");
-                    this._objects.subscribe("*");
-                    resolve();
-                },
-                change: this.emit.bind(this, "objectChange"),
-            });
-        });
-    }
-    /** Creates the states DB and sets up listeners for it */
-    async createStatesDB() {
-        debug("creating states DB");
-        const States = require(path.join(this.testControllerDir, "lib/states/statesInMemServer"));
-        return new Promise((resolve) => {
-            this._states = new States({
-                connection: {
-                    type: "file",
-                    host: "127.0.0.1",
-                    port: 19000,
-                    options: {
-                        auth_pass: null,
-                        retry_max_delay: 15000,
-                    },
-                },
-                logger,
-                connected: () => {
-                    debug("  => done!");
-                    this._states.subscribe("*");
-                    resolve();
-                },
-                change: this.emit.bind(this, "stateChange"),
-            });
-        });
-    }
     /** Checks if the controller instance is running */
     isControllerRunning() {
-        return !!this._objects || !!this._states;
+        // The "controller instance" is just the databases, so if they are running,
+        // the "controller" is.
+        return this.dbConnection.isRunning;
     }
     /** Starts the controller instance by creating the databases */
     async startController() {
-        debug("starting controller instance...");
-        if (this.isControllerRunning())
-            throw new Error("The Controller is already running!");
-        await this.createObjectsDB();
-        await this.createStatesDB();
-        debug("controller instance created");
+        await this.dbConnection.start();
     }
     /** Stops the controller instance (and the adapter if it is running) */
     async stopController() {
@@ -158,7 +107,7 @@ class TestHarness extends events_1.EventEmitter {
             // Give the adapter time to stop (as long as configured in the io-package.json)
             let stopTimeout;
             try {
-                stopTimeout = (await this._objects.getObjectAsync(`system.adapter.${this.adapterName}.0`)).common.stopTimeout;
+                stopTimeout = (await this.dbConnection.getObject(`system.adapter.${this.adapterName}.0`)).common.stopTimeout;
                 stopTimeout += 1000;
             }
             catch { }
@@ -176,16 +125,7 @@ class TestHarness extends events_1.EventEmitter {
         else {
             debug("Adapter failed to start - no need to terminate!");
         }
-        debug("Stopping controller instance...");
-        if (this._objects) {
-            await this._objects.destroy();
-            this._objects = null;
-        }
-        if (this._states) {
-            await this._states.destroy();
-            this._states = null;
-        }
-        debug("Controller instance stopped");
+        await this.dbConnection.stop();
     }
     /**
      * Starts the adapter in a separate process and monitors its status
@@ -259,13 +199,14 @@ class TestHarness extends events_1.EventEmitter {
                 .on("close", onClose)
                 .on("exit", onClose);
             // Tell adapter to stop
-            if (this._states) {
-                await this._states.setStateAsync(`system.adapter.${this.adapterName}.0.sigKill`, {
+            try {
+                await this.dbConnection.setState(`system.adapter.${this.adapterName}.0.sigKill`, {
                     val: -1,
                     from: "system.host.testing",
                 });
             }
-            else {
+            catch {
+                // DB connection may be closed already, kill the process
                 (_a = this._adapterProcess) === null || _a === void 0 ? void 0 : _a.kill("SIGTERM");
             }
         });
@@ -273,29 +214,27 @@ class TestHarness extends events_1.EventEmitter {
     /**
      * Updates the adapter config. The changes can be a subset of the target object
      */
-    async changeAdapterConfig(appName, testDir, adapterName, changes) {
-        const objects = await this.dbConnection.readObjectsDB();
+    async changeAdapterConfig(adapterName, changes) {
         const adapterInstanceId = `system.adapter.${adapterName}.0`;
-        if (objects && adapterInstanceId in objects) {
-            const target = objects[adapterInstanceId];
-            (0, objects_1.extend)(target, changes);
-            await this.dbConnection.writeObjectsDB(objects);
+        const obj = await this.dbConnection.getObject(adapterInstanceId);
+        if (obj) {
+            (0, objects_1.extend)(obj, changes);
+            await this.dbConnection.setObject(adapterInstanceId, obj);
         }
     }
     /** Enables the sendTo method */
-    enableSendTo() {
-        return new Promise((resolve) => {
-            this._objects.extendObject(fromAdapterID, {
-                common: {},
-                type: "instance",
-            }, () => {
-                this._states.subscribeMessage(fromAdapterID);
-                resolve();
-            });
+    async enableSendTo() {
+        await this.dbConnection.setObject(fromAdapterID, {
+            type: "instance",
+            common: {},
+            native: {},
         });
+        this.dbConnection.subscribeMessage(fromAdapterID);
     }
     /** Sends a message to an adapter instance */
-    sendTo(target, command, message, callback) {
+    sendTo(target, command, 
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    message, callback) {
         const stateChangedHandler = (id, state) => {
             if (id === `messagebox.${fromAdapterID}`) {
                 callback(state.message);
@@ -303,7 +242,7 @@ class TestHarness extends events_1.EventEmitter {
             }
         };
         this.addListener("stateChange", stateChangedHandler);
-        this._states.pushMessage(`system.adapter.${target}`, {
+        this.dbConnection.pushMessage(`system.adapter.${target}`, {
             command: command,
             message: message,
             from: fromAdapterID,
