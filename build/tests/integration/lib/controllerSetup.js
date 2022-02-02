@@ -81,6 +81,16 @@ class ControllerSetup {
         if (nodeMajorVersion >= 10) {
             await (0, fs_extra_1.writeFile)(path.join(this.testDir, ".npmrc"), "engine-strict=true", "utf8");
         }
+        // Remember if JS-Controller is installed already. If so, we need to call `setup first` afterwards
+        const wasJsControllerInstalled = await this.isJsControllerInstalled();
+        // Defer to npm to install the controller (if it wasn't already)
+        debug("(Re-)installing JS Controller...");
+        await (0, executeCommand_1.executeCommand)("npm", ["i", "--production"], {
+            cwd: this.testDir,
+        });
+        // Prepare/clean the databases and config
+        if (wasJsControllerInstalled)
+            await this.setupJsController();
         debug("  => done!");
     }
     /**
@@ -150,8 +160,6 @@ class ControllerSetup {
     // }
     /**
      * Sets up an existing JS-Controller instance for testing by executing "iobroker setup first"
-     * @param appName The branded name of "iobroker"
-     * @param testDir The directory the integration tests are executed in
      */
     async setupJsController() {
         debug("Initializing JS-Controller installation...");

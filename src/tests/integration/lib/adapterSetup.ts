@@ -57,7 +57,7 @@ export class AdapterSetup {
 	}
 
 	/** Copies all adapter files (except a few) to the test directory */
-	public async copyAdapterFilesToTestDir(): Promise<void> {
+	public async installAdapterInTestDir(): Promise<void> {
 		debug("Copying adapter files to test directory...");
 
 		// We install the adapter almost like it would be installed in the real world
@@ -98,6 +98,12 @@ export class AdapterSetup {
 		debug("Deleting old remains of this adapter");
 		if (await pathExists(this.testAdapterDir))
 			await remove(this.testAdapterDir);
+
+		debug("Installing adapter");
+		// Defer to npm to install the controller (if it wasn't already)
+		await executeCommand("npm", ["i", "--production"], {
+			cwd: this.testDir,
+		});
 
 		debug("  => done!");
 	}

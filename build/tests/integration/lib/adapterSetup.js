@@ -57,7 +57,7 @@ class AdapterSetup {
         return (0, fs_extra_1.pathExists)(this.testAdapterDir);
     }
     /** Copies all adapter files (except a few) to the test directory */
-    async copyAdapterFilesToTestDir() {
+    async installAdapterInTestDir() {
         debug("Copying adapter files to test directory...");
         // We install the adapter almost like it would be installed in the real world
         // Therefore pack it into a tarball and put it in the test dir for installation
@@ -87,6 +87,11 @@ class AdapterSetup {
         debug("Deleting old remains of this adapter");
         if (await (0, fs_extra_1.pathExists)(this.testAdapterDir))
             await (0, fs_extra_1.remove)(this.testAdapterDir);
+        debug("Installing adapter");
+        // Defer to npm to install the controller (if it wasn't already)
+        await (0, executeCommand_1.executeCommand)("npm", ["i", "--production"], {
+            cwd: this.testDir,
+        });
         debug("  => done!");
     }
     /**

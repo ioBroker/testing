@@ -24,7 +24,6 @@ const async_1 = require("alcalzone-shared/async");
 const os = __importStar(require("os"));
 const path = __importStar(require("path"));
 const adapterTools_1 = require("../../lib/adapterTools");
-const executeCommand_1 = require("../../lib/executeCommand");
 const adapterSetup_1 = require("./lib/adapterSetup");
 const controllerSetup_1 = require("./lib/controllerSetup");
 const dbConnection_1 = require("./lib/dbConnection");
@@ -51,18 +50,13 @@ function testAdapter(adapterDir, options = {}) {
                 throw new Error("JS-Controller is already running! Stop it for the first test run and try again!");
             }
             const adapterSetup = new adapterSetup_1.AdapterSetup(adapterDir, testDir);
+            // Installation happens in two steps:
+            // First we need to set up JS Controller, so the databases etc. can be created
             // First we need to copy all files and execute an npm install
             await controllerSetup.prepareTestDir();
-            await adapterSetup.copyAdapterFilesToTestDir();
-            // Remember if JS-Controller is installed already. If so, we need to call setup first later
-            const wasJsControllerInstalled = await controllerSetup.isJsControllerInstalled();
-            // Call npm install
-            await (0, executeCommand_1.executeCommand)("npm", ["i", "--production"], {
-                cwd: testDir,
-            });
-            // Prepare/clean the databases and config
-            if (wasJsControllerInstalled)
-                await controllerSetup.setupJsController();
+            // Only then we can install the adapter, because some (including VIS) try to access
+            // the databases if JS Controller is installed
+            await adapterSetup.installAdapterInTestDir();
             const dbConnection = new dbConnection_1.DBConnection(appName, testDir);
             await dbConnection.start();
             controllerSetup.setupSystemConfig(dbConnection);

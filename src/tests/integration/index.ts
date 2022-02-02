@@ -2,7 +2,6 @@ import { wait } from "alcalzone-shared/async";
 import * as os from "os";
 import * as path from "path";
 import { getAdapterName, getAppName } from "../../lib/adapterTools";
-import { executeCommand } from "../../lib/executeCommand";
 import { AdapterSetup } from "./lib/adapterSetup";
 import { ControllerSetup } from "./lib/controllerSetup";
 import { DBConnection } from "./lib/dbConnection";
@@ -50,22 +49,14 @@ export function testAdapter(
 
 			const adapterSetup = new AdapterSetup(adapterDir, testDir);
 
+			// Installation happens in two steps:
+			// First we need to set up JS Controller, so the databases etc. can be created
+
 			// First we need to copy all files and execute an npm install
 			await controllerSetup.prepareTestDir();
-			await adapterSetup.copyAdapterFilesToTestDir();
-
-			// Remember if JS-Controller is installed already. If so, we need to call setup first later
-			const wasJsControllerInstalled =
-				await controllerSetup.isJsControllerInstalled();
-
-			// Call npm install
-			await executeCommand("npm", ["i", "--production"], {
-				cwd: testDir,
-			});
-
-			// Prepare/clean the databases and config
-			if (wasJsControllerInstalled)
-				await controllerSetup.setupJsController();
+			// Only then we can install the adapter, because some (including VIS) try to access
+			// the databases if JS Controller is installed
+			await adapterSetup.installAdapterInTestDir();
 
 			const dbConnection = new DBConnection(appName, testDir);
 			await dbConnection.start();

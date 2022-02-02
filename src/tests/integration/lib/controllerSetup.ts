@@ -92,6 +92,16 @@ export class ControllerSetup {
 			);
 		}
 
+		// Remember if JS-Controller is installed already. If so, we need to call `setup first` afterwards
+		const wasJsControllerInstalled = await this.isJsControllerInstalled();
+		// Defer to npm to install the controller (if it wasn't already)
+		debug("(Re-)installing JS Controller...");
+		await executeCommand("npm", ["i", "--production"], {
+			cwd: this.testDir,
+		});
+		// Prepare/clean the databases and config
+		if (wasJsControllerInstalled) await this.setupJsController();
+
 		debug("  => done!");
 	}
 
@@ -100,7 +110,7 @@ export class ControllerSetup {
 	 * @param appName The branded name of "iobroker"
 	 * @param testDir The directory the integration tests are executed in
 	 */
-	public async isJsControllerInstalled(): Promise<boolean> {
+	async isJsControllerInstalled(): Promise<boolean> {
 		debug("Testing if JS-Controller is installed...");
 		// We expect js-controller to be installed if the dir in <testDir>/node_modules and the data directory exist
 		const isInstalled =
@@ -167,10 +177,8 @@ export class ControllerSetup {
 
 	/**
 	 * Sets up an existing JS-Controller instance for testing by executing "iobroker setup first"
-	 * @param appName The branded name of "iobroker"
-	 * @param testDir The directory the integration tests are executed in
 	 */
-	public async setupJsController(): Promise<void> {
+	async setupJsController(): Promise<void> {
 		debug("Initializing JS-Controller installation...");
 		// Stop the controller before calling setup first
 		await executeCommand("node", [`${this.appName}.js`, "stop"], {

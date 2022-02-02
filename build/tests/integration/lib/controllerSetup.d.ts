@@ -21,8 +21,6 @@ export declare class ControllerSetup {
     isJsControllerRunning(): Promise<boolean>;
     /**
      * Sets up an existing JS-Controller instance for testing by executing "iobroker setup first"
-     * @param appName The branded name of "iobroker"
-     * @param testDir The directory the integration tests are executed in
      */
     setupJsController(): Promise<void>;
     /**

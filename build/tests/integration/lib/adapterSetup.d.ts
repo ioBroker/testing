@@ -13,7 +13,7 @@ export declare class AdapterSetup {
      */
     isAdapterInstalled(): Promise<boolean>;
     /** Copies all adapter files (except a few) to the test directory */
-    copyAdapterFilesToTestDir(): Promise<void>;
+    installAdapterInTestDir(): Promise<void>;
     /**
      * Adds an instance for an already installed adapter in the test directory
      */
