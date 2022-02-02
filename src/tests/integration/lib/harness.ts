@@ -66,6 +66,22 @@ export class TestHarness extends EventEmitter {
 	private testControllerDir: string;
 	private testAdapterDir: string;
 
+	/** Gives direct access to the Objects DB */
+	public get objects(): any {
+		if (!this.dbConnection.objectsClient) {
+			throw new Error("Objects DB is not running");
+		}
+		return this.dbConnection.objectsClient;
+	}
+
+	/** Gives direct access to the States DB */
+	public get states(): any {
+		if (!this.dbConnection.statesClient) {
+			throw new Error("States DB is not running");
+		}
+		return this.dbConnection.statesClient;
+	}
+
 	private _adapterProcess: ChildProcess | undefined;
 	/** The process the adapter is running in */
 	public get adapterProcess(): ChildProcess | undefined {

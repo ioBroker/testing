@@ -43,7 +43,7 @@ export class DBConnection extends EventEmitter {
 	private _statesServer: any;
 
 	private _objectsClient: any;
-	/** The underlying objects client instance that can be used to access the states DB */
+	/** The underlying objects client instance that can be used to access the objects DB */
 	public get objectsClient(): any {
 		return this._objectsClient;
 	}

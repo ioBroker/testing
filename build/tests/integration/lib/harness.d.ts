@@ -25,6 +25,10 @@ export declare class TestHarness extends EventEmitter {
     private appName;
     private testControllerDir;
     private testAdapterDir;
+    /** Gives direct access to the Objects DB */
+    get objects(): any;
+    /** Gives direct access to the States DB */
+    get states(): any;
     private _adapterProcess;
     /** The process the adapter is running in */
     get adapterProcess(): ChildProcess | undefined;

@@ -93,7 +93,7 @@ class DBConnection extends events_1.default {
         this.testControllerDir = (0, tools_1.getTestControllerDir)(this.appName, testDir);
         this.testDataDir = (0, tools_1.getTestDataDir)(appName, testDir);
     }
-    /** The underlying objects client instance that can be used to access the states DB */
+    /** The underlying objects client instance that can be used to access the objects DB */
     get objectsClient() {
         return this._objectsClient;
     }

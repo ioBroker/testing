@@ -66,6 +66,20 @@ class TestHarness extends events_1.EventEmitter {
             this.emit("stateChange", id, state);
         });
     }
+    /** Gives direct access to the Objects DB */
+    get objects() {
+        if (!this.dbConnection.objectsClient) {
+            throw new Error("Objects DB is not running");
+        }
+        return this.dbConnection.objectsClient;
+    }
+    /** Gives direct access to the States DB */
+    get states() {
+        if (!this.dbConnection.statesClient) {
+            throw new Error("States DB is not running");
+        }
+        return this.dbConnection.statesClient;
+    }
     /** The process the adapter is running in */
     get adapterProcess() {
         return this._adapterProcess;
