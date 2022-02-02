@@ -4,7 +4,7 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
-## __WORK IN PROGRESS__
+## 2.5.4 (2022-02-02)
 * Modifying ioBroker databases now uses the same methods that JS-Controller uses internally. This ensures that the testing is compatible with the `jsonl` database format.
 * Testing adapters with adapter dependencies that try to access the databases during installation now works.
 
