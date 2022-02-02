@@ -6,6 +6,7 @@
 -->
 ## __WORK IN PROGRESS__
 * Modifying ioBroker databases now uses the same methods that JS-Controller uses internally. This ensures that the testing is compatible with the `jsonl` database format.
+* Testing adapters with adapter dependencies that try to access the databases during installation now works.
 
 ## 2.5.2 (2021-09-18)
 * Fix: `adminUI.config` is now respected for the config UI check and JSON config is allowed too
