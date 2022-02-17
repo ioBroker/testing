@@ -111,6 +111,19 @@ function validatePackageFiles(adapterDir) {
             it(`The repository type is "git"`, () => {
                 (0, chai_1.expect)(packageContent.repository.type).to.equal("git");
             });
+            it("npm is not listed as a dependency", () => {
+                for (const depType of [
+                    "dependencies",
+                    "devDependencies",
+                    "optionalDependencies",
+                    "peerDependencies",
+                ]) {
+                    if ((0, typeguards_1.isObject)(packageContent[depType]) &&
+                        "npm" in packageContent[depType]) {
+                        throw new chai_1.AssertionError(`npm must not be listed in ${depType}, found "${packageContent[depType].npm}"!`);
+                    }
+                }
+            });
         });
         describe(`Check contents of io-package.json`, () => {
             var _a;
