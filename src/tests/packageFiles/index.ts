@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 import { isArray, isObject } from "alcalzone-shared/typeguards";
-import { expect } from "chai";
+import { AssertionError, expect } from "chai";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -128,6 +128,24 @@ export function validatePackageFiles(adapterDir: string): void {
 
 			it(`The repository type is "git"`, () => {
 				expect(packageContent.repository.type).to.equal("git");
+			});
+
+			it("npm is not listed as a dependency", () => {
+				for (const depType of [
+					"dependencies",
+					"devDependencies",
+					"optionalDependencies",
+					"peerDependencies",
+				] as const) {
+					if (
+						isObject(packageContent[depType]) &&
+						"npm" in packageContent[depType]
+					) {
+						throw new AssertionError(
+							`npm must not be listed in ${depType}, found "${packageContent[depType].npm}"!`,
+						);
+					}
+				}
 			});
 		});
 
