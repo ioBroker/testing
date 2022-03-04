@@ -5,6 +5,7 @@ import debugModule from "debug";
 import { EventEmitter } from "events";
 import * as path from "path";
 import {
+	getAdapterExecutionMode,
 	getAdapterName,
 	getAppName,
 	locateAdapterMainFile,
@@ -271,6 +272,10 @@ export class TestHarness extends EventEmitter {
 			extend(obj, changes);
 			await this.dbConnection.setObject(adapterInstanceId, obj);
 		}
+	}
+
+	public getAdapterExecutionMode(): ioBroker.AdapterCommon["mode"] {
+		return getAdapterExecutionMode(this.testAdapterDir);
 	}
 
 	/** Enables the sendTo method */

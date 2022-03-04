@@ -61,6 +61,7 @@ export declare class TestHarness extends EventEmitter {
      * Updates the adapter config. The changes can be a subset of the target object
      */
     changeAdapterConfig(adapterName: string, changes: Record<string, any>): Promise<void>;
+    getAdapterExecutionMode(): ioBroker.AdapterCommon["mode"];
     /** Enables the sendTo method */
     enableSendTo(): Promise<void>;
     private sendToID;

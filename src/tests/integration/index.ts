@@ -112,6 +112,13 @@ export function testAdapter(
 		it("The adapter starts", function () {
 			this.timeout(60000);
 
+			const allowedExitCodes = new Set(options.allowedExitCodes ?? []);
+
+			// Schedule adapters are allowed to "immediately" exit with code 0
+			if (harness.getAdapterExecutionMode() === "schedule") {
+				allowedExitCodes.add(0);
+			}
+
 			return new Promise<string>((resolve, reject) => {
 				// Register a handler to check the alive state and exit codes
 				harness
@@ -131,10 +138,7 @@ export function testAdapter(
 						}
 					})
 					.on("failed", (code) => {
-						if (
-							options.allowedExitCodes == undefined ||
-							options.allowedExitCodes.indexOf(code) === -1
-						) {
+						if (!allowedExitCodes.has(code)) {
 							reject(
 								new Error(
 									`The adapter startup was interrupted unexpectedly with ${
