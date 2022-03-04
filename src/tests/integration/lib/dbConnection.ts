@@ -106,7 +106,6 @@ export class DBConnection extends EventEmitter {
 		if (wasRunning) await this.start();
 	}
 
-	// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 	public setSystemConfig(systemConfig: any): void {
 		const systemFilename = path.join(
 			this.testDataDir,
@@ -331,7 +330,6 @@ export class DBConnection extends EventEmitter {
 
 	public pushMessage(
 		instanceId: string,
-		// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 		msg: any,
 		callback: (err: Error | null, id: any) => void,
 	): void {

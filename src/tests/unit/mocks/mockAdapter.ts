@@ -186,9 +186,9 @@ export function createAdapterMock(
 					"If you want to use a custom design for getObjectView, you need to mock it yourself!",
 				);
 			}
-			const callback = getCallback<ioBroker.GetObjectViewCallback>(
-				...args,
-			);
+			const callback = getCallback<
+				ioBroker.GetObjectViewCallback<ioBroker.Object>
+			>(...args);
 			if (typeof callback === "function") {
 				let objects = values(db.getObjects("*"));
 				objects = objects.filter((obj) => obj.type === search);
