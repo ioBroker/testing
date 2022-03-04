@@ -21,24 +21,11 @@ export function loadIoPackage(adapterDir: string): Record<string, any> {
 	return require(path.join(adapterDir, "io-package.json"));
 }
 
-/**
- * Checks if an adapter claims that it supports compact mode
- * @param ioPackage The contents of io-package.json in object format
- */
-export function adapterShouldSupportCompactMode(
-	ioPackage: Record<string, any>,
-): boolean;
-/**
- * Checks if an adapter claims that it supports compact mode
- * @param adapterDir The directory the adapter resides in
- */
-export function adapterShouldSupportCompactMode(adapterDir: string): boolean;
-export function adapterShouldSupportCompactMode(
-	dirOrIoPack: string | Record<string, any>,
-): boolean {
-	if (typeof dirOrIoPack === "string")
-		dirOrIoPack = loadIoPackage(dirOrIoPack);
-	return dirOrIoPack.common.compact === true;
+export function getAdapterExecutionMode(
+	adapterDir: string,
+): ioBroker.AdapterCommon["mode"] {
+	const ioPackage = loadIoPackage(adapterDir);
+	return ioPackage.common.mode;
 }
 
 /**

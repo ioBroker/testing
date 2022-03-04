@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -98,7 +102,13 @@ function testAdapter(adapterDir, options = {}) {
             harness.removeAllListeners();
         });
         it("The adapter starts", function () {
+            var _a;
             this.timeout(60000);
+            const allowedExitCodes = new Set((_a = options.allowedExitCodes) !== null && _a !== void 0 ? _a : []);
+            // Schedule adapters are allowed to "immediately" exit with code 0
+            if (harness.getAdapterExecutionMode() === "schedule") {
+                allowedExitCodes.add(0);
+            }
             return new Promise((resolve, reject) => {
                 // Register a handler to check the alive state and exit codes
                 harness
@@ -114,8 +124,7 @@ function testAdapter(adapterDir, options = {}) {
                     }
                 })
                     .on("failed", (code) => {
-                    if (options.allowedExitCodes == undefined ||
-                        options.allowedExitCodes.indexOf(code) === -1) {
+                    if (!allowedExitCodes.has(code)) {
                         reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === "number"
                             ? "code"
                             : "signal"} ${code}`));

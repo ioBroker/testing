@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -22,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAdapterDependencies = exports.getAdapterFullName = exports.getAdapterName = exports.getAppName = exports.loadInstanceObjects = exports.loadAdapterCommon = exports.loadAdapterConfig = exports.locateAdapterMainFile = exports.adapterShouldSupportCompactMode = exports.loadIoPackage = exports.loadNpmPackage = void 0;
+exports.getAdapterDependencies = exports.getAdapterFullName = exports.getAdapterName = exports.getAppName = exports.loadInstanceObjects = exports.loadAdapterCommon = exports.loadAdapterConfig = exports.locateAdapterMainFile = exports.getAdapterExecutionMode = exports.loadIoPackage = exports.loadNpmPackage = void 0;
 // Add debug logging for tests
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const debug_1 = __importDefault(require("debug"));
@@ -45,12 +49,11 @@ function loadIoPackage(adapterDir) {
     return require(path.join(adapterDir, "io-package.json"));
 }
 exports.loadIoPackage = loadIoPackage;
-function adapterShouldSupportCompactMode(dirOrIoPack) {
-    if (typeof dirOrIoPack === "string")
-        dirOrIoPack = loadIoPackage(dirOrIoPack);
-    return dirOrIoPack.common.compact === true;
+function getAdapterExecutionMode(adapterDir) {
+    const ioPackage = loadIoPackage(adapterDir);
+    return ioPackage.common.mode;
 }
-exports.adapterShouldSupportCompactMode = adapterShouldSupportCompactMode;
+exports.getAdapterExecutionMode = getAdapterExecutionMode;
 /**
  * Locates an adapter's main file
  * @param adapterDir The directory the adapter resides in
