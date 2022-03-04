@@ -5,7 +5,9 @@
 	## __WORK IN PROGRESS__
 -->
 ## __WORK IN PROGRESS__
+* Allow immediate exit with code `0` for schedule adapters
 * Check that `npm` is not listed as a local dependency in `package.json`
+* Updated dependencies
 
 ## 2.5.4 (2022-02-02)
 * Modifying ioBroker databases now uses the same methods that JS-Controller uses internally. This ensures that the testing is compatible with the `jsonl` database format.
