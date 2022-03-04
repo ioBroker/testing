@@ -295,7 +295,6 @@ export class TestHarness extends EventEmitter {
 	public sendTo(
 		target: string,
 		command: string,
-		// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 		message: any,
 		callback: ioBroker.MessageCallback,
 	): void {
