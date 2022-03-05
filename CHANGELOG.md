@@ -4,7 +4,7 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
-## __WORK IN PROGRESS__
+## 2.5.6 (2022-03-05)
 * Allow immediate exit with code `0` for `once` and `subscribe` adapters too
 
 ## 2.5.5 (2022-03-04)
