@@ -140,7 +140,6 @@ class DBConnection extends events_1.default {
         if (wasRunning)
             await this.start();
     }
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     setSystemConfig(systemConfig) {
         const systemFilename = path.join(this.testDataDir, `${this.appName}.json`);
         (0, fs_extra_1.writeJSONSync)(systemFilename, systemConfig, { spaces: 2 });
@@ -280,9 +279,7 @@ class DBConnection extends events_1.default {
         }
         return this._statesClient.subscribeMessage(id);
     }
-    pushMessage(instanceId, 
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    msg, callback) {
+    pushMessage(instanceId, msg, callback) {
         if (!this._statesClient) {
             throw new Error("States DB is not running");
         }

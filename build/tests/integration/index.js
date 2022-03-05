@@ -105,9 +105,12 @@ function testAdapter(adapterDir, options = {}) {
             var _a;
             this.timeout(60000);
             const allowedExitCodes = new Set((_a = options.allowedExitCodes) !== null && _a !== void 0 ? _a : []);
-            // Schedule adapters are allowed to "immediately" exit with code 0
-            if (harness.getAdapterExecutionMode() === "schedule") {
-                allowedExitCodes.add(0);
+            // Adapters with these modes are allowed to "immediately" exit with code 0
+            switch (harness.getAdapterExecutionMode()) {
+                case "schedule":
+                case "once":
+                case "subscribe":
+                    allowedExitCodes.add(0);
             }
             return new Promise((resolve, reject) => {
                 // Register a handler to check the alive state and exit codes

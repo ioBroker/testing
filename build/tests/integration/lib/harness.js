@@ -239,9 +239,7 @@ class TestHarness extends events_1.EventEmitter {
         this.dbConnection.subscribeMessage(fromAdapterID);
     }
     /** Sends a message to an adapter instance */
-    sendTo(target, command, 
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    message, callback) {
+    sendTo(target, command, message, callback) {
         const stateChangedHandler = (id, state) => {
             if (id === `messagebox.${fromAdapterID}`) {
                 callback(state.message);

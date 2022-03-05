@@ -114,9 +114,12 @@ export function testAdapter(
 
 			const allowedExitCodes = new Set(options.allowedExitCodes ?? []);
 
-			// Schedule adapters are allowed to "immediately" exit with code 0
-			if (harness.getAdapterExecutionMode() === "schedule") {
-				allowedExitCodes.add(0);
+			// Adapters with these modes are allowed to "immediately" exit with code 0
+			switch (harness.getAdapterExecutionMode()) {
+				case "schedule":
+				case "once":
+				case "subscribe":
+					allowedExitCodes.add(0);
 			}
 
 			return new Promise<string>((resolve, reject) => {

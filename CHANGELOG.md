@@ -4,8 +4,11 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
+## __WORK IN PROGRESS__
+* Allow immediate exit with code `0` for `once` and `subscribe` adapters too
+
 ## 2.5.5 (2022-03-04)
-* Allow immediate exit with code `0` for schedule adapters
+* Allow immediate exit with code `0` for `schedule` adapters
 * Check that `npm` is not listed as a local dependency in `package.json`
 * Updated dependencies
 
