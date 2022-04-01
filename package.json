@@ -38,7 +38,7 @@
   },
   "homepage": "https://github.com/AlCalzone/testing#readme",
   "devDependencies": {
-    "@alcalzone/release-script": "^3.5.4",
+    "@alcalzone/release-script": "^3.5.6",
     "@alcalzone/release-script-plugin-license": "^3.5.3",
     "@iobroker/adapter-core": "^2.6.0",
     "@tsconfig/node12": "^1.0.9",
