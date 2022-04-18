@@ -9,15 +9,6 @@ const debug = debugModule("testing:integration:DBConnection");
 export type ObjectsDB = Record<string, ioBroker.Object>;
 export type StatesDB = Record<string, ioBroker.State>;
 
-/** The logger instance for the objects and states DB */
-const logger = {
-	silly: console.log,
-	debug: console.log,
-	info: console.log,
-	warn: console.warn,
-	error: console.error,
-};
-
 export interface DBConnection {
 	on(event: "objectChange", handler: ioBroker.ObjectChangeHandler): this;
 	on(event: "stateChange", handler: ioBroker.StateChangeHandler): this;
@@ -29,7 +20,11 @@ export class DBConnection extends EventEmitter {
 	 * @param appName The branded name of "iobroker"
 	 * @param testDir The directory the integration tests are executed in
 	 */
-	public constructor(private appName: string, private testDir: string) {
+	public constructor(
+		private appName: string,
+		private testDir: string,
+		private logger: ioBroker.Logger,
+	) {
 		super();
 		this.testControllerDir = getTestControllerDir(this.appName, testDir);
 		this.testDataDir = getTestDataDir(appName, testDir);
@@ -172,7 +167,7 @@ export class DBConnection extends EventEmitter {
 				noFileCache: false,
 				connectTimeout: 2000,
 			},
-			logger,
+			logger: this.logger,
 		};
 
 		const objectsDbPath = require.resolve(
@@ -230,7 +225,7 @@ export class DBConnection extends EventEmitter {
 					retry_max_delay: 15000,
 				},
 			},
-			logger,
+			logger: this.logger,
 		};
 
 		const statesDbPath = require.resolve(

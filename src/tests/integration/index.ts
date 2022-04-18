@@ -6,9 +6,12 @@ import { AdapterSetup } from "./lib/adapterSetup";
 import { ControllerSetup } from "./lib/controllerSetup";
 import { DBConnection } from "./lib/dbConnection";
 import { TestHarness } from "./lib/harness";
+import { createLogger } from "./lib/logger";
 
 export interface TestAdapterOptions {
 	allowedExitCodes?: (number | string)[];
+	/** The loglevel to use for DB and adapter related logs */
+	loglevel?: ioBroker.LogLevel;
 	/** How long to wait before the adapter startup is considered successful */
 	waitBeforeStartupSuccess?: number;
 	/** Allows you to define additional tests */
@@ -58,7 +61,11 @@ export function testAdapter(
 			// the databases if JS Controller is installed
 			await adapterSetup.installAdapterInTestDir();
 
-			const dbConnection = new DBConnection(appName, testDir);
+			const dbConnection = new DBConnection(
+				appName,
+				testDir,
+				createLogger(options.loglevel ?? "debug"),
+			);
 			await dbConnection.start();
 			controllerSetup.setupSystemConfig(dbConnection);
 			await controllerSetup.disableAdminInstances(dbConnection);
@@ -75,7 +82,11 @@ export function testAdapter(
 		beforeEach(async function () {
 			this.timeout(30000);
 
-			dbConnection = new DBConnection(appName, testDir);
+			dbConnection = new DBConnection(
+				appName,
+				testDir,
+				createLogger(options.loglevel ?? "debug"),
+			);
 
 			// Clean up before every single test
 			await Promise.all([
@@ -88,11 +99,11 @@ export function testAdapter(
 			await dbConnection.start();
 			harness = new TestHarness(adapterDir, testDir, dbConnection);
 
-			// Enable the adapter and set its loglevel to debug
+			// Enable the adapter and set its loglevel to the selected one
 			await harness.changeAdapterConfig(adapterName, {
 				common: {
 					enabled: true,
-					loglevel: "debug",
+					loglevel: options.loglevel ?? "debug",
 				},
 			});
 

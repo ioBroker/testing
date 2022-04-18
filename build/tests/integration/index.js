@@ -32,6 +32,7 @@ const adapterSetup_1 = require("./lib/adapterSetup");
 const controllerSetup_1 = require("./lib/controllerSetup");
 const dbConnection_1 = require("./lib/dbConnection");
 const harness_1 = require("./lib/harness");
+const logger_1 = require("./lib/logger");
 function testAdapter(adapterDir, options = {}) {
     const appName = (0, adapterTools_1.getAppName)(adapterDir);
     const adapterName = (0, adapterTools_1.getAdapterName)(adapterDir);
@@ -47,6 +48,7 @@ function testAdapter(adapterDir, options = {}) {
         let objectsBackup;
         let statesBackup;
         before(async function () {
+            var _a;
             // Installation may take a while - especially if rsa-compat needs to be installed
             const oneMinute = 60000;
             this.timeout(30 * oneMinute);
@@ -61,7 +63,7 @@ function testAdapter(adapterDir, options = {}) {
             // Only then we can install the adapter, because some (including VIS) try to access
             // the databases if JS Controller is installed
             await adapterSetup.installAdapterInTestDir();
-            const dbConnection = new dbConnection_1.DBConnection(appName, testDir);
+            const dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)((_a = options.loglevel) !== null && _a !== void 0 ? _a : "debug"));
             await dbConnection.start();
             controllerSetup.setupSystemConfig(dbConnection);
             await controllerSetup.disableAdminInstances(dbConnection);
@@ -73,8 +75,9 @@ function testAdapter(adapterDir, options = {}) {
                 await dbConnection.backup());
         });
         beforeEach(async function () {
+            var _a, _b;
             this.timeout(30000);
-            dbConnection = new dbConnection_1.DBConnection(appName, testDir);
+            dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)((_a = options.loglevel) !== null && _a !== void 0 ? _a : "debug"));
             // Clean up before every single test
             await Promise.all([
                 controllerSetup.clearDBDir(),
@@ -84,11 +87,11 @@ function testAdapter(adapterDir, options = {}) {
             // Create a new test harness
             await dbConnection.start();
             harness = new harness_1.TestHarness(adapterDir, testDir, dbConnection);
-            // Enable the adapter and set its loglevel to debug
+            // Enable the adapter and set its loglevel to the selected one
             await harness.changeAdapterConfig(adapterName, {
                 common: {
                     enabled: true,
-                    loglevel: "debug",
+                    loglevel: (_b = options.loglevel) !== null && _b !== void 0 ? _b : "debug",
                 },
             });
             // And enable the sendTo emulation
