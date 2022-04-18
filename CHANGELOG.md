@@ -4,6 +4,9 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
+## 2.6.0 (2022-04-18)
+* The loglevel for the adapter and DB instances is now configurable and defaults to `"debug"` in both cases
+
 ## 2.5.6 (2022-03-05)
 * Allow immediate exit with code `0` for `once` and `subscribe` adapters too
 
