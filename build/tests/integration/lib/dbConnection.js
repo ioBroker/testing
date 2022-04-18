@@ -33,24 +33,17 @@ const fs_extra_1 = require("fs-extra");
 const path = __importStar(require("path"));
 const tools_1 = require("./tools");
 const debug = (0, debug_1.default)("testing:integration:DBConnection");
-/** The logger instance for the objects and states DB */
-const logger = {
-    silly: console.log,
-    debug: console.log,
-    info: console.log,
-    warn: console.warn,
-    error: console.error,
-};
 /** The DB connection capsules access to the states and objects DB */
 class DBConnection extends events_1.default {
     /**
      * @param appName The branded name of "iobroker"
      * @param testDir The directory the integration tests are executed in
      */
-    constructor(appName, testDir) {
+    constructor(appName, testDir, logger) {
         super();
         this.appName = appName;
         this.testDir = testDir;
+        this.logger = logger;
         this._isRunning = false;
         this.getObject = async (id) => {
             if (!this._objectsClient) {
@@ -192,7 +185,7 @@ class DBConnection extends events_1.default {
                 noFileCache: false,
                 connectTimeout: 2000,
             },
-            logger,
+            logger: this.logger,
         };
         const objectsDbPath = require.resolve(`@iobroker/db-objects-${objectsType}`, {
             paths: [
@@ -240,7 +233,7 @@ class DBConnection extends events_1.default {
                     retry_max_delay: 15000,
                 },
             },
-            logger,
+            logger: this.logger,
         };
         const statesDbPath = require.resolve(`@iobroker/db-states-${statesType}`, {
             paths: [

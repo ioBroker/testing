@@ -11,11 +11,12 @@ export interface DBConnection {
 export declare class DBConnection extends EventEmitter {
     private appName;
     private testDir;
+    private logger;
     /**
      * @param appName The branded name of "iobroker"
      * @param testDir The directory the integration tests are executed in
      */
-    constructor(appName: string, testDir: string);
+    constructor(appName: string, testDir: string, logger: ioBroker.Logger);
     private testDataDir;
     private testControllerDir;
     private _objectsServer;
