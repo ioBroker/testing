@@ -176,14 +176,13 @@ function testAdapter(adapterDir, options = {}) {
                 // patch the global it() function so nobody can bypass the checks
                 global.it = patchedIt;
                 const args = {
-                    getHarness: () => harness,
                     // a test suite is a special describe which sets up and tears down the test environment before and after ALL tests
                     suite: (name, fn) => {
                         describe(name, () => {
                             isInSuite = true;
                             before(resetDbAndStartHarness);
+                            fn(harness);
                             after(shutdownTests);
-                            fn();
                             isInSuite = false;
                         });
                     },

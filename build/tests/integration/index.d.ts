@@ -11,13 +11,13 @@ export interface TestAdapterOptions {
     defineAdditionalTests?: (args: TestContext) => void;
 }
 export interface TestContext {
-    /** Gives access to the current test harness */
-    getHarness: () => TestHarness;
     /**
      * Defines a test suite. At the start of each suite, the adapter will be started with a fresh environment.
      * To define tests in each suite, use describe and it as usual.
+     *
+     * Each suite has its own test harness, which gets passed as an argument.
      */
-    suite: (name: string, fn: () => void) => void;
+    suite: (name: string, fn: (harness: TestHarness) => void) => void;
     describe: Mocha.SuiteFunction;
     it: Mocha.TestFunction;
 }
