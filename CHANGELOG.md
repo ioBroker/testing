@@ -4,6 +4,10 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
+## __WORK IN PROGRESS__
+* BREAKING: The function signature of `defineAdditionalTests` in integration tests has changed. All user-defined integration tests must now be grouped in one or more `suite` blocks. The adapter will now only be started at the beginning of each suite. See the documentation for details.
+* BREAKING: The function signature of `harness.startAdapterAndWait` has changed. It now accepts a boolean as the first parameter which controls whether to wait for the `alive` state (`false`) or the `info.connection` state (`true`).
+
 ## 2.6.0 (2022-04-18)
 * The loglevel for the adapter and DB instances is now configurable and defaults to `"debug"` in both cases
 
