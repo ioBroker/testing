@@ -175,13 +175,18 @@ function testAdapter(adapterDir, options = {}) {
             describe("User-defined tests", () => {
                 // patch the global it() function so nobody can bypass the checks
                 global.it = patchedIt;
+                const lazyHarness = new Proxy({}, {
+                    get(target, propKey) {
+                        return harness[propKey];
+                    },
+                });
                 const args = {
                     // a test suite is a special describe which sets up and tears down the test environment before and after ALL tests
                     suite: (name, fn) => {
                         describe(name, () => {
                             isInSuite = true;
                             before(resetDbAndStartHarness);
-                            fn(harness);
+                            fn(lazyHarness);
                             after(shutdownTests);
                             isInSuite = false;
                         });

@@ -230,6 +230,12 @@ export function testAdapter(
 				// patch the global it() function so nobody can bypass the checks
 				global.it = patchedIt;
 
+				const lazyHarness = new Proxy({} as TestHarness, {
+					get(target, propKey) {
+						return (harness as any)[propKey];
+					},
+				});
+
 				const args: TestContext = {
 					// a test suite is a special describe which sets up and tears down the test environment before and after ALL tests
 					suite: (name, fn) => {
@@ -237,7 +243,7 @@ export function testAdapter(
 							isInSuite = true;
 							before(resetDbAndStartHarness);
 
-							fn(harness);
+							fn(lazyHarness);
 
 							after(shutdownTests);
 							isInSuite = false;
