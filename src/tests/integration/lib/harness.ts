@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-inferrable-types */
 import { wait } from "alcalzone-shared/async";
 import { extend } from "alcalzone-shared/objects";
 import { ChildProcess, spawn } from "child_process";
@@ -62,7 +63,7 @@ export class TestHarness extends EventEmitter {
 		});
 	}
 
-	private adapterName: string;
+	public readonly adapterName: string;
 	private appName: string;
 	private testControllerDir: string;
 	private testAdapterDir: string;
@@ -181,18 +182,19 @@ export class TestHarness extends EventEmitter {
 
 	/**
 	 * Starts the adapter in a separate process and resolves after it has started
+	 * @param waitForConnection By default, the test will wait for the adapter's `alive` state to become true. Set this to `true` to wait for the `info.connection` state instead.
 	 * @param env Additional environment variables to set
 	 */
 	public async startAdapterAndWait(
+		waitForConnection: boolean = false,
 		env: NodeJS.ProcessEnv = {},
 	): Promise<void> {
 		return new Promise<void>((resolve, reject) => {
+			const waitForStateId = waitForConnection
+				? `${this.adapterName}.0.info.connection`
+				: `system.adapter.${this.adapterName}.0.alive`;
 			this.on("stateChange", async (id, state) => {
-				if (
-					id === `system.adapter.${this.adapterName}.0.alive` &&
-					state &&
-					state.val === true
-				) {
+				if (id === waitForStateId && state && state.val === true) {
 					resolve();
 				}
 			})

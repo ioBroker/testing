@@ -21,7 +21,7 @@ export declare class TestHarness extends EventEmitter {
      * @param testDir The directory the integration tests are executed in
      */
     constructor(adapterDir: string, testDir: string, dbConnection: DBConnection);
-    private adapterName;
+    readonly adapterName: string;
     private appName;
     private testControllerDir;
     private testAdapterDir;
@@ -48,9 +48,10 @@ export declare class TestHarness extends EventEmitter {
     startAdapter(env?: NodeJS.ProcessEnv): Promise<void>;
     /**
      * Starts the adapter in a separate process and resolves after it has started
+     * @param waitForConnection By default, the test will wait for the adapter's `alive` state to become true. Set this to `true` to wait for the `info.connection` state instead.
      * @param env Additional environment variables to set
      */
-    startAdapterAndWait(env?: NodeJS.ProcessEnv): Promise<void>;
+    startAdapterAndWait(waitForConnection?: boolean, env?: NodeJS.ProcessEnv): Promise<void>;
     /** Tests if the adapter process is still running */
     isAdapterRunning(): boolean;
     /** Tests if the adapter process has already exited */

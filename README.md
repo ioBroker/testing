@@ -26,29 +26,6 @@ tests.packageFiles(path.join(__dirname, ".."));
 // This should be the adapter's root directory
 ```
 
-### Adapter startup (Unit test)
-
-**Unit tests for adapter startup were removed and are essentially a no-op now.**  
-If you defined your own tests, they should still work.
-
-```ts
-const path = require("path");
-const { tests } = require("@iobroker/testing");
-
-tests.unit(path.join(__dirname, ".."), {
-	//     ~~~~~~~~~~~~~~~~~~~~~~~~~
-	// This should be the adapter's root directory
-
-	// Define your own tests inside defineAdditionalTests.
-	// If you need predefined objects etc. here, you need to take care of it yourself
-	defineAdditionalTests() {
-		it("works", () => {
-			// see below how these could look like
-		});
-	},
-});
-```
-
 ### Adapter startup (Integration test)
 
 Run the following snippet in a `mocha` test file to test the adapter startup process against a real JS-Controller instance:
@@ -67,13 +44,15 @@ tests.integration(path.join(__dirname, ".."), {
 	allowedExitCodes: [11],
 
 	// Define your own tests inside defineAdditionalTests
-	// Since the tests are heavily instrumented, you need to create and use a so called "harness" to control the tests.
-	defineAdditionalTests(getHarness) {
-		describe("Test sendTo()", () => {
+	defineAdditionalTests({ suite }) {
+		// All tests (it, describe) must be grouped in one or more suites. Each suite sets up a fresh environment for the adapter tests.
+		// At the beginning of each suite, the databases will be reset and the adapter will be started.
+		// The adapter will run until the end of each suite.
+
+		// Since the tests are heavily instrumented, each suite gives access to a so called "harness" to control the tests.
+		suite("Test sendTo()", (harness) => {
 			it("Should work", () => {
 				return new Promise(async (resolve) => {
-					// Create a fresh harness instance each test!
-					const harness = getHarness();
 					// Start the adapter and wait until it has started
 					await harness.startAdapterAndWait();
 
@@ -84,6 +63,29 @@ tests.integration(path.join(__dirname, ".."), {
 					});
 				});
 			});
+		});
+	},
+});
+```
+
+### Adapter startup (Unit test)
+
+**Unit tests for adapter startup were removed and are essentially a no-op now.**  
+If you defined your own tests, they should still work.
+
+```ts
+const path = require("path");
+const { tests } = require("@iobroker/testing");
+
+tests.unit(path.join(__dirname, ".."), {
+	//     ~~~~~~~~~~~~~~~~~~~~~~~~~
+	// This should be the adapter's root directory
+
+	// Define your own tests inside defineAdditionalTests.
+	// If you need predefined objects etc. here, you need to take care of it yourself
+	defineAdditionalTests() {
+		it("works", () => {
+			// see below how these could look like
 		});
 	},
 });
