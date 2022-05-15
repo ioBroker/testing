@@ -23,9 +23,9 @@ export interface TestContext {
 	 * Defines a test suite. At the start of each suite, the adapter will be started with a fresh environment.
 	 * To define tests in each suite, use describe and it as usual.
 	 *
-	 * Each suite has its own test harness, which gets passed as an argument.
+	 * Each suite has its own test harness, which can be retrieved using the function that is passed to the suite callback.
 	 */
-	suite: (name: string, fn: (harness: TestHarness) => void) => void;
+	suite: (name: string, fn: (getHarness: () => TestHarness) => void) => void;
 
 	describe: Mocha.SuiteFunction;
 	it: Mocha.TestFunction;
@@ -230,12 +230,6 @@ export function testAdapter(
 				// patch the global it() function so nobody can bypass the checks
 				global.it = patchedIt;
 
-				const lazyHarness = new Proxy({} as TestHarness, {
-					get(target, propKey) {
-						return (harness as any)[propKey];
-					},
-				});
-
 				const args: TestContext = {
 					// a test suite is a special describe which sets up and tears down the test environment before and after ALL tests
 					suite: (name, fn) => {
@@ -243,7 +237,7 @@ export function testAdapter(
 							isInSuite = true;
 							before(resetDbAndStartHarness);
 
-							fn(lazyHarness);
+							fn(() => harness);
 
 							after(shutdownTests);
 							isInSuite = false;

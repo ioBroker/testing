@@ -17,7 +17,7 @@ export interface TestContext {
      *
      * Each suite has its own test harness, which gets passed as an argument.
      */
-    suite: (name: string, fn: (harness: TestHarness) => void) => void;
+    suite: (name: string, fn: (getHarness: () => TestHarness) => void) => void;
     describe: Mocha.SuiteFunction;
     it: Mocha.TestFunction;
 }

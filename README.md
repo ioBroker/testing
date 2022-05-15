@@ -50,7 +50,13 @@ tests.integration(path.join(__dirname, ".."), {
 		// The adapter will run until the end of each suite.
 
 		// Since the tests are heavily instrumented, each suite gives access to a so called "harness" to control the tests.
-		suite("Test sendTo()", (harness) => {
+		suite("Test sendTo()", (getHarness) => {
+			// For convenience, get the current suite's harness before all tests
+			let harness;
+			before(() => {
+				harness = getHarness();
+			});
+
 			it("Should work", () => {
 				return new Promise(async (resolve) => {
 					// Start the adapter and wait until it has started
