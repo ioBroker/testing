@@ -4,6 +4,10 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
+## __WORK IN PROGRESS__
+* BREAKING: Dropped support for Node.js 12
+* Allow skipping test suites (`suite.skip()`) and running single test suites (`suite.only()`)
+
 ## 3.0.2 (2022-05-15)
 * Fix: Replace the `harness` argument to the `suite()` function with a `getHarness()` function to avoid accessing a stale harness.
 
