@@ -18,6 +18,17 @@ export interface TestAdapterOptions {
 	defineAdditionalTests?: (args: TestContext) => void;
 }
 
+export interface TestSuiteFn {
+	(name: string, fn: (getHarness: () => TestHarness) => void): void;
+}
+
+export interface TestSuite extends TestSuiteFn {
+	/** Only runs the tests inside this `suite` for the current file */
+	only: TestSuiteFn;
+	/** Skips running the tests inside this `suite` for the current file */
+	skip: TestSuiteFn;
+}
+
 export interface TestContext {
 	/**
 	 * Defines a test suite. At the start of each suite, the adapter will be started with a fresh environment.
@@ -25,7 +36,7 @@ export interface TestContext {
 	 *
 	 * Each suite has its own test harness, which can be retrieved using the function that is passed to the suite callback.
 	 */
-	suite: (name: string, fn: (getHarness: () => TestHarness) => void) => void;
+	suite: TestSuite;
 
 	describe: Mocha.SuiteFunction;
 	it: Mocha.TestFunction;
@@ -230,19 +241,37 @@ export function testAdapter(
 				// patch the global it() function so nobody can bypass the checks
 				global.it = patchedIt;
 
+				// a test suite is a special describe which sets up and tears down the test environment before and after ALL tests
+				const suiteBody = (
+					fn: (getHarness: () => TestHarness) => void,
+				): void => {
+					isInSuite = true;
+					before(resetDbAndStartHarness);
+
+					fn(() => harness);
+
+					after(shutdownTests);
+					isInSuite = false;
+				};
+
+				const suite = ((
+					name: string,
+					fn: (getHarness: () => TestHarness) => void,
+				): void => {
+					describe(name, () => suiteBody(fn));
+				}) as TestSuite;
+
+				// Support .skip and .only
+				suite.skip = (name, fn) => {
+					describe.skip(name, () => suiteBody(fn));
+				};
+
+				suite.only = (name, fn) => {
+					describe.only(name, () => suiteBody(fn));
+				};
+
 				const args: TestContext = {
-					// a test suite is a special describe which sets up and tears down the test environment before and after ALL tests
-					suite: (name, fn) => {
-						describe(name, () => {
-							isInSuite = true;
-							before(resetDbAndStartHarness);
-
-							fn(() => harness);
-
-							after(shutdownTests);
-							isInSuite = false;
-						});
-					},
+					suite,
 					describe,
 					it: patchedIt,
 				};

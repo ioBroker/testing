@@ -70,6 +70,15 @@ tests.integration(path.join(__dirname, ".."), {
 				});
 			});
 		});
+
+		// While developing the tests, you can run only a single suite using `suite.only`...
+		suite.only("Only this will run", (getHarness) => {
+			// ...
+		});
+		// ...or prevent a suite from running using `suite.skip`:
+		suite.skip("This will never run", (getHarness) => {
+			// ...
+		});
 	},
 });
 ```
