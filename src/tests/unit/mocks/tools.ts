@@ -19,7 +19,8 @@ export type MockableMethods<
 	},
 > = NoAny[keyof NoAny];
 
-export type Mock<T> = Overwrite<
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type Mock<T extends {}> = Overwrite<
 	T,
 	{ [K in MockableMethods<T>]: sinon.SinonStub }
 >;
