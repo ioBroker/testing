@@ -130,7 +130,6 @@ function validatePackageFiles(adapterDir) {
             });
         });
         describe(`Check contents of io-package.json`, () => {
-            var _a;
             beforeEach(function () {
                 skipIfInvalid.call(this, "io-package.json");
             });
@@ -178,13 +177,12 @@ function validatePackageFiles(adapterDir) {
             // If the adapter has a configuration page, check that a supported admin UI is used
             const hasNoConfigPage = iopackContent.common.noConfig === true ||
                 iopackContent.common.noConfig === "true" ||
-                ((_a = iopackContent.common.adminUI) === null || _a === void 0 ? void 0 : _a.config) === "none";
+                iopackContent.common.adminUI?.config === "none";
             if (!hasNoConfigPage) {
                 it("The adapter uses Material UI or JSON Config for the admin UI", () => {
-                    var _a, _b;
                     const hasSupportedUI = !!iopackContent.common.materialize ||
-                        ((_a = iopackContent.common.adminUI) === null || _a === void 0 ? void 0 : _a.config) === "json" ||
-                        ((_b = iopackContent.common.adminUI) === null || _b === void 0 ? void 0 : _b.config) === "materialize";
+                        iopackContent.common.adminUI?.config === "json" ||
+                        iopackContent.common.adminUI?.config === "materialize";
                     (0, chai_1.expect)(hasSupportedUI, "Unsupported Admin UI, must be materialize or json config!").to.be.true;
                 });
             }

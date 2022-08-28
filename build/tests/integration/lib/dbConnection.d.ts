@@ -1,4 +1,6 @@
 /// <reference types="iobroker" />
+/// <reference types="iobroker" />
+/// <reference types="node" />
 /// <reference types="node" />
 import EventEmitter from "events";
 export declare type ObjectsDB = Record<string, ioBroker.Object>;

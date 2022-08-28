@@ -152,17 +152,16 @@ class DBConnection extends events_1.default {
         debug("DB instances started");
     }
     async stop() {
-        var _a, _b, _c, _d;
         if (!this._isRunning) {
             debug("No DB instance is running, nothing to stop...");
             return;
         }
         debug("Stopping DB instances...");
         // Stop clients before servers
-        await ((_a = this._objectsClient) === null || _a === void 0 ? void 0 : _a.destroy());
-        await ((_b = this._objectsServer) === null || _b === void 0 ? void 0 : _b.destroy());
-        await ((_c = this._statesClient) === null || _c === void 0 ? void 0 : _c.destroy());
-        await ((_d = this._statesServer) === null || _d === void 0 ? void 0 : _d.destroy());
+        await this._objectsClient?.destroy();
+        await this._objectsServer?.destroy();
+        await this._statesClient?.destroy();
+        await this._statesServer?.destroy();
         this._objectsClient = null;
         this._objectsServer = null;
         this._statesClient = null;
@@ -279,20 +278,18 @@ class DBConnection extends events_1.default {
         this._statesClient.pushMessage(instanceId, msg, callback);
     }
     async getStateIDs(pattern = "*") {
-        var _a, _b, _c, _d;
         if (!this._statesClient) {
             throw new Error("States DB is not running");
         }
-        return (((_b = (_a = this._statesClient).getKeysAsync) === null || _b === void 0 ? void 0 : _b.call(_a, pattern)) ||
-            ((_d = (_c = this._statesClient).getKeys) === null || _d === void 0 ? void 0 : _d.call(_c, pattern)));
+        return (this._statesClient.getKeysAsync?.(pattern) ||
+            this._statesClient.getKeys?.(pattern));
     }
     async getObjectIDs(pattern = "*") {
-        var _a, _b, _c, _d;
         if (!this._objectsClient) {
             throw new Error("Objects DB is not running");
         }
-        return (((_b = (_a = this._objectsClient).getKeysAsync) === null || _b === void 0 ? void 0 : _b.call(_a, pattern)) ||
-            ((_d = (_c = this._objectsClient).getKeys) === null || _d === void 0 ? void 0 : _d.call(_c, pattern)));
+        return (this._objectsClient.getKeysAsync?.(pattern) ||
+            this._objectsClient.getKeys?.(pattern));
     }
 }
 exports.DBConnection = DBConnection;
