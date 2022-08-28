@@ -1,5 +1,8 @@
 /// <reference types="iobroker" />
 /// <reference types="node" />
+/// <reference types="node" />
+/// <reference types="iobroker" />
+/// <reference types="node" />
 import { ChildProcess } from "child_process";
 import { EventEmitter } from "events";
 import type { DBConnection } from "./dbConnection";

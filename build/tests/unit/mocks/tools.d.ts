@@ -4,7 +4,7 @@ export declare type IsAny<T> = Equals<T extends never ? false : true, boolean>;
 export declare type MockableMethods<T, All = Required<T>, NoAny = {
     [K in keyof All]: IsAny<All[K]> extends true ? never : All[K] extends (...args: any[]) => void ? K : never;
 }> = NoAny[keyof NoAny];
-export declare type Mock<T> = Overwrite<T, {
+export declare type Mock<T extends {}> = Overwrite<T, {
     [K in MockableMethods<T>]: sinon.SinonStub;
 }>;
 export declare function doResetHistory(parent: Record<string, any>): void;

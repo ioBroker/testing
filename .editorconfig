@@ -25,3 +25,7 @@ indent_size = 4
 [*.{yml,md}]
 indent_style = space
 indent_size = 4
+
+[.github/workflows/*.yml]
+indent_style = space
+indent_size = 2

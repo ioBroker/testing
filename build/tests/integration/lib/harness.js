@@ -190,7 +190,6 @@ class TestHarness extends events_1.EventEmitter {
         if (!this.isAdapterRunning())
             return;
         return new Promise(async (resolve) => {
-            var _a;
             const onClose = (code, signal) => {
                 if (!this._adapterProcess)
                     return;
@@ -214,7 +213,7 @@ class TestHarness extends events_1.EventEmitter {
             }
             catch {
                 // DB connection may be closed already, kill the process
-                (_a = this._adapterProcess) === null || _a === void 0 ? void 0 : _a.kill("SIGTERM");
+                this._adapterProcess?.kill("SIGTERM");
             }
         });
     }

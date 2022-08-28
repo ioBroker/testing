@@ -48,7 +48,6 @@ function testAdapter(adapterDir, options = {}) {
     console.log(`Running tests in ${testDir}`);
     console.log();
     async function prepareTests() {
-        var _a;
         // Installation may take a while - especially if rsa-compat needs to be installed
         const oneMinute = 60000;
         this.timeout(30 * oneMinute);
@@ -63,7 +62,7 @@ function testAdapter(adapterDir, options = {}) {
         // Only then we can install the adapter, because some (including VIS) try to access
         // the databases if JS Controller is installed
         await adapterSetup.installAdapterInTestDir();
-        const dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)((_a = options.loglevel) !== null && _a !== void 0 ? _a : "debug"));
+        const dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)(options.loglevel ?? "debug"));
         await dbConnection.start();
         controllerSetup.setupSystemConfig(dbConnection);
         await controllerSetup.disableAdminInstances(dbConnection);
@@ -82,9 +81,8 @@ function testAdapter(adapterDir, options = {}) {
         harness.removeAllListeners();
     }
     async function resetDbAndStartHarness() {
-        var _a, _b;
         this.timeout(30000);
-        dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)((_a = options.loglevel) !== null && _a !== void 0 ? _a : "debug"));
+        dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)(options.loglevel ?? "debug"));
         // Clean up before every single test
         await Promise.all([
             controllerSetup.clearDBDir(),
@@ -98,7 +96,7 @@ function testAdapter(adapterDir, options = {}) {
         await harness.changeAdapterConfig(adapterName, {
             common: {
                 enabled: true,
-                loglevel: (_b = options.loglevel) !== null && _b !== void 0 ? _b : "debug",
+                loglevel: options.loglevel ?? "debug",
             },
         });
         // And enable the sendTo emulation
@@ -110,9 +108,8 @@ function testAdapter(adapterDir, options = {}) {
             beforeEach(resetDbAndStartHarness);
             afterEach(shutdownTests);
             it("The adapter starts", function () {
-                var _a;
                 this.timeout(60000);
-                const allowedExitCodes = new Set((_a = options.allowedExitCodes) !== null && _a !== void 0 ? _a : []);
+                const allowedExitCodes = new Set(options.allowedExitCodes ?? []);
                 // Adapters with these modes are allowed to "immediately" exit with code 0
                 switch (harness.getAdapterExecutionMode()) {
                     case "schedule":

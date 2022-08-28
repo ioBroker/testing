@@ -6,4 +6,14 @@ module.exports = {
 	useTabs: true,
 	tabWidth: 4,
 	endOfLine: "lf",
+
+	overrides: [
+		{
+			files: ".github/workflows/*.yml",
+			options: {
+				useTabs: false,
+				tabWidth: 2,
+			},
+		},
+	],
 };

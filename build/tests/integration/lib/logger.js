@@ -10,8 +10,7 @@ var LoglevelOrder;
     LoglevelOrder[LoglevelOrder["silly"] = 4] = "silly";
 })(LoglevelOrder || (LoglevelOrder = {}));
 function createLogger(loglevel) {
-    var _a;
-    const loglevelNumeric = (_a = LoglevelOrder[loglevel !== null && loglevel !== void 0 ? loglevel : "debug"]) !== null && _a !== void 0 ? _a : LoglevelOrder.debug;
+    const loglevelNumeric = LoglevelOrder[loglevel ?? "debug"] ?? LoglevelOrder.debug;
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     const ignore = () => { };
     return {
