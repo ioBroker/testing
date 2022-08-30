@@ -53,8 +53,8 @@ class ControllerSetup {
         debug(`  appName:      ${this.appName}`);
         debug(`  adapterName:  ${this.adapterName}`);
     }
-    async prepareTestDir() {
-        debug("Preparing the test directory...");
+    async prepareTestDir(controllerVersion = "dev") {
+        debug(`Preparing the test directory. JS-Controller version: "${controllerVersion}"...`);
         // Make sure the test dir exists
         await (0, fs_extra_1.ensureDir)(this.testDir);
         // Write the package.json
@@ -69,7 +69,7 @@ class ControllerSetup {
             author: "",
             license: "ISC",
             dependencies: {
-                [`${this.appName}.js-controller`]: "dev",
+                [`${this.appName}.js-controller`]: controllerVersion,
             },
             description: "",
         };

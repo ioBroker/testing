@@ -58,7 +58,7 @@ function testAdapter(adapterDir, options = {}) {
         // Installation happens in two steps:
         // First we need to set up JS Controller, so the databases etc. can be created
         // First we need to copy all files and execute an npm install
-        await controllerSetup.prepareTestDir();
+        await controllerSetup.prepareTestDir(options.controllerVersion);
         // Only then we can install the adapter, because some (including VIS) try to access
         // the databases if JS Controller is installed
         await adapterSetup.installAdapterInTestDir();
