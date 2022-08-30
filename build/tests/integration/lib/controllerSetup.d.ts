@@ -8,7 +8,7 @@ export declare class ControllerSetup {
     private testAdapterDir;
     private testControllerDir;
     private testDataDir;
-    prepareTestDir(): Promise<void>;
+    prepareTestDir(controllerVersion?: string): Promise<void>;
     /**
      * Tests if JS-Controller is already installed
      * @param appName The branded name of "iobroker"

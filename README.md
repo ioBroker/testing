@@ -43,6 +43,10 @@ tests.integration(path.join(__dirname, ".."), {
 	// By default, termination during startup is not allowed.
 	allowedExitCodes: [11],
 
+	// To test against a different version of JS-Controller, you can change the version or dist-tag here.
+	// Make sure to remove this setting when you're done testing.
+	controllerVersion: "latest", // or a specific version like "4.0.1"
+
 	// Define your own tests inside defineAdditionalTests
 	defineAdditionalTests({ suite }) {
 		// All tests (it, describe) must be grouped in one or more suites. Each suite sets up a fresh environment for the adapter tests.

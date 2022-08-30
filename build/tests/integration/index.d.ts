@@ -7,6 +7,11 @@ export interface TestAdapterOptions {
     loglevel?: ioBroker.LogLevel;
     /** How long to wait before the adapter startup is considered successful */
     waitBeforeStartupSuccess?: number;
+    /**
+     * Which JS-Controller version or dist-tag should be used for the tests. Default: dev
+     * This should only be changed during active development.
+     */
+    controllerVersion?: string;
     /** Allows you to define additional tests */
     defineAdditionalTests?: (args: TestContext) => void;
 }

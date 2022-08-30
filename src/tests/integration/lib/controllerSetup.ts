@@ -50,8 +50,12 @@ export class ControllerSetup {
 	private testControllerDir: string;
 	private testDataDir: string;
 
-	public async prepareTestDir(): Promise<void> {
-		debug("Preparing the test directory...");
+	public async prepareTestDir(
+		controllerVersion: string = "dev",
+	): Promise<void> {
+		debug(
+			`Preparing the test directory. JS-Controller version: "${controllerVersion}"...`,
+		);
 		// Make sure the test dir exists
 		await ensureDir(this.testDir);
 
@@ -67,7 +71,7 @@ export class ControllerSetup {
 			author: "",
 			license: "ISC",
 			dependencies: {
-				[`${this.appName}.js-controller`]: "dev",
+				[`${this.appName}.js-controller`]: controllerVersion,
 			},
 			description: "",
 		};
