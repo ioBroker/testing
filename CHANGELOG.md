@@ -4,6 +4,9 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
+## 4.1.0 (2022-08-30)
+* Support specifying the JS-Controller version in integration tests
+
 ## 4.0.0 (2022-08-28)
 * BREAKING: Dropped support for Node.js 12
 * Allow skipping test suites (`suite.skip()`) and running single test suites (`suite.only()`)
