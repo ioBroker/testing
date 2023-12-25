@@ -61,8 +61,8 @@ tests.integration(path.join(__dirname, ".."), {
 				harness = getHarness();
 			});
 
-			it("Should work", () => {
-				return new Promise(async (resolve) => {
+			it("Should work", (done) => {
+				new Promise(async (resolve) => {
 					// Start the adapter and wait until it has started
 					await harness.startAdapterAndWait();
 
@@ -72,6 +72,7 @@ tests.integration(path.join(__dirname, ".."), {
 						resolve();
 					});
 				});
+                done();
 			});
 		});
 
@@ -103,8 +104,9 @@ tests.unit(path.join(__dirname, ".."), {
 	// Define your own tests inside defineAdditionalTests.
 	// If you need predefined objects etc. here, you need to take care of it yourself
 	defineAdditionalTests() {
-		it("works", () => {
+		it("works", (done) => {
 			// see below how these could look like
+            done();
 		});
 	},
 });
@@ -183,7 +185,7 @@ tests.unit(path.join(__dirname, ".."), {
 				database.clear();
 			});
 
-			it("works", () => {
+			it("works", (done) => {
 				// Create an object in the fake db we will use in this test
 				const theObject: ioBroker.PartialObject = {
 					_id: "whatever",
@@ -198,6 +200,7 @@ tests.unit(path.join(__dirname, ".."), {
 
 				// Assert that the object still exists
 				assertObjectExists(theObject._id);
+                done();
 			});
 		});
 	},
