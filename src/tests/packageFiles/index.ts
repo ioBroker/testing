@@ -164,7 +164,7 @@ export function validatePackageFiles(adapterDir: string): void {
 				"common.desc",
 				"common.icon",
 				"common.extIcon",
-				"common.license",
+				"common.licenseInformation",
 				"common.type",
 				"common.authors",
 				"native",
@@ -202,6 +202,15 @@ export function validatePackageFiles(adapterDir: string): void {
 				const news = iopackContent.common.news;
 				expect(isObject(news)).to.be.true;
 				expect(Object.keys(news).length).to.be.at.most(20);
+			});
+
+			it(`common.licenseInformation is an object with required properties`, () => {
+				expect(iopackContent.common.licenseInformation).to.be.an("object");
+				expect(iopackContent.common.licenseInformation.type).to.be.oneOf(['free', 'commercial', 'paid', 'limited']);
+
+				if (iopackContent.common.licenseInformation.type !== "free") {
+					expect(iopackContent.common.licenseInformation.link, 'License link is missing').to.not.be.undefined;
+				}
 			});
 
 			// If the adapter has a configuration page, check that a supported admin UI is used
@@ -245,7 +254,7 @@ export function validatePackageFiles(adapterDir: string): void {
 			});
 
 			it("The license matches", () => {
-				expect(iopackContent.common.license).to.equal(
+				expect(iopackContent.common.licenseInformation.license).to.equal(
 					packageContent.license,
 				);
 			});
