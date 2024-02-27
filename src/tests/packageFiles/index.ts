@@ -126,12 +126,12 @@ export function validatePackageFiles(adapterDir: string): void {
 				);
 			});
 
-			it(`property main is defined for non onlyWWW adapters`, () => {
-				if (!iopackContent.common.onlyWWW){
+			if (!iopackContent.common.onlyWWW){
+				it(`property main is defined for non onlyWWW adapters`, () => {
 					expect(packageContent.main).to.not.be.undefined;
-				}
-			});
-
+				});
+			};
+			
 			it(`The repository type is "git"`, () => {
 				expect(packageContent.repository.type).to.equal("git");
 			});
@@ -224,11 +224,11 @@ export function validatePackageFiles(adapterDir: string): void {
 				});
 			} else {
 				it(`common.license must exist without common.licenseInformation`, () => {
-					expect(iopackContent.common.license, 'common.license or common.licenseInformation must exit').to.not.be.undefined;
+					expect(iopackContent.common.license, 'common.licenseInformation (preferred) or common.license (deprecated) must exist').to.not.be.undefined;
 				});	
 			}
 
-			if (iopackContent.common.tier) {
+			if (iopackContent.common.tier != undefined) {
 				it(`common.tier must be 1, 2 or 3`, () => {
 					expect(iopackContent.common.tier).to.be.at.least(1);
 					expect(iopackContent.common.tier).to.be.at.most(3);
