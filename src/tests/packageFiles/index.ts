@@ -89,6 +89,7 @@ export function validatePackageFiles(adapterDir: string): void {
 			});
 
 			const packageContent = require(packageJsonPath);
+			const iopackContent = require(ioPackageJsonPath);
 
 			const requiredProperties = [
 				"name",
@@ -96,7 +97,6 @@ export function validatePackageFiles(adapterDir: string): void {
 				"description",
 				"author",
 				"license",
-				"main",
 				"repository",
 				"repository.type",
 			];
@@ -125,6 +125,12 @@ export function validatePackageFiles(adapterDir: string): void {
 					`The adapter name must end with a letter or number!`,
 				);
 			});
+
+			if (!iopackContent.common.onlyWWW) {
+				it(`property main is defined for non onlyWWW adapters`, () => {
+					expect(packageContent.main).to.not.be.undefined;
+				});
+			}
 
 			it(`The repository type is "git"`, () => {
 				expect(packageContent.repository.type).to.equal("git");
@@ -164,7 +170,6 @@ export function validatePackageFiles(adapterDir: string): void {
 				"common.desc",
 				"common.icon",
 				"common.extIcon",
-				"common.license",
 				"common.type",
 				"common.authors",
 				"native",
@@ -203,6 +208,47 @@ export function validatePackageFiles(adapterDir: string): void {
 				expect(isObject(news)).to.be.true;
 				expect(Object.keys(news).length).to.be.at.most(20);
 			});
+
+			if (iopackContent.common.licenseInformation) {
+				it(`if common.licenseInformation exists, it is an object with required properties`, () => {
+					expect(iopackContent.common.licenseInformation).to.be.an(
+						"object",
+					);
+					expect(
+						iopackContent.common.licenseInformation.type,
+					).to.be.oneOf(["free", "commercial", "paid", "limited"]);
+
+					if (
+						iopackContent.common.licenseInformation.type !== "free"
+					) {
+						expect(
+							iopackContent.common.licenseInformation.link,
+							"License link is missing",
+						).to.not.be.undefined;
+					}
+				});
+
+				it(`common.license should not exist together with common.licenseInformation`, () => {
+					expect(
+						iopackContent.common.license,
+						"common.license must be removed",
+					).to.be.undefined;
+				});
+			} else {
+				it(`common.license must exist without common.licenseInformation`, () => {
+					expect(
+						iopackContent.common.license,
+						"common.licenseInformation (preferred) or common.license (deprecated) must exist",
+					).to.not.be.undefined;
+				});
+			}
+
+			if (iopackContent.common.tier != undefined) {
+				it(`common.tier must be 1, 2 or 3`, () => {
+					expect(iopackContent.common.tier).to.be.at.least(1);
+					expect(iopackContent.common.tier).to.be.at.most(3);
+				});
+			}
 
 			// If the adapter has a configuration page, check that a supported admin UI is used
 			const hasNoConfigPage =
@@ -245,9 +291,15 @@ export function validatePackageFiles(adapterDir: string): void {
 			});
 
 			it("The license matches", () => {
-				expect(iopackContent.common.license).to.equal(
-					packageContent.license,
-				);
+				if (iopackContent.common.licenseInformation) {
+					expect(
+						iopackContent.common.licenseInformation.license,
+					).to.equal(packageContent.license);
+				} else {
+					expect(iopackContent.common.license).to.equal(
+						packageContent.license,
+					);
+				}
 			});
 		});
 	});
