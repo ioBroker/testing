@@ -4,7 +4,7 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
-## __WORK IN PROGRESS__
+## 4.1.1 (2024-03-05)
 * Add support for the new `licenseInformation` field in `io-package.json`
 * Add test for the `tier` field in `io-package.json`
 * Honor `onlyWWW` flag in `io-package.json`
