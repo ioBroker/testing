@@ -4,6 +4,11 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
+## __WORK IN PROGRESS__
+* Add support for the new `licenseInformation` field in `io-package.json`
+* Add test for the `tier` field in `io-package.json`
+* Honor `onlyWWW` flag in `io-package.json`
+
 ## 4.1.0 (2022-08-30)
 * Support specifying the JS-Controller version in integration tests
 
