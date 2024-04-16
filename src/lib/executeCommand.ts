@@ -70,7 +70,10 @@ export function executeCommand(
 
 		// Fix npm / node executable paths on Windows
 		if (isWindows) {
-			if (command === "npm") command += ".cmd";
+			if (command === "npm") {
+				command += ".cmd";
+				spawnOptions.shell=true;
+			}
 			else if (command === "node") command += ".exe";
 		}
 
