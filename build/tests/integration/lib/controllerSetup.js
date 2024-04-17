@@ -117,6 +117,12 @@ class ControllerSetup {
         debug("Testing if JS-Controller is running...");
         return new Promise((resolve) => {
             const client = new net_1.Socket();
+            const timeout = setTimeout(() => {
+                // Assume the connection failed after 1 s
+                client.destroy();
+                debug(`  => false`);
+                resolve(false);
+            }, 1000);
             // Try to connect to an existing ObjectsDB
             client
                 .connect({
@@ -127,19 +133,15 @@ class ControllerSetup {
                 // The connection succeeded
                 client.destroy();
                 debug(`  => true`);
+                clearTimeout(timeout);
                 resolve(true);
             })
                 .on("error", () => {
                 client.destroy();
                 debug(`  => false`);
+                clearTimeout(timeout);
                 resolve(false);
             });
-            setTimeout(() => {
-                // Assume the connection failed after 1 s
-                client.destroy();
-                debug(`  => false`);
-                resolve(false);
-            }, 1000);
         });
     }
     // /**
