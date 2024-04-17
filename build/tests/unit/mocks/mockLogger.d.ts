@@ -1,6 +1,6 @@
 /// <reference types="iobroker" />
 import { Mock } from "./tools";
-export declare type MockLogger = Mock<ioBroker.Logger> & {
+export type MockLogger = Mock<ioBroker.Logger> & {
     resetMock(): void;
     resetMockHistory(): void;
     resetMockBehavior(): void;

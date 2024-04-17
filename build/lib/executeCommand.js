@@ -30,10 +30,15 @@ function executeCommand(command, argsOrOptions, options) {
             spawnOptions.cwd = options.cwd;
         // Fix npm / node executable paths on Windows
         if (isWindows) {
-            if (command === "npm")
+            if (command === "npm") {
                 command += ".cmd";
-            else if (command === "node")
+                // Needed since Node.js v18.20.2 and v20.12.2
+                // https://github.com/nodejs/node/releases/tag/v18.20.2
+                spawnOptions.shell = true;
+            }
+            else if (command === "node") {
                 command += ".exe";
+            }
         }
         if (options.logCommandExecution == null)
             options.logCommandExecution = false;
