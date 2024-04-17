@@ -93,13 +93,13 @@ function validatePackageFiles(adapterDir) {
                 skipIfInvalid.call(this, "package.json");
             });
             const packageContent = require(packageJsonPath);
+            const iopackContent = require(ioPackageJsonPath);
             const requiredProperties = [
                 "name",
                 "version",
                 "description",
                 "author",
                 "license",
-                "main",
                 "repository",
                 "repository.type",
             ];
@@ -112,6 +112,11 @@ function validatePackageFiles(adapterDir) {
                 (0, chai_1.expect)(name).to.match(/^[a-z]/, `The adapter name must start with a letter!`);
                 (0, chai_1.expect)(name).to.match(/[a-z0-9]$/, `The adapter name must end with a letter or number!`);
             });
+            if (!iopackContent.common.onlyWWW) {
+                it(`property main is defined for non onlyWWW adapters`, () => {
+                    (0, chai_1.expect)(packageContent.main).to.not.be.undefined;
+                });
+            }
             it(`The repository type is "git"`, () => {
                 (0, chai_1.expect)(packageContent.repository.type).to.equal("git");
             });
@@ -142,7 +147,6 @@ function validatePackageFiles(adapterDir) {
                 "common.desc",
                 "common.icon",
                 "common.extIcon",
-                "common.license",
                 "common.type",
                 "common.authors",
                 "native",
@@ -174,6 +178,29 @@ function validatePackageFiles(adapterDir) {
                 (0, chai_1.expect)((0, typeguards_1.isObject)(news)).to.be.true;
                 (0, chai_1.expect)(Object.keys(news).length).to.be.at.most(20);
             });
+            if (iopackContent.common.licenseInformation) {
+                it(`if common.licenseInformation exists, it is an object with required properties`, () => {
+                    (0, chai_1.expect)(iopackContent.common.licenseInformation).to.be.an("object");
+                    (0, chai_1.expect)(iopackContent.common.licenseInformation.type).to.be.oneOf(["free", "commercial", "paid", "limited"]);
+                    if (iopackContent.common.licenseInformation.type !== "free") {
+                        (0, chai_1.expect)(iopackContent.common.licenseInformation.link, "License link is missing").to.not.be.undefined;
+                    }
+                });
+                it(`common.license should not exist together with common.licenseInformation`, () => {
+                    (0, chai_1.expect)(iopackContent.common.license, "common.license must be removed").to.be.undefined;
+                });
+            }
+            else {
+                it(`common.license must exist without common.licenseInformation`, () => {
+                    (0, chai_1.expect)(iopackContent.common.license, "common.licenseInformation (preferred) or common.license (deprecated) must exist").to.not.be.undefined;
+                });
+            }
+            if (iopackContent.common.tier != undefined) {
+                it(`common.tier must be 1, 2 or 3`, () => {
+                    (0, chai_1.expect)(iopackContent.common.tier).to.be.at.least(1);
+                    (0, chai_1.expect)(iopackContent.common.tier).to.be.at.most(3);
+                });
+            }
             // If the adapter has a configuration page, check that a supported admin UI is used
             const hasNoConfigPage = iopackContent.common.noConfig === true ||
                 iopackContent.common.noConfig === "true" ||
@@ -200,7 +227,12 @@ function validatePackageFiles(adapterDir) {
                 (0, chai_1.expect)(iopackContent.common.version).to.equal(packageContent.version);
             });
             it("The license matches", () => {
-                (0, chai_1.expect)(iopackContent.common.license).to.equal(packageContent.license);
+                if (iopackContent.common.licenseInformation) {
+                    (0, chai_1.expect)(iopackContent.common.licenseInformation.license).to.equal(packageContent.license);
+                }
+                else {
+                    (0, chai_1.expect)(iopackContent.common.license).to.equal(packageContent.license);
+                }
             });
         });
     });

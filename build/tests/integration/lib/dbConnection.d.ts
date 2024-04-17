@@ -3,8 +3,8 @@
 /// <reference types="node" />
 /// <reference types="node" />
 import EventEmitter from "events";
-export declare type ObjectsDB = Record<string, ioBroker.Object>;
-export declare type StatesDB = Record<string, ioBroker.State>;
+export type ObjectsDB = Record<string, ioBroker.Object>;
+export type StatesDB = Record<string, ioBroker.State>;
 export interface DBConnection {
     on(event: "objectChange", handler: ioBroker.ObjectChangeHandler): this;
     on(event: "stateChange", handler: ioBroker.StateChangeHandler): this;

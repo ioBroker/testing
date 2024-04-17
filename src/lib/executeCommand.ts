@@ -1,5 +1,5 @@
 import { isArray, isObject } from "alcalzone-shared/typeguards";
-import { spawn, SpawnOptions } from "child_process";
+import { SpawnOptions, spawn } from "child_process";
 
 const isWindows = /^win/.test(process.platform);
 
@@ -72,8 +72,12 @@ export function executeCommand(
 		if (isWindows) {
 			if (command === "npm") {
 				command += ".cmd";
+				// Needed since Node.js v18.20.2 and v20.12.2
+				// https://github.com/nodejs/node/releases/tag/v18.20.2
 				spawnOptions.shell = true;
-			} else if (command === "node") command += ".exe";
+			} else if (command === "node") {
+				command += ".exe";
+			}
 		}
 
 		if (options.logCommandExecution == null)
