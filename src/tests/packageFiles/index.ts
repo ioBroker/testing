@@ -265,7 +265,7 @@ export function validatePackageFiles(adapterDir: string): void {
 
 					expect(
 						hasSupportedUI,
-						"Unsupported Admin UI, must use a supported admin UI!",
+						"Unsupported Admin UI, must be html, materialize or JSON config!",
 					).to.be.true;
 				});
 			}
