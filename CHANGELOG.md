@@ -4,6 +4,10 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
+## __WORK IN PROGRESS__
+* Fix: Use shell to spawn `npm` on Windows to prevent hanging
+* Fix: Duplicate logging of `=> false` when testing if JS controller is running
+
 ## 4.1.1 (2024-03-05)
 * Add support for the new `licenseInformation` field in `io-package.json`
 * Add test for the `tier` field in `io-package.json`
