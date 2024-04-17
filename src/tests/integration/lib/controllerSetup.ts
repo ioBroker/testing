@@ -16,8 +16,8 @@ import type { DBConnection } from "./dbConnection";
 import {
 	getTestAdapterDir,
 	getTestControllerDir,
-	getTestDataDir,
 	getTestDBDir,
+	getTestDataDir,
 	getTestLogDir,
 } from "./tools";
 
@@ -131,6 +131,14 @@ export class ControllerSetup {
 		debug("Testing if JS-Controller is running...");
 		return new Promise<boolean>((resolve) => {
 			const client = new Socket();
+
+			const timeout = setTimeout(() => {
+				// Assume the connection failed after 1 s
+				client.destroy();
+				debug(`  => false`);
+				resolve(false);
+			}, 1000);
+
 			// Try to connect to an existing ObjectsDB
 			client
 				.connect({
@@ -141,20 +149,15 @@ export class ControllerSetup {
 					// The connection succeeded
 					client.destroy();
 					debug(`  => true`);
+					clearTimeout(timeout);
 					resolve(true);
 				})
 				.on("error", () => {
 					client.destroy();
 					debug(`  => false`);
+					clearTimeout(timeout);
 					resolve(false);
 				});
-
-			setTimeout(() => {
-				// Assume the connection failed after 1 s
-				client.destroy();
-				debug(`  => false`);
-				resolve(false);
-			}, 1000);
 		});
 	}
 
