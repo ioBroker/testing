@@ -72,7 +72,7 @@ export function executeCommand(
 		if (isWindows) {
 			if (command === "npm") {
 				command += ".cmd";
-				spawnOptions.shell=true;
+				spawnOptions.shell = true;
 			}
 			else if (command === "node") command += ".exe";
 		}
