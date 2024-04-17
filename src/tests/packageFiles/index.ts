@@ -256,7 +256,7 @@ export function validatePackageFiles(adapterDir: string): void {
 				iopackContent.common.noConfig === "true" ||
 				iopackContent.common.adminUI?.config === "none";
 			if (!hasNoConfigPage) {
-				it("The adapter uses Material UI or JSON Config for the admin UI", () => {
+				it("The adapter uses a supported admin UI", () => {
 					const hasSupportedUI =
 						!!iopackContent.common.materialize ||
 						iopackContent.common.adminUI?.config === "html" ||
