@@ -4,7 +4,7 @@
 	PLACEHOLDER for next version:
 	## __WORK IN PROGRESS__
 -->
-## __WORK IN PROGRESS__
+## 4.1.3 (2024-04-17)
 * Allow (deprecated) HTML as admin UI in package tests, so old adapters using HTML UI can still utilize the rest of the package tests
 
 ## 4.1.2 (2024-04-17)
