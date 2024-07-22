@@ -101,7 +101,7 @@ export class AdapterSetup {
 
 		debug("Installing adapter");
 		// Defer to npm to install the controller (if it wasn't already)
-		await executeCommand("npm", ["i", "--production"], {
+		await executeCommand("npm", ["update", "--production"], {
 			cwd: this.testDir,
 		});
 
