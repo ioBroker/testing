@@ -79,6 +79,24 @@ export class AdapterSetup {
 		await copy(tarballPath, path.resolve(this.testDir, tarballName));
 		await unlink(tarballPath);
 
+		// Let npm remove the adapter in the package-lock.json file(s),
+		// so that the installation in the following step
+		// won't grab the cached files.
+		// See https://github.com/ioBroker/testing/issues/612
+		debug("Removing the adapter from package-lock.json");
+		await executeCommand(
+			"npm",
+			[
+				"uninstall",
+				this.adapterFullName,
+				"--package-lock-only",
+				"--omit=dev",
+			],
+			{
+				cwd: this.testDir,
+			},
+		);
+
 		// Complete the package.json, so npm can do it's magic
 		debug("Saving the adapter in package.json");
 		const packageJsonPath = path.join(this.testDir, "package.json");
@@ -101,7 +119,7 @@ export class AdapterSetup {
 
 		debug("Installing adapter");
 		// Defer to npm to install the controller (if it wasn't already)
-		await executeCommand("npm", ["i", "--production"], {
+		await executeCommand("npm", ["i", "--omit=dev"], {
 			cwd: this.testDir,
 		});
 

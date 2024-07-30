@@ -206,11 +206,12 @@ function validatePackageFiles(adapterDir) {
                 iopackContent.common.noConfig === "true" ||
                 iopackContent.common.adminUI?.config === "none";
             if (!hasNoConfigPage) {
-                it("The adapter uses Material UI or JSON Config for the admin UI", () => {
+                it("The adapter uses a supported admin UI", () => {
                     const hasSupportedUI = !!iopackContent.common.materialize ||
+                        iopackContent.common.adminUI?.config === "html" ||
                         iopackContent.common.adminUI?.config === "json" ||
                         iopackContent.common.adminUI?.config === "materialize";
-                    (0, chai_1.expect)(hasSupportedUI, "Unsupported Admin UI, must be materialize or json config!").to.be.true;
+                    (0, chai_1.expect)(hasSupportedUI, "Unsupported Admin UI, must be html, materialize or JSON config!").to.be.true;
                 });
             }
         });
