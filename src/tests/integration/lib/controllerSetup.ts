@@ -100,7 +100,7 @@ export class ControllerSetup {
 		const wasJsControllerInstalled = await this.isJsControllerInstalled();
 		// Defer to npm to install the controller (if it wasn't already)
 		debug("(Re-)installing JS Controller...");
-		await executeCommand("npm", ["i", "--production"], {
+		await executeCommand("npm", ["i", "--omit=dev"], {
 			cwd: this.testDir,
 		});
 		// Prepare/clean the databases and config

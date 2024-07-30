@@ -106,7 +106,7 @@ class AdapterSetup {
             await (0, fs_extra_1.remove)(this.testAdapterDir);
         debug("Installing adapter");
         // Defer to npm to install the controller (if it wasn't already)
-        await (0, executeCommand_1.executeCommand)("npm", ["i", "--production"], {
+        await (0, executeCommand_1.executeCommand)("npm", ["i", "--omit=dev"], {
             cwd: this.testDir,
         });
         debug("  => done!");
