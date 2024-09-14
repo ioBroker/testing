@@ -218,9 +218,9 @@ export function createAdapterMock(
 			},
 			...args: any[]
 		) => {
-			const callback = getCallback<ioBroker.GetObjectListCallback<ioBroker.Object>>(
-				...args,
-			);
+			const callback = getCallback<
+				ioBroker.GetObjectListCallback<ioBroker.Object>
+			>(...args);
 
 			if (typeof callback === "function") {
 				let objects = values(db.getObjects("*"));

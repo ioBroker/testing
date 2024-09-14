@@ -1,18 +1,17 @@
 // This file is used to test the unit test harness
 
-'use strict';
+"use strict";
 
-const utils = require('@iobroker/adapter-core');
+const utils = require("@iobroker/adapter-core");
 
 class TestAdapter extends utils.Adapter {
-
 	/**
 	 * @param {Partial<ioBroker.AdapterOptions>} [options={}]
 	 */
 	constructor(options = {}) {
 		/** @type {ioBroker.AdapterOptions} */
-		const adapterOptions = (options);
-		Object.assign(adapterOptions, {name: 'test-adapter'});
+		const adapterOptions = options;
+		Object.assign(adapterOptions, { name: "test-adapter" });
 		super(adapterOptions);
 		// After the super call, overwrite the methods on the options object
 		Object.assign(adapterOptions, {
@@ -20,14 +19,14 @@ class TestAdapter extends utils.Adapter {
 			objectChange: this.onObjectChange.bind(this),
 			stateChange: this.onStateChange.bind(this),
 			// message: this.onMessage.bind(this),
-			unload: this.onUnload.bind(this)
+			unload: this.onUnload.bind(this),
 		});
 	}
 
 	/**
 	 * Is called when databases are connected and adapter received configuration.
 	 */
-	onReady() { }
+	onReady() {}
 
 	/**
 	 * Is called when adapter shuts down - callback has to be called under any circumstances!
@@ -42,14 +41,14 @@ class TestAdapter extends utils.Adapter {
 	 * @param {string} id
 	 * @param {ioBroker.Object | null | undefined} obj
 	 */
-	onObjectChange(id, obj) { }
+	onObjectChange(id, obj) {}
 
 	/**
 	 * Is called if a subscribed state changes
 	 * @param {string} id
 	 * @param {ioBroker.State | null | undefined} state
 	 */
-	onStateChange(id, state) { }
+	onStateChange(id, state) {}
 
 	// /**
 	//  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
@@ -67,7 +66,6 @@ class TestAdapter extends utils.Adapter {
 	// 		}
 	// 	}
 	// }
-
 }
 
 if (module.parent) {

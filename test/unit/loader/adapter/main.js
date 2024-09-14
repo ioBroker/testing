@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
-const utils = require('@iobroker/adapter-core');
+const utils = require("@iobroker/adapter-core");
 
 /**
  * Starts the adapter instance
@@ -10,25 +10,26 @@ const utils = require('@iobroker/adapter-core');
  */
 function startAdapter(options) {
 	// Create the adapter and define its methods
-	return utils.adapter(Object.assign({}, options, {
-		name: 'test-adapter',
+	return utils.adapter(
+		Object.assign({}, options, {
+			name: "test-adapter",
 
-		// The ready callback is called when databases are connected and adapter received configuration.
-		// start here!
-		ready: () => { },
+			// The ready callback is called when databases are connected and adapter received configuration.
+			// start here!
+			ready: () => {},
 
-		// is called when adapter shuts down - callback has to be called under any circumstances!
-		unload: (callback) => {
-			callback();
-		},
+			// is called when adapter shuts down - callback has to be called under any circumstances!
+			unload: (callback) => {
+				callback();
+			},
 
-		// is called if a subscribed object changes
-		objectChange: (id, obj) => { },
+			// is called if a subscribed object changes
+			objectChange: (id, obj) => {},
 
-		// is called if a subscribed state changes
-		stateChange: (id, state) => { },
-
-	}));
+			// is called if a subscribed state changes
+			stateChange: (id, state) => {},
+		}),
+	);
 }
 
 if (module.parent) {

@@ -180,7 +180,7 @@ export class DBConnection extends EventEmitter {
 			},
 		);
 		debug(`  => objects DB lib found at ${objectsDbPath}`);
-		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
 		const { Server, Client } = require(objectsDbPath);
 
 		// First create the server
@@ -238,7 +238,7 @@ export class DBConnection extends EventEmitter {
 			},
 		);
 		debug(`  => states DB lib found at ${statesDbPath}`);
-		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		// eslint-disable-next-line @typescript-eslint/no-require-imports
 		const { Server, Client } = require(statesDbPath);
 
 		// First create the server

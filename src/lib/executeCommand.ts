@@ -116,7 +116,7 @@ export function executeCommand(
 					bufferedStderr! += chunk;
 				});
 			}
-		} catch (e) {
+		} catch {
 			// doesn't matter, we return the exit code in the "close" handler
 		}
 	});

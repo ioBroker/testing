@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
 // Add debug logging for tests
 import { entries } from "alcalzone-shared/objects";
 import debugModule from "debug";
@@ -23,7 +22,10 @@ import { getTestAdapterDir, getTestControllerDir } from "./tools";
 const debug = debugModule("testing:integration:AdapterSetup");
 
 export class AdapterSetup {
-	public constructor(private adapterDir: string, private testDir: string) {
+	public constructor(
+		private adapterDir: string,
+		private testDir: string,
+	) {
 		debug("Creating AdapterSetup...");
 
 		this.adapterName = getAdapterName(this.adapterDir);
@@ -101,9 +103,8 @@ export class AdapterSetup {
 		debug("Saving the adapter in package.json");
 		const packageJsonPath = path.join(this.testDir, "package.json");
 		const packageJson = await readJSON(packageJsonPath);
-		packageJson.dependencies[
-			this.adapterFullName
-		] = `file:./${tarballName}`;
+		packageJson.dependencies[this.adapterFullName] =
+			`file:./${tarballName}`;
 		for (const [dep, version] of entries(
 			getAdapterDependencies(this.adapterDir),
 		)) {

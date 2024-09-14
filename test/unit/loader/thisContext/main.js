@@ -1,20 +1,19 @@
 // This file is used to test the unit test harness
 
-'use strict';
+"use strict";
 
-const utils = require('@iobroker/adapter-core');
+const utils = require("@iobroker/adapter-core");
 
 class TestAdapter extends utils.Adapter {
-
 	/**
 	 * @param {Partial<ioBroker.AdapterOptions>} [options={}]
 	 */
 	constructor(options) {
 		super({
 			...options,
-			name: 'test-adapter',
+			name: "test-adapter",
 		});
-		this.on('ready', this.onReady);
+		this.on("ready", this.onReady);
 	}
 
 	/**
@@ -27,7 +26,6 @@ class TestAdapter extends utils.Adapter {
 	testMethod() {
 		return true;
 	}
-
 }
 
 if (module.parent) {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-inferrable-types */
 import { wait } from "alcalzone-shared/async";
 import { extend } from "alcalzone-shared/objects";
 import { ChildProcess, spawn } from "child_process";
