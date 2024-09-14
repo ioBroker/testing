@@ -4,7 +4,7 @@
 	PLACEHOLDER for the next version:
 	## __WORK IN PROGRESS__
 -->
-## __WORK IN PROGRESS__
+## 5.0.0 (2024-09-14)
 * Types were migrated to '@iobroker/types' from '@types/iobroker'
 
 ## 4.1.3 (2024-04-17)
