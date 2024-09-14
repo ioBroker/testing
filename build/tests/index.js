@@ -8,7 +8,6 @@ const createMocks_1 = require("./unit/harness/createMocks");
 const mockDatabase_1 = require("./unit/mocks/mockDatabase");
 var harness_1 = require("./integration/lib/harness");
 Object.defineProperty(exports, "IntegrationTestHarness", { enumerable: true, get: function () { return harness_1.TestHarness; } });
-var mockAdapter_1 = require("./unit/mocks/mockAdapter");
 var mockDatabase_2 = require("./unit/mocks/mockDatabase");
 Object.defineProperty(exports, "MockDatabase", { enumerable: true, get: function () { return mockDatabase_2.MockDatabase; } });
 /** Predefined test sets */

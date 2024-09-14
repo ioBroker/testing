@@ -1,5 +1,3 @@
-/// <reference types="iobroker" />
-/// <reference types="iobroker" />
 import type { MockAdapter } from "./mockAdapter";
 /**
  * A minimalistic version of ioBroker's Objects and States DB that just operates on a Map

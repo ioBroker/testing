@@ -1,4 +1,3 @@
-/// <reference types="iobroker" />
 /**
  * Loads an adapter's package.json
  * @param adapterDir The directory the adapter resides in

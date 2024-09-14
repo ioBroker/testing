@@ -168,6 +168,7 @@ export function testAdapter(
 				switch (harness.getAdapterExecutionMode()) {
 					case "schedule":
 					case "once":
+					// @ts-expect-error subscribe was deprecated
 					case "subscribe":
 						allowedExitCodes.add(0);
 				}

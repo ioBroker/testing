@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validatePackageFiles = void 0;
+exports.validatePackageFiles = validatePackageFiles;
 /* eslint-disable @typescript-eslint/no-var-requires */
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const chai_1 = require("chai");
@@ -255,4 +255,3 @@ function validatePackageFiles(adapterDir) {
     // 	});
     // });
 }
-exports.validatePackageFiles = validatePackageFiles;

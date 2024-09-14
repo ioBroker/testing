@@ -1,4 +1,3 @@
-/// <reference types="iobroker" />
 import { Mock } from "./tools";
 export type MockLogger = Mock<ioBroker.Logger> & {
     resetMock(): void;

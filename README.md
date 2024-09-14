@@ -136,7 +136,7 @@ This method creates a mock database and a mock adapter. See below for a more det
 const asserts = utils.unit.createAsserts(database, adapter);
 ```
 
-This methods takes a mock database and adapter and creates a set of asserts for your tests. All IDs may either be a string, which is taken literally, or an array of strings which are concatenated with `"."`. If an ID is not fully qualified, the adapter namespace is prepended automatically.
+These methods take a mock database and adapter and create a set of asserts for your tests. All IDs may either be a string, which is taken literally, or an array of strings which are concatenated with `"."`. If an ID is not fully qualified, the adapter namespace is prepended automatically.
 
 -   `assertObjectExists(id: string | string[])` asserts that an object with the given ID exists in the database.
 -   `assertStateExists(id: string | string[])` asserts that a state with the given ID exists in the database.

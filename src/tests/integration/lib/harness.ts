@@ -284,8 +284,10 @@ export class TestHarness extends EventEmitter {
 	public async enableSendTo(): Promise<void> {
 		await this.dbConnection.setObject(fromAdapterID, {
 			type: "instance",
-			common: {} as any,
+			common: {} as ioBroker.InstanceCommon,
 			native: {},
+			instanceObjects: [],
+			objects: [],
 		});
 
 		this.dbConnection.subscribeMessage(fromAdapterID);

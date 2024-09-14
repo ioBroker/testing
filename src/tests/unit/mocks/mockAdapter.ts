@@ -65,6 +65,7 @@ const implementedMethods: ImplementedMethodDictionary<ioBroker.Adapter> = {
 	sendTo: "no error",
 	sendToHost: "no error",
 	getHistory: "normal",
+	// @ts-expect-error This method was deprecated
 	setBinaryState: "normal",
 	getBinaryState: "normal",
 	getEnum: "normal",
@@ -217,7 +218,7 @@ export function createAdapterMock(
 			},
 			...args: any[]
 		) => {
-			const callback = getCallback<ioBroker.GetObjectListCallback>(
+			const callback = getCallback<ioBroker.GetObjectListCallback<ioBroker.Object>>(
 				...args,
 			);
 

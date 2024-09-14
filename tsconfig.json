@@ -4,7 +4,7 @@
 	// https://github.com/tsconfig/bases#node-14-tsconfigjson
 	"extends": "@tsconfig/node14/tsconfig.json",
 	"compilerOptions": {
-		// do not compile anything, this file is just to configure type checking
+		// do not compile anything; this file is just to configure type checking
 		// the compilation is configured in tsconfig.build.json
 		"noEmit": true,
 
@@ -16,11 +16,17 @@
 		"newLine": "lf",
 
 		// Avoid runtime imports that are unnecessary
-		"importsNotUsedAsValues": "error",
+		// "importsNotUsedAsValues": "error",
 
 		// Required for TS debugging, turn on if necessary
 		"sourceMap": false,
-		"inlineSourceMap": false
+		"inlineSourceMap": false,
+		"baseUrl": ".",
+		"paths": {
+			"ioBroker": ["@iobroker/types"],
+			"Mocha": ["@types/mocha"]
+		},
+		"types": ["@iobroker/types", "node", "@types/mocha"]
 	},
 	"include": ["**/*.ts"],
 	"exclude": ["build/**", "node_modules/**"]

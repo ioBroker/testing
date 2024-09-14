@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAsserts = exports.MockDatabase = void 0;
+exports.MockDatabase = void 0;
+exports.createAsserts = createAsserts;
 const objects_1 = require("alcalzone-shared/objects");
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const str2regex_1 = require("../../../lib/str2regex");
@@ -186,4 +187,3 @@ function createAsserts(db, adapter) {
     };
     return ret;
 }
-exports.createAsserts = createAsserts;

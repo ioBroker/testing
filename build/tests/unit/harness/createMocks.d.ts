@@ -1,4 +1,3 @@
-/// <reference types="iobroker" />
 import { MockDatabase } from "../mocks/mockDatabase";
 /**
  * Creates a new set of mocks, including a mock database and a mock adapter.

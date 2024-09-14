@@ -1,4 +1,3 @@
-/// <reference types="sinon" />
 import type { Equals, Overwrite } from "alcalzone-shared/types";
 export type IsAny<T> = Equals<T extends never ? false : true, boolean>;
 export type MockableMethods<T, All = Required<T>, NoAny = {
