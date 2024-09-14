@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.testAdapterWithMocks = void 0;
+exports.testAdapterWithMocks = testAdapterWithMocks;
 /**
  * @deprecated
  * Tests the adapter startup in offline mode (with mocks, no JS-Controller)
@@ -21,4 +21,3 @@ function testAdapterWithMocks(_adapterDir, options = {}) {
         }
     });
 }
-exports.testAdapterWithMocks = testAdapterWithMocks;

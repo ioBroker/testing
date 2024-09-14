@@ -23,7 +23,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTestAdapterDir = exports.getTestDBDir = exports.getTestLogDir = exports.getTestDataDir = exports.getTestControllerDir = void 0;
+exports.getTestControllerDir = getTestControllerDir;
+exports.getTestDataDir = getTestDataDir;
+exports.getTestLogDir = getTestLogDir;
+exports.getTestDBDir = getTestDBDir;
+exports.getTestAdapterDir = getTestAdapterDir;
 const path = __importStar(require("path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
 /**
@@ -34,7 +38,6 @@ const adapterTools_1 = require("../../../lib/adapterTools");
 function getTestControllerDir(appName, testDir) {
     return path.resolve(testDir, "node_modules", `${appName}.js-controller`);
 }
-exports.getTestControllerDir = getTestControllerDir;
 /**
  * Locates the directory where JS-Controller stores its data for integration tests
  * @param appName The branded name of "iobroker"
@@ -43,7 +46,6 @@ exports.getTestControllerDir = getTestControllerDir;
 function getTestDataDir(appName, testDir) {
     return path.resolve(testDir, `${appName}-data`);
 }
-exports.getTestDataDir = getTestDataDir;
 /**
  * Locates the directory where JS-Controller stores its logs for integration tests
  * @param appName The branded name of "iobroker"
@@ -52,7 +54,6 @@ exports.getTestDataDir = getTestDataDir;
 function getTestLogDir(appName, testDir) {
     return path.resolve(testDir, "log");
 }
-exports.getTestLogDir = getTestLogDir;
 /**
  * Locates the directory where JS-Controller stores its sqlite db during integration tests
  * @param appName The branded name of "iobroker"
@@ -61,7 +62,6 @@ exports.getTestLogDir = getTestLogDir;
 function getTestDBDir(appName, testDir) {
     return path.resolve(getTestDataDir(appName, testDir), "sqlite");
 }
-exports.getTestDBDir = getTestDBDir;
 /**
  * Locates the directory where the adapter will be be stored for integration tests
  * @param adapterDir The root directory of the adapter
@@ -71,4 +71,3 @@ function getTestAdapterDir(adapterDir, testDir) {
     const adapterName = (0, adapterTools_1.getAdapterFullName)(adapterDir);
     return path.resolve(testDir, "node_modules", adapterName);
 }
-exports.getTestAdapterDir = getTestAdapterDir;

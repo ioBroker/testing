@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createMocks = void 0;
+exports.createMocks = createMocks;
 const mockAdapter_1 = require("../mocks/mockAdapter");
 const mockDatabase_1 = require("../mocks/mockDatabase");
 /**
@@ -16,4 +16,3 @@ function createMocks(adapterOptions) {
         adapter: adapterMock,
     };
 }
-exports.createMocks = createMocks;

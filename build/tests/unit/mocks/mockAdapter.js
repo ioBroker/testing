@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAdapterMock = void 0;
+exports.createAdapterMock = createAdapterMock;
 const objects_1 = require("alcalzone-shared/objects");
 const sinon_1 = require("sinon");
 const mockLogger_1 = require("./mockLogger");
@@ -45,6 +45,7 @@ const implementedMethods = {
     sendTo: "no error",
     sendToHost: "no error",
     getHistory: "normal",
+    // @ts-expect-error This method was deprecated
     setBinaryState: "normal",
     getBinaryState: "normal",
     getEnum: "normal",
@@ -528,4 +529,3 @@ function createAdapterMock(db, options = {}) {
     });
     return ret;
 }
-exports.createAdapterMock = createAdapterMock;

@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mockAdapterCore = void 0;
+exports.mockAdapterCore = mockAdapterCore;
 const os = __importStar(require("os"));
 const path = __importStar(require("path"));
 const mockAdapter_1 = require("./mockAdapter");
@@ -74,4 +74,3 @@ function mockAdapterCore(database, options = {}) {
         getAbsoluteInstanceDataDir,
     };
 }
-exports.mockAdapterCore = mockAdapterCore;

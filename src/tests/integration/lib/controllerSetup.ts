@@ -24,7 +24,10 @@ import {
 const debug = debugModule("testing:integration:ControllerSetup");
 
 export class ControllerSetup {
-	public constructor(private adapterDir: string, private testDir: string) {
+	public constructor(
+		private adapterDir: string,
+		private testDir: string,
+	) {
 		debug("Creating ControllerSetup...");
 
 		this.adapterName = getAdapterName(this.adapterDir);

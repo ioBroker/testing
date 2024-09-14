@@ -1,4 +1,3 @@
-/// <reference types="node" />
 export interface ExecuteCommandOptions {
     /** Whether the executed command should be logged to the stdout. Default: false */
     logCommandExecution: boolean;

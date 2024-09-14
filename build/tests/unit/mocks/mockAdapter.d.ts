@@ -1,4 +1,3 @@
-/// <reference types="iobroker" />
 import type { MockDatabase } from "./mockDatabase";
 import { MockLogger } from "./mockLogger";
 import { Mock } from "./tools";

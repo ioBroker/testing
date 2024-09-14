@@ -14,12 +14,12 @@ export type MockableMethods<
 		[K in keyof All]: IsAny<All[K]> extends true
 			? never
 			: All[K] extends (...args: any[]) => void
-			? K
-			: never;
+				? K
+				: never;
 	},
 > = NoAny[keyof NoAny];
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type Mock<T extends {}> = Overwrite<
 	T,
 	{ [K in MockableMethods<T>]: sinon.SinonStub }

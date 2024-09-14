@@ -10,7 +10,6 @@ export function createLogger(loglevel: ioBroker.LogLevel): ioBroker.Logger {
 	const loglevelNumeric =
 		LoglevelOrder[loglevel ?? "debug"] ?? LoglevelOrder.debug;
 
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
 	const ignore = (): void => {};
 	return {
 		error: loglevelNumeric >= LoglevelOrder.error ? console.error : ignore,

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import { isArray, isObject } from "alcalzone-shared/typeguards";
 import { AssertionError, expect } from "chai";
 import * as fs from "fs";
@@ -41,6 +40,7 @@ export function validatePackageFiles(adapterDir: string): void {
 		it(`The property "${propertyPath}" exists`, () => {
 			let prev = targetObj;
 			for (const part of propertyParts) {
+				// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 				expect(prev[part]).to.not.be.undefined;
 				prev = prev[part];
 			}
@@ -61,6 +61,7 @@ export function validatePackageFiles(adapterDir: string): void {
 					});
 
 					it("exists", () => {
+						// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 						expect(
 							fs.existsSync(packagePath),
 							`${filename} is missing in the adapter dir. Please create it!`,
@@ -75,6 +76,7 @@ export function validatePackageFiles(adapterDir: string): void {
 
 					it("is an object", () => {
 						expect(
+							// eslint-disable-next-line @typescript-eslint/no-require-imports
 							require(packagePath),
 							`${filename} must contain an object!`,
 						).to.be.an("object");
@@ -88,7 +90,9 @@ export function validatePackageFiles(adapterDir: string): void {
 				skipIfInvalid.call(this, "package.json");
 			});
 
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			const packageContent = require(packageJsonPath);
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			const iopackContent = require(ioPackageJsonPath);
 
 			const requiredProperties = [
@@ -128,6 +132,7 @@ export function validatePackageFiles(adapterDir: string): void {
 
 			if (!iopackContent.common.onlyWWW) {
 				it(`property main is defined for non onlyWWW adapters`, () => {
+					// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 					expect(packageContent.main).to.not.be.undefined;
 				});
 			}
@@ -160,6 +165,7 @@ export function validatePackageFiles(adapterDir: string): void {
 				skipIfInvalid.call(this, "io-package.json");
 			});
 
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			const iopackContent = require(ioPackageJsonPath);
 
 			const requiredProperties = [
@@ -199,12 +205,14 @@ export function validatePackageFiles(adapterDir: string): void {
 			});
 			it(`common.authors is an array that is not empty`, () => {
 				const authors = iopackContent.common.authors;
+				// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 				expect(isArray(authors)).to.be.true;
 				expect(authors.length).to.be.at.least(1);
 			});
 
 			it(`common.news is an object that contains maximum 20 entries`, () => {
 				const news = iopackContent.common.news;
+				// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 				expect(isObject(news)).to.be.true;
 				expect(Object.keys(news).length).to.be.at.most(20);
 			});
@@ -221,6 +229,7 @@ export function validatePackageFiles(adapterDir: string): void {
 					if (
 						iopackContent.common.licenseInformation.type !== "free"
 					) {
+						// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 						expect(
 							iopackContent.common.licenseInformation.link,
 							"License link is missing",
@@ -229,6 +238,7 @@ export function validatePackageFiles(adapterDir: string): void {
 				});
 
 				it(`common.license should not exist together with common.licenseInformation`, () => {
+					// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 					expect(
 						iopackContent.common.license,
 						"common.license must be removed",
@@ -236,6 +246,7 @@ export function validatePackageFiles(adapterDir: string): void {
 				});
 			} else {
 				it(`common.license must exist without common.licenseInformation`, () => {
+					// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 					expect(
 						iopackContent.common.license,
 						"common.licenseInformation (preferred) or common.license (deprecated) must exist",
@@ -263,6 +274,7 @@ export function validatePackageFiles(adapterDir: string): void {
 						iopackContent.common.adminUI?.config === "json" ||
 						iopackContent.common.adminUI?.config === "materialize";
 
+					// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 					expect(
 						hasSupportedUI,
 						"Unsupported Admin UI, must be html, materialize or JSON config!",
@@ -276,7 +288,9 @@ export function validatePackageFiles(adapterDir: string): void {
 				skipIfInvalid.call(this, "package.json", "io-package.json");
 			});
 
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			const packageContent = require(packageJsonPath);
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
 			const iopackContent = require(ioPackageJsonPath);
 
 			it("The name matches", () => {

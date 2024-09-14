@@ -1,26 +1,26 @@
 // This file is used to test the unit test harness
 
-'use strict';
+"use strict";
 
-const utils = require('@iobroker/adapter-core');
+const utils = require("@iobroker/adapter-core");
 
 class TestAdapter extends utils.Adapter {
-
 	/**
 	 * @param {Partial<ioBroker.AdapterOptions>} [options={}]
 	 */
 	constructor(options) {
 		super({
 			...options,
-			name: 'test-adapter',
-			ready: () => { },
+			name: "test-adapter",
+			ready: () => {},
 		});
 
 		// Ensure that the new mock methods work
 		console.assert(typeof utils.getAbsoluteDefaultDataDir() === "string");
-		console.assert(typeof utils.getAbsoluteInstanceDataDir(this) === "string");
+		console.assert(
+			typeof utils.getAbsoluteInstanceDataDir(this) === "string",
+		);
 	}
-
 }
 
 if (module.parent) {

@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.testAdapter = void 0;
+exports.testAdapter = testAdapter;
 const async_1 = require("alcalzone-shared/async");
 const os = __importStar(require("os"));
 const path = __importStar(require("path"));
@@ -114,6 +114,7 @@ function testAdapter(adapterDir, options = {}) {
                 switch (harness.getAdapterExecutionMode()) {
                     case "schedule":
                     case "once":
+                    // @ts-expect-error subscribe was deprecated
                     case "subscribe":
                         allowedExitCodes.add(0);
                 }
@@ -201,4 +202,3 @@ function testAdapter(adapterDir, options = {}) {
         }
     });
 }
-exports.testAdapter = testAdapter;

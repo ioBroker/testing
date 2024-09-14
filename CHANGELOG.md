@@ -1,9 +1,12 @@
 ## Changelog
 
 <!--
-	PLACEHOLDER for next version:
+	PLACEHOLDER for the next version:
 	## __WORK IN PROGRESS__
 -->
+## __WORK IN PROGRESS__
+* Types were migrated to '@iobroker/types' from '@types/iobroker'
+
 ## 4.1.3 (2024-04-17)
 * Allow (deprecated) HTML as admin UI in package tests, so old adapters using HTML UI can still utilize the rest of the package tests
 
@@ -17,7 +20,7 @@
 * Honor `onlyWWW` flag in `io-package.json`
 
 ## 4.1.0 (2022-08-30)
-* Support specifying the JS-Controller version in integration tests
+* Support for specifying the JS-Controller version in integration tests
 
 ## 4.0.0 (2022-08-28)
 * BREAKING: Dropped support for Node.js 12

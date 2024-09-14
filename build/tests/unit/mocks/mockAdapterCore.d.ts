@@ -1,4 +1,3 @@
-/// <reference types="iobroker" />
 import { MockAdapter } from "./mockAdapter";
 import type { MockDatabase } from "./mockDatabase";
 interface MockAdapterConstructor {

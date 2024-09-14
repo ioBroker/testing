@@ -1,30 +1,29 @@
 // This file is used to test the unit test harness
 
-'use strict';
+"use strict";
 
-const utils = require('@iobroker/adapter-core');
+const utils = require("@iobroker/adapter-core");
 
 class TestAdapter extends utils.Adapter {
-
 	/**
 	 * @param {Partial<ioBroker.AdapterOptions>} [options={}]
 	 */
 	constructor(options) {
 		super({
 			...options,
-			name: 'test-adapter',
+			name: "test-adapter",
 		});
-		this.on('ready', this.onReady);
-		this.on('objectChange', this.onObjectChange);
-		this.on('stateChange', this.onStateChange);
+		this.on("ready", this.onReady);
+		this.on("objectChange", this.onObjectChange);
+		this.on("stateChange", this.onStateChange);
 		// this.on("message", this.onMessage);
-		this.on('unload', this.onUnload);
+		this.on("unload", this.onUnload);
 	}
 
 	/**
 	 * Is called when databases are connected and adapter received configuration.
 	 */
-	onReady() { }
+	onReady() {}
 
 	/**
 	 * Is called when adapter shuts down - callback has to be called under any circumstances!
@@ -39,14 +38,14 @@ class TestAdapter extends utils.Adapter {
 	 * @param {string} id
 	 * @param {ioBroker.Object | null | undefined} obj
 	 */
-	onObjectChange(id, obj) { }
+	onObjectChange(id, obj) {}
 
 	/**
 	 * Is called if a subscribed state changes
 	 * @param {string} id
 	 * @param {ioBroker.State | null | undefined} state
 	 */
-	onStateChange(id, state) { }
+	onStateChange(id, state) {}
 
 	// /**
 	//  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
@@ -64,7 +63,6 @@ class TestAdapter extends utils.Adapter {
 	// 		}
 	// 	}
 	// }
-
 }
 
 if (module.parent) {

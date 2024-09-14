@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-inferrable-types */
 import { wait } from "alcalzone-shared/async";
 import { extend } from "alcalzone-shared/objects";
 import { ChildProcess, spawn } from "child_process";
@@ -284,8 +283,10 @@ export class TestHarness extends EventEmitter {
 	public async enableSendTo(): Promise<void> {
 		await this.dbConnection.setObject(fromAdapterID, {
 			type: "instance",
-			common: {} as any,
+			common: {} as ioBroker.InstanceCommon,
 			native: {},
+			instanceObjects: [],
+			objects: [],
 		});
 
 		this.dbConnection.subscribeMessage(fromAdapterID);

@@ -237,6 +237,8 @@ class TestHarness extends events_1.EventEmitter {
             type: "instance",
             common: {},
             native: {},
+            instanceObjects: [],
+            objects: [],
         });
         this.dbConnection.subscribeMessage(fromAdapterID);
     }

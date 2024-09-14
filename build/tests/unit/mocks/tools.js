@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.stubAndPromisifyImplementedMethods = exports.doResetBehavior = exports.doResetHistory = void 0;
+exports.doResetHistory = doResetHistory;
+exports.doResetBehavior = doResetBehavior;
+exports.stubAndPromisifyImplementedMethods = stubAndPromisifyImplementedMethods;
 const async_1 = require("alcalzone-shared/async");
 const sinon_1 = require("sinon");
 function doResetHistory(parent) {
@@ -10,7 +12,6 @@ function doResetHistory(parent) {
             val.resetHistory();
     }
 }
-exports.doResetHistory = doResetHistory;
 function doResetBehavior(parent, implementedMethods) {
     for (const prop of Object.keys(parent)) {
         if (prop in implementedMethods ||
@@ -21,7 +22,6 @@ function doResetBehavior(parent, implementedMethods) {
             val.resetBehavior();
     }
 }
-exports.doResetBehavior = doResetBehavior;
 function dontOverwriteThis() {
     throw new Error("You must not overwrite the behavior of this stub!");
 }
@@ -54,4 +54,3 @@ function stubAndPromisifyImplementedMethods(parent, implementedMethods, allowUse
         }
     }
 }
-exports.stubAndPromisifyImplementedMethods = stubAndPromisifyImplementedMethods;

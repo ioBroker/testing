@@ -10,6 +10,7 @@ const debug = debugModule("testing:unit:adapterTools");
  * @param adapterDir The directory the adapter resides in
  */
 export function loadNpmPackage(adapterDir: string): Record<string, any> {
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	return require(path.join(adapterDir, "package.json"));
 }
 
@@ -18,6 +19,7 @@ export function loadNpmPackage(adapterDir: string): Record<string, any> {
  * @param adapterDir The directory the adapter resides in
  */
 export function loadIoPackage(adapterDir: string): Record<string, any> {
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	return require(path.join(adapterDir, "io-package.json"));
 }
 
@@ -44,8 +46,8 @@ export async function locateAdapterMainFile(
 		typeof ioPackage.common.main === "string"
 			? ioPackage.common.main
 			: typeof npmPackage.main === "string"
-			? npmPackage.main
-			: "main.js";
+				? npmPackage.main
+				: "main.js";
 
 	let ret = path.join(adapterDir, mainFile);
 	debug(`  => trying ${ret}`);

@@ -26,7 +26,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAdapterDependencies = exports.getAdapterFullName = exports.getAdapterName = exports.getAppName = exports.loadInstanceObjects = exports.loadAdapterCommon = exports.loadAdapterConfig = exports.locateAdapterMainFile = exports.getAdapterExecutionMode = exports.loadIoPackage = exports.loadNpmPackage = void 0;
+exports.loadNpmPackage = loadNpmPackage;
+exports.loadIoPackage = loadIoPackage;
+exports.getAdapterExecutionMode = getAdapterExecutionMode;
+exports.locateAdapterMainFile = locateAdapterMainFile;
+exports.loadAdapterConfig = loadAdapterConfig;
+exports.loadAdapterCommon = loadAdapterCommon;
+exports.loadInstanceObjects = loadInstanceObjects;
+exports.getAppName = getAppName;
+exports.getAdapterName = getAdapterName;
+exports.getAdapterFullName = getAdapterFullName;
+exports.getAdapterDependencies = getAdapterDependencies;
 // Add debug logging for tests
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const debug_1 = __importDefault(require("debug"));
@@ -40,7 +50,6 @@ const debug = (0, debug_1.default)("testing:unit:adapterTools");
 function loadNpmPackage(adapterDir) {
     return require(path.join(adapterDir, "package.json"));
 }
-exports.loadNpmPackage = loadNpmPackage;
 /**
  * Loads an adapter's io-package.json
  * @param adapterDir The directory the adapter resides in
@@ -48,12 +57,10 @@ exports.loadNpmPackage = loadNpmPackage;
 function loadIoPackage(adapterDir) {
     return require(path.join(adapterDir, "io-package.json"));
 }
-exports.loadIoPackage = loadIoPackage;
 function getAdapterExecutionMode(adapterDir) {
     const ioPackage = loadIoPackage(adapterDir);
     return ioPackage.common.mode;
 }
-exports.getAdapterExecutionMode = getAdapterExecutionMode;
 /**
  * Locates an adapter's main file
  * @param adapterDir The directory the adapter resides in
@@ -83,7 +90,6 @@ async function locateAdapterMainFile(adapterDir) {
     }
     throw new Error(`The adapter main file was not found in ${adapterDir}`);
 }
-exports.locateAdapterMainFile = locateAdapterMainFile;
 /**
  * Locates an adapter's config to populate the `adapter.config` object with
  * @param adapterDir The directory the adapter resides in
@@ -92,7 +98,6 @@ function loadAdapterConfig(adapterDir) {
     const ioPackage = loadIoPackage(adapterDir);
     return ioPackage.native || {};
 }
-exports.loadAdapterConfig = loadAdapterConfig;
 /**
  * Loads the adapter's common configuration from `io-package.json`
  * @param adapterDir The directory the adapter resides in
@@ -101,7 +106,6 @@ function loadAdapterCommon(adapterDir) {
     const ioPackage = loadIoPackage(adapterDir);
     return ioPackage.common || {};
 }
-exports.loadAdapterCommon = loadAdapterCommon;
 /**
  * Loads the instanceObjects for an adapter from its `io-package.json`
  * @param adapterDir The directory the adapter resides in
@@ -110,25 +114,21 @@ function loadInstanceObjects(adapterDir) {
     const ioPackage = loadIoPackage(adapterDir);
     return ioPackage.instanceObjects || [];
 }
-exports.loadInstanceObjects = loadInstanceObjects;
 /** Returns the branded name of "iobroker" */
 function getAppName(adapterDir) {
     const npmPackage = loadNpmPackage(adapterDir);
     return npmPackage.name.split(".")[0] || "iobroker";
 }
-exports.getAppName = getAppName;
 /** Returns the name of an adapter without the prefix */
 function getAdapterName(adapterDir) {
     const ioPackage = loadIoPackage(adapterDir);
     return ioPackage.common.name;
 }
-exports.getAdapterName = getAdapterName;
 /** Returns the full name of an adapter, including the prefix */
 function getAdapterFullName(adapterDir) {
     const npmPackage = loadNpmPackage(adapterDir);
     return npmPackage.name;
 }
-exports.getAdapterFullName = getAdapterFullName;
 /** Reads other ioBroker modules this adapter depends on from io-package.json */
 function getAdapterDependencies(adapterDir) {
     const ioPackage = loadIoPackage(adapterDir);
@@ -147,4 +147,3 @@ function getAdapterDependencies(adapterDir) {
     }
     return ret;
 }
-exports.getAdapterDependencies = getAdapterDependencies;

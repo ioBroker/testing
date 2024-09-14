@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createLogger = void 0;
+exports.createLogger = createLogger;
 var LoglevelOrder;
 (function (LoglevelOrder) {
     LoglevelOrder[LoglevelOrder["error"] = 0] = "error";
@@ -22,4 +22,3 @@ function createLogger(loglevel) {
         level: loglevel,
     };
 }
-exports.createLogger = createLogger;

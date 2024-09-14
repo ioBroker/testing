@@ -50,7 +50,7 @@ export function executeCommand(
 	return new Promise((resolve) => {
 		let args: string[] | undefined;
 		if (isArray(argsOrOptions)) {
-			args = argsOrOptions;
+			args = argsOrOptions as string[];
 		} else if (isObject(argsOrOptions)) {
 			// no args were given
 			options = argsOrOptions;
@@ -116,7 +116,7 @@ export function executeCommand(
 					bufferedStderr! += chunk;
 				});
 			}
-		} catch (e) {
+		} catch {
 			// doesn't matter, we return the exit code in the "close" handler
 		}
 	});

@@ -1,5 +1,3 @@
-/// <reference types="iobroker" />
-/// <reference types="mocha" />
 import { TestHarness } from "./lib/harness";
 export interface TestAdapterOptions {
     allowedExitCodes?: (number | string)[];
