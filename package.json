@@ -43,7 +43,7 @@
     "@alcalzone/release-script-plugin-license": "^3.7.0",
     "@eslint/js": "^9.11.1",
     "@eslint/eslintrc": "^3.1.0",
-    "@iobroker/adapter-core": "^3.1.6",
+    "@iobroker/adapter-core": "^3.2.1",
     "@iobroker/types": "^6.0.11",
     "@tsconfig/node14": "^14.1.2",
     "@types/chai": "^4.3.19",
