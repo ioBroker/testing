@@ -2,7 +2,7 @@
 
 This repo provides utilities for testing of ioBroker adapters and other ioBroker-related modules. It supports:
 
--   **Unit tests** using mocks (without a running JS-Controller)
+-   **Unit tests** using mocks (without a running JS-Controller) **deprecated** and no longer used
 -   **Integration tests** that test against a running JS-Controller instance.
 
 The unit tests are realized using the following tools that are provided by this module:
