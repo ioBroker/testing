@@ -1,5 +1,5 @@
-import { createAdapterMock } from "../mocks/mockAdapter";
-import { MockDatabase } from "../mocks/mockDatabase";
+import { createAdapterMock } from '../mocks/mockAdapter';
+import { MockDatabase } from '../mocks/mockDatabase';
 
 /**
  * Creates a new set of mocks, including a mock database and a mock adapter.
@@ -7,13 +7,10 @@ import { MockDatabase } from "../mocks/mockDatabase";
  */
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function createMocks(adapterOptions: Partial<ioBroker.AdapterOptions>) {
-	const databaseMock = new MockDatabase();
-	const adapterMock = createAdapterMock.bind(undefined)(
-		databaseMock,
-		adapterOptions,
-	);
-	return {
-		database: databaseMock,
-		adapter: adapterMock,
-	};
+    const databaseMock = new MockDatabase();
+    const adapterMock = createAdapterMock.bind(undefined)(databaseMock, adapterOptions);
+    return {
+        database: databaseMock,
+        adapter: adapterMock,
+    };
 }

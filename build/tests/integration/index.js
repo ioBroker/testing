@@ -15,16 +15,25 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.testAdapter = testAdapter;
-const async_1 = require("alcalzone-shared/async");
 const os = __importStar(require("os"));
 const path = __importStar(require("path"));
 const adapterTools_1 = require("../../lib/adapterTools");
@@ -52,7 +61,7 @@ function testAdapter(adapterDir, options = {}) {
         const oneMinute = 60000;
         this.timeout(30 * oneMinute);
         if (await controllerSetup.isJsControllerRunning()) {
-            throw new Error("JS-Controller is already running! Stop it for the first test run and try again!");
+            throw new Error('JS-Controller is already running! Stop it for the first test run and try again!');
         }
         const adapterSetup = new adapterSetup_1.AdapterSetup(adapterDir, testDir);
         // Installation happens in two steps:
@@ -62,7 +71,7 @@ function testAdapter(adapterDir, options = {}) {
         // Only then we can install the adapter, because some (including VIS) try to access
         // the databases if JS Controller is installed
         await adapterSetup.installAdapterInTestDir();
-        const dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)(options.loglevel ?? "debug"));
+        const dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)(options.loglevel ?? 'debug'));
         await dbConnection.start();
         controllerSetup.setupSystemConfig(dbConnection);
         await controllerSetup.disableAdminInstances(dbConnection);
@@ -70,8 +79,7 @@ function testAdapter(adapterDir, options = {}) {
         await adapterSetup.addAdapterInstance();
         await dbConnection.stop();
         // Create a copy of the databases that we can restore later
-        ({ objects: objectsBackup, states: statesBackup } =
-            await dbConnection.backup());
+        ({ objects: objectsBackup, states: statesBackup } = await dbConnection.backup());
     }
     async function shutdownTests() {
         // Stopping the processes may take a while
@@ -82,7 +90,7 @@ function testAdapter(adapterDir, options = {}) {
     }
     async function resetDbAndStartHarness() {
         this.timeout(30000);
-        dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)(options.loglevel ?? "debug"));
+        dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)(options.loglevel ?? 'debug'));
         // Clean up before every single test
         await Promise.all([
             controllerSetup.clearDBDir(),
@@ -96,7 +104,7 @@ function testAdapter(adapterDir, options = {}) {
         await harness.changeAdapterConfig(adapterName, {
             common: {
                 enabled: true,
-                loglevel: options.loglevel ?? "debug",
+                loglevel: options.loglevel ?? 'debug',
             },
         });
         // And enable the sendTo emulation
@@ -104,60 +112,52 @@ function testAdapter(adapterDir, options = {}) {
     }
     describe(`Adapter integration tests`, () => {
         before(prepareTests);
-        describe("Adapter startup", () => {
+        describe('Adapter startup', () => {
             beforeEach(resetDbAndStartHarness);
             afterEach(shutdownTests);
-            it("The adapter starts", function () {
+            it('The adapter starts', function () {
                 this.timeout(60000);
                 const allowedExitCodes = new Set(options.allowedExitCodes ?? []);
                 // Adapters with these modes are allowed to "immediately" exit with code 0
                 switch (harness.getAdapterExecutionMode()) {
-                    case "schedule":
-                    case "once":
+                    case 'schedule':
+                    case 'once':
                     // @ts-expect-error subscribe was deprecated
-                    case "subscribe":
+                    case 'subscribe':
                         allowedExitCodes.add(0);
                 }
                 return new Promise((resolve, reject) => {
                     // Register a handler to check the alive state and exit codes
                     harness
-                        .on("stateChange", async (id, state) => {
-                        if (id ===
-                            `system.adapter.${adapterName}.0.alive` &&
-                            state &&
-                            state.val === true) {
+                        .on('stateChange', async (id, state) => {
+                        if (id === `system.adapter.${adapterName}.0.alive` && state && state.val === true) {
                             // Wait a bit so we can catch errors that do not happen immediately
-                            await (0, async_1.wait)(options.waitBeforeStartupSuccess !=
-                                undefined
+                            await new Promise(resolve => setTimeout(resolve, options.waitBeforeStartupSuccess !== undefined
                                 ? options.waitBeforeStartupSuccess
-                                : 5000);
+                                : 5000));
                             resolve(`The adapter started successfully.`);
                         }
                     })
-                        .on("failed", (code) => {
+                        .on('failed', code => {
                         if (!allowedExitCodes.has(code)) {
-                            reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === "number"
-                                ? "code"
-                                : "signal"} ${code}`));
+                            reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === 'number' ? 'code' : 'signal'} ${code}`));
                         }
                         else {
                             // This was a valid exit code
-                            resolve(`The expected ${typeof code === "number"
-                                ? "exit code"
-                                : "signal"} ${code} was received.`);
+                            resolve(`The expected ${typeof code === 'number' ? 'exit code' : 'signal'} ${code} was received.`);
                         }
                     });
                     harness.startAdapter();
-                }).then((msg) => console.log(msg));
+                }).then(msg => console.log(msg));
             });
         });
         // Call the user's tests
-        if (typeof options.defineAdditionalTests === "function") {
+        if (typeof options.defineAdditionalTests === 'function') {
             const originalIt = global.it;
             // Ensure no it() gets called outside of a suite()
             function assertSuite() {
                 if (!isInSuite) {
-                    throw new Error("In user-defined adapter tests, it() must NOT be called outside of a suite()");
+                    throw new Error('In user-defined adapter tests, it() must NOT be called outside of a suite()');
                 }
             }
             const patchedIt = new Proxy(originalIt, {
@@ -170,7 +170,7 @@ function testAdapter(adapterDir, options = {}) {
                     return target[propKey];
                 },
             });
-            describe("User-defined tests", () => {
+            describe('User-defined tests', () => {
                 // patch the global it() function so nobody can bypass the checks
                 global.it = patchedIt;
                 // a test suite is a special describe which sets up and tears down the test environment before and after ALL tests

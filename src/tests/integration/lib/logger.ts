@@ -1,22 +1,21 @@
 enum LoglevelOrder {
-	"error",
-	"warn",
-	"info",
-	"debug",
-	"silly",
+    'error',
+    'warn',
+    'info',
+    'debug',
+    'silly',
 }
 
 export function createLogger(loglevel: ioBroker.LogLevel): ioBroker.Logger {
-	const loglevelNumeric =
-		LoglevelOrder[loglevel ?? "debug"] ?? LoglevelOrder.debug;
+    const loglevelNumeric = LoglevelOrder[loglevel ?? 'debug'] ?? LoglevelOrder.debug;
 
-	const ignore = (): void => {};
-	return {
-		error: loglevelNumeric >= LoglevelOrder.error ? console.error : ignore,
-		warn: loglevelNumeric >= LoglevelOrder.warn ? console.warn : ignore,
-		info: loglevelNumeric >= LoglevelOrder.info ? console.log : ignore,
-		debug: loglevelNumeric >= LoglevelOrder.debug ? console.log : ignore,
-		silly: loglevelNumeric >= LoglevelOrder.silly ? console.log : ignore,
-		level: loglevel,
-	};
+    const ignore = (): void => {};
+    return {
+        error: loglevelNumeric >= LoglevelOrder.error ? console.error : ignore,
+        warn: loglevelNumeric >= LoglevelOrder.warn ? console.warn : ignore,
+        info: loglevelNumeric >= LoglevelOrder.info ? console.log : ignore,
+        debug: loglevelNumeric >= LoglevelOrder.debug ? console.log : ignore,
+        silly: loglevelNumeric >= LoglevelOrder.silly ? console.log : ignore,
+        level: loglevel,
+    };
 }

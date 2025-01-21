@@ -1,5 +1,5 @@
-import * as path from "path";
-import { getAdapterFullName } from "../../../lib/adapterTools";
+import * as path from 'path';
+import { getAdapterFullName } from '../../../lib/adapterTools';
 
 /**
  * Locates the directory where JS-Controller is installed for integration tests
@@ -7,7 +7,7 @@ import { getAdapterFullName } from "../../../lib/adapterTools";
  * @param testDir The directory the integration tests are executed in
  */
 export function getTestControllerDir(appName: string, testDir: string): string {
-	return path.resolve(testDir, "node_modules", `${appName}.js-controller`);
+    return path.resolve(testDir, 'node_modules', `${appName}.js-controller`);
 }
 
 /**
@@ -16,7 +16,7 @@ export function getTestControllerDir(appName: string, testDir: string): string {
  * @param testDir The directory the integration tests are executed in
  */
 export function getTestDataDir(appName: string, testDir: string): string {
-	return path.resolve(testDir, `${appName}-data`);
+    return path.resolve(testDir, `${appName}-data`);
 }
 
 /**
@@ -25,7 +25,7 @@ export function getTestDataDir(appName: string, testDir: string): string {
  * @param testDir The directory the integration tests are executed in
  */
 export function getTestLogDir(appName: string, testDir: string): string {
-	return path.resolve(testDir, "log");
+    return path.resolve(testDir, 'log');
 }
 
 /**
@@ -34,7 +34,7 @@ export function getTestLogDir(appName: string, testDir: string): string {
  * @param testDir The directory the integration tests are executed in
  */
 export function getTestDBDir(appName: string, testDir: string): string {
-	return path.resolve(getTestDataDir(appName, testDir), "sqlite");
+    return path.resolve(getTestDataDir(appName, testDir), 'sqlite');
 }
 
 /**
@@ -43,6 +43,6 @@ export function getTestDBDir(appName: string, testDir: string): string {
  * @param testDir The directory the integration tests are executed in
  */
 export function getTestAdapterDir(adapterDir: string, testDir: string): string {
-	const adapterName = getAdapterFullName(adapterDir);
-	return path.resolve(testDir, "node_modules", adapterName);
+    const adapterName = getAdapterFullName(adapterDir);
+    return path.resolve(testDir, 'node_modules', adapterName);
 }

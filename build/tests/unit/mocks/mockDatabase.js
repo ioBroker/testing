@@ -2,12 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MockDatabase = void 0;
 exports.createAsserts = createAsserts;
+// @ts-expect-error no types
 const objects_1 = require("alcalzone-shared/objects");
-const typeguards_1 = require("alcalzone-shared/typeguards");
 const str2regex_1 = require("../../../lib/str2regex");
 const objectTemplate = Object.freeze({
-    type: "state",
-    common: { name: "an object" },
+    type: 'state',
+    common: { name: 'an object' },
     native: {},
 });
 const stateTemplate = Object.freeze({
@@ -34,9 +34,9 @@ class MockDatabase {
     }
     publishObject(obj) {
         if (obj._id == null)
-            throw new Error("An object must have an ID");
+            throw new Error('An object must have an ID');
         if (obj.type == null)
-            throw new Error("An object must have a type");
+            throw new Error('An object must have a type');
         const completeObject = (0, objects_1.extend)({}, objectTemplate, obj);
         this.objects.set(obj._id, completeObject);
     }
@@ -44,22 +44,16 @@ class MockDatabase {
         objects.forEach(this.publishObject.bind(this));
     }
     publishStateObjects(...objects) {
-        objects
-            .map((obj) => (0, objects_1.extend)({}, obj, { type: "state" }))
-            .forEach(this.publishObject.bind(this));
+        objects.map(obj => (0, objects_1.extend)({}, obj, { type: 'state' })).forEach(this.publishObject.bind(this));
     }
     publishChannelObjects(...objects) {
-        objects
-            .map((obj) => (0, objects_1.extend)({}, obj, { type: "channel" }))
-            .forEach(this.publishObject.bind(this));
+        objects.map(obj => (0, objects_1.extend)({}, obj, { type: 'channel' })).forEach(this.publishObject.bind(this));
     }
     publishDeviceObjects(...objects) {
-        objects
-            .map((obj) => (0, objects_1.extend)({}, obj, { type: "device" }))
-            .forEach(this.publishObject.bind(this));
+        objects.map(obj => (0, objects_1.extend)({}, obj, { type: 'device' })).forEach(this.publishObject.bind(this));
     }
     deleteObject(objOrID) {
-        this.objects.delete(typeof objOrID === "string" ? objOrID : objOrID._id);
+        this.objects.delete(typeof objOrID === 'string' ? objOrID : objOrID._id);
     }
     publishState(id, state) {
         // if (typeof id !== "string") throw new Error("The id must be given!");
@@ -79,37 +73,36 @@ class MockDatabase {
         }
     }
     hasObject(namespaceOrId, id) {
-        id = namespaceOrId + (id ? "." + id : "");
+        id = namespaceOrId + (id ? '.' + id : '');
         return this.objects.has(id);
     }
     getObject(namespaceOrId, id) {
         // combines getObject and getForeignObject into one
-        id = namespaceOrId + (id ? "." + id : "");
+        id = namespaceOrId + (id ? '.' + id : '');
         return this.objects.get(id);
     }
     hasState(namespaceOrId, id) {
-        id = namespaceOrId + (id ? "." + id : "");
+        id = namespaceOrId + (id ? '.' + id : '');
         return this.states.has(id);
     }
     getState(namespaceOrId, id) {
         // combines getObject and getForeignObject into one
-        id = namespaceOrId + (id ? "." + id : "");
+        id = namespaceOrId + (id ? '.' + id : '');
         return this.states.get(id);
     }
     getObjects(namespaceOrPattern, patternOrType, type) {
         // combines getObjects and getForeignObjects into one
         let pattern;
         if (type != null) {
-            pattern =
-                namespaceOrPattern + (patternOrType ? "." + patternOrType : "");
+            pattern = namespaceOrPattern + (patternOrType ? '.' + patternOrType : '');
         }
         else if (patternOrType != null) {
-            if (["state", "channel", "device"].indexOf(patternOrType) > -1) {
+            if (['state', 'channel', 'device'].indexOf(patternOrType) > -1) {
                 type = patternOrType;
                 pattern = namespaceOrPattern;
             }
             else {
-                pattern = namespaceOrPattern + "." + patternOrType;
+                pattern = namespaceOrPattern + '.' + patternOrType;
             }
         }
         else {
@@ -140,11 +133,12 @@ exports.MockDatabase = MockDatabase;
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function createAsserts(db, adapter) {
     function normalizeID(id) {
-        if ((0, typeguards_1.isArray)(id))
-            id = id.join(".");
+        if (Array.isArray(id)) {
+            id = id.join('.');
+        }
         // Test if this ID is fully qualified
         if (!/^[a-z0-9\-_]+\.\d+\./.test(id)) {
-            id = adapter.namespace + "." + id;
+            id = `${adapter.namespace}.${id}`;
         }
         return id;
     }
@@ -158,31 +152,29 @@ function createAsserts(db, adapter) {
             db.hasState(id).should.equal(true, `The state "${adapter.namespace}.${id}" does not exist but it was expected to!`);
         },
         assertStateHasValue(id, value) {
-            ret.assertStateProperty(id, "val", value);
+            ret.assertStateProperty(id, 'val', value);
         },
         assertStateIsAcked(id, ack = true) {
-            ret.assertStateProperty(id, "ack", ack);
+            ret.assertStateProperty(id, 'ack', ack);
         },
         assertStateProperty(id, property, value) {
             id = normalizeID(id);
             ret.assertStateExists(id);
-            db.getState(id)
-                .should.be.an("object")
-                .that.has.property(property, value);
+            db.getState(id).should.be.an('object').that.has.property(property, value);
         },
         assertObjectCommon(id, common) {
             id = normalizeID(id);
             ret.assertObjectExists(id);
             const dbObj = db.getObject(id);
-            dbObj.should.be.an("object").that.has.property("common");
-            dbObj.common.should.be.an("object").that.nested.include(common);
+            dbObj.should.be.an('object').that.has.property('common');
+            dbObj.common.should.be.an('object').that.nested.include(common);
         },
         assertObjectNative(id, native) {
             id = normalizeID(id);
             ret.assertObjectExists(id);
             const dbObj = db.getObject(id);
-            dbObj.should.be.an("object").that.has.property("native");
-            dbObj.native.should.be.an("object").that.nested.include(native);
+            dbObj.should.be.an('object').that.has.property('native');
+            dbObj.native.should.be.an('object').that.nested.include(native);
         },
     };
     return ret;

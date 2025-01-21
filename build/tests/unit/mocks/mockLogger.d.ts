@@ -1,4 +1,4 @@
-import { Mock } from "./tools";
+import { Mock } from './tools';
 export type MockLogger = Mock<ioBroker.Logger> & {
     resetMock(): void;
     resetMockHistory(): void;

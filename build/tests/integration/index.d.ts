@@ -1,4 +1,4 @@
-import { TestHarness } from "./lib/harness";
+import { TestHarness } from './lib/harness';
 export interface TestAdapterOptions {
     allowedExitCodes?: (number | string)[];
     /** The loglevel to use for DB and adapter related logs */

@@ -1,5 +1,5 @@
-const utils = require("@iobroker/adapter-core");
+const utils = require('@iobroker/adapter-core');
 
 module.exports = {
-	controllerDir: utils.controllerDir,
+    controllerDir: utils.controllerDir,
 };

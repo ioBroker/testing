@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createAdapterMock = createAdapterMock;
+// @ts-expect-error no types
 const objects_1 = require("alcalzone-shared/objects");
 const sinon_1 = require("sinon");
 const mockLogger_1 = require("./mockLogger");
@@ -8,79 +9,79 @@ const tools_1 = require("./tools");
 // Define here which methods were implemented manually, so we can hook them up with a real stub
 // The value describes if and how the async version of the callback is constructed
 const implementedMethods = {
-    getObject: "normal",
-    setObject: "normal",
-    setObjectNotExists: "normal",
-    extendObject: "normal",
-    getForeignObject: "normal",
-    getForeignObjects: "normal",
-    setForeignObject: "normal",
-    setForeignObjectNotExists: "normal",
-    extendForeignObject: "normal",
-    getState: "normal",
-    getStates: "normal",
-    setState: "normal",
-    setStateChanged: "normal",
-    delState: "normal",
-    getForeignState: "normal",
-    setForeignState: "normal",
-    setForeignStateChanged: "normal",
-    subscribeStates: "normal",
-    subscribeForeignStates: "normal",
-    subscribeObjects: "normal",
-    subscribeForeignObjects: "normal",
-    getAdapterObjects: "no error",
-    getObjectView: "normal",
-    getObjectList: "normal",
-    on: "none",
-    removeListener: "none",
-    removeAllListeners: "none",
-    terminate: "none",
-    getPort: "no error",
-    checkPassword: "no error",
-    setPassword: "normal",
-    checkGroup: "no error",
-    calculatePermissions: "no error",
-    getCertificates: "normal",
-    sendTo: "no error",
-    sendToHost: "no error",
-    getHistory: "normal",
+    getObject: 'normal',
+    setObject: 'normal',
+    setObjectNotExists: 'normal',
+    extendObject: 'normal',
+    getForeignObject: 'normal',
+    getForeignObjects: 'normal',
+    setForeignObject: 'normal',
+    setForeignObjectNotExists: 'normal',
+    extendForeignObject: 'normal',
+    getState: 'normal',
+    getStates: 'normal',
+    setState: 'normal',
+    setStateChanged: 'normal',
+    delState: 'normal',
+    getForeignState: 'normal',
+    setForeignState: 'normal',
+    setForeignStateChanged: 'normal',
+    subscribeStates: 'normal',
+    subscribeForeignStates: 'normal',
+    subscribeObjects: 'normal',
+    subscribeForeignObjects: 'normal',
+    getAdapterObjects: 'no error',
+    getObjectView: 'normal',
+    getObjectList: 'normal',
+    on: 'none',
+    removeListener: 'none',
+    removeAllListeners: 'none',
+    terminate: 'none',
+    getPort: 'no error',
+    checkPassword: 'no error',
+    setPassword: 'normal',
+    checkGroup: 'no error',
+    calculatePermissions: 'no error',
+    getCertificates: 'normal',
+    sendTo: 'no error',
+    sendToHost: 'no error',
+    getHistory: 'normal',
     // @ts-expect-error This method was deprecated
-    setBinaryState: "normal",
-    getBinaryState: "normal",
-    getEnum: "normal",
-    getEnums: "normal",
-    addChannelToEnum: "normal",
-    deleteChannelFromEnum: "normal",
-    addStateToEnum: "normal",
-    deleteStateFromEnum: "normal",
-    createDevice: "normal",
-    deleteDevice: "normal",
-    createChannel: "normal",
-    deleteChannel: "normal",
-    createState: "normal",
-    deleteState: "normal",
-    getDevices: "normal",
-    getChannelsOf: "normal",
-    getStatesOf: "normal",
-    readDir: "normal",
-    mkDir: "normal",
-    readFile: "normal",
-    writeFile: "normal",
-    delFile: "normal",
-    unlink: "normal",
-    rename: "normal",
-    chmodFile: "normal",
+    setBinaryState: 'normal',
+    getBinaryState: 'normal',
+    getEnum: 'normal',
+    getEnums: 'normal',
+    addChannelToEnum: 'normal',
+    deleteChannelFromEnum: 'normal',
+    addStateToEnum: 'normal',
+    deleteStateFromEnum: 'normal',
+    createDevice: 'normal',
+    deleteDevice: 'normal',
+    createChannel: 'normal',
+    deleteChannel: 'normal',
+    createState: 'normal',
+    deleteState: 'normal',
+    getDevices: 'normal',
+    getChannelsOf: 'normal',
+    getStatesOf: 'normal',
+    readDir: 'normal',
+    mkDir: 'normal',
+    readFile: 'normal',
+    writeFile: 'normal',
+    delFile: 'normal',
+    unlink: 'normal',
+    rename: 'normal',
+    chmodFile: 'normal',
 };
 function getCallback(...args) {
     const lastArg = args[args.length - 1];
-    if (typeof lastArg === "function")
+    if (typeof lastArg === 'function')
         return lastArg;
 }
 /** Stub implementation which can be promisified */
 const asyncEnabledStub = ((...args) => {
     const callback = getCallback(...args);
-    if (typeof callback === "function")
+    if (typeof callback === 'function')
         callback();
 });
 /**
@@ -90,18 +91,18 @@ function createAdapterMock(db, options = {}) {
     // In order to support ES6-style adapters with inheritance, we need to work on the instance directly
     const ret = this || {};
     Object.assign(ret, {
-        name: options.name || "test",
-        host: "testhost",
+        name: options.name || 'test',
+        host: 'testhost',
         instance: options.instance || 0,
-        namespace: `${options.name || "test"}.${options.instance || 0}`,
+        namespace: `${options.name || 'test'}.${options.instance || 0}`,
         config: options.config || {},
         common: {},
         systemConfig: null,
-        adapterDir: "",
+        adapterDir: '',
         ioPack: {},
         pack: {},
         log: (0, mockLogger_1.createLoggerMock)(),
-        version: "any",
+        version: 'any',
         connected: true,
         getPort: asyncEnabledStub,
         stop: (0, sinon_1.stub)(),
@@ -115,14 +116,14 @@ function createAdapterMock(db, options = {}) {
         idToDCS: (0, sinon_1.stub)(),
         getObject: ((id, ...args) => {
             if (!id.startsWith(ret.namespace))
-                id = ret.namespace + "." + id;
+                id = ret.namespace + '.' + id;
             const callback = getCallback(...args);
             if (callback)
                 callback(null, db.getObject(id));
         }),
         setObject: ((id, obj, ...args) => {
             if (!id.startsWith(ret.namespace))
-                id = ret.namespace + "." + id;
+                id = ret.namespace + '.' + id;
             obj._id = id;
             db.publishObject(obj);
             const callback = getCallback(...args);
@@ -131,7 +132,7 @@ function createAdapterMock(db, options = {}) {
         }),
         setObjectNotExists: ((id, obj, ...args) => {
             if (!id.startsWith(ret.namespace))
-                id = ret.namespace + "." + id;
+                id = ret.namespace + '.' + id;
             const callback = getCallback(...args);
             if (db.hasObject(id)) {
                 if (callback)
@@ -145,19 +146,19 @@ function createAdapterMock(db, options = {}) {
             callback(db.getObjects(`${ret.namespace}.*`));
         }),
         getObjectView: ((design, search, { startkey, endkey }, ...args) => {
-            if (design !== "system") {
-                throw new Error("If you want to use a custom design for getObjectView, you need to mock it yourself!");
+            if (design !== 'system') {
+                throw new Error('If you want to use a custom design for getObjectView, you need to mock it yourself!');
             }
             const callback = getCallback(...args);
-            if (typeof callback === "function") {
-                let objects = (0, objects_1.values)(db.getObjects("*"));
-                objects = objects.filter((obj) => obj.type === search);
+            if (typeof callback === 'function') {
+                let objects = (0, objects_1.values)(db.getObjects('*'));
+                objects = objects.filter(obj => obj.type === search);
                 if (startkey)
-                    objects = objects.filter((obj) => obj._id >= startkey);
+                    objects = objects.filter(obj => obj._id >= startkey);
                 if (endkey)
-                    objects = objects.filter((obj) => obj._id <= endkey);
+                    objects = objects.filter(obj => obj._id <= endkey);
                 callback(null, {
-                    rows: objects.map((obj) => ({
+                    rows: objects.map(obj => ({
                         id: obj._id,
                         value: obj,
                     })),
@@ -166,16 +167,19 @@ function createAdapterMock(db, options = {}) {
         }),
         getObjectList: (({ startkey, endkey, include_docs, }, ...args) => {
             const callback = getCallback(...args);
-            if (typeof callback === "function") {
-                let objects = (0, objects_1.values)(db.getObjects("*"));
-                if (startkey)
-                    objects = objects.filter((obj) => obj._id >= startkey);
-                if (endkey)
-                    objects = objects.filter((obj) => obj._id <= endkey);
-                if (!include_docs)
-                    objects = objects.filter((obj) => !obj._id.startsWith("_"));
+            if (typeof callback === 'function') {
+                let objects = (0, objects_1.values)(db.getObjects('*'));
+                if (startkey) {
+                    objects = objects.filter(obj => obj._id >= startkey);
+                }
+                if (endkey) {
+                    objects = objects.filter(obj => obj._id <= endkey);
+                }
+                if (!include_docs) {
+                    objects = objects.filter(obj => !obj._id.startsWith('_'));
+                }
                 callback(null, {
-                    rows: objects.map((obj) => ({
+                    rows: objects.map(obj => ({
                         id: obj._id,
                         value: obj,
                         doc: obj,
@@ -185,7 +189,7 @@ function createAdapterMock(db, options = {}) {
         }),
         extendObject: ((id, obj, ...args) => {
             if (!id.startsWith(ret.namespace))
-                id = ret.namespace + "." + id;
+                id = ret.namespace + '.' + id;
             const existing = db.getObject(id) || {};
             const target = (0, objects_1.extend)({}, existing, obj);
             target._id = id;
@@ -196,7 +200,7 @@ function createAdapterMock(db, options = {}) {
         }),
         delObject: ((id, ...args) => {
             if (!id.startsWith(ret.namespace))
-                id = ret.namespace + "." + id;
+                id = ret.namespace + '.' + id;
             db.deleteObject(id);
             const callback = getCallback(...args);
             if (callback)
@@ -208,9 +212,7 @@ function createAdapterMock(db, options = {}) {
                 callback(null, db.getObject(id));
         }),
         getForeignObjects: ((pattern, ...args) => {
-            const type = typeof args[0] === "string"
-                ? args[0]
-                : undefined;
+            const type = typeof args[0] === 'string' ? args[0] : undefined;
             const callback = getCallback(...args);
             if (callback)
                 callback(null, db.getObjects(pattern, type));
@@ -251,14 +253,14 @@ function createAdapterMock(db, options = {}) {
         setState: ((id, state, ...args) => {
             const callback = getCallback(...args);
             if (!id.startsWith(ret.namespace))
-                id = ret.namespace + "." + id;
+                id = ret.namespace + '.' + id;
             let ack;
-            if (state != null && typeof state === "object") {
+            if (state != null && typeof state === 'object') {
                 ack = !!state.ack;
                 state = state.val;
             }
             else {
-                ack = typeof args[0] === "boolean" ? args[0] : false;
+                ack = typeof args[0] === 'boolean' ? args[0] : false;
             }
             db.publishState(id, { val: state, ack });
             if (callback)
@@ -267,15 +269,15 @@ function createAdapterMock(db, options = {}) {
         setStateChanged: ((id, state, ...args) => {
             const callback = getCallback(...args);
             let ack;
-            if (state != null && typeof state === "object") {
+            if (state != null && typeof state === 'object') {
                 ack = !!state.ack;
                 state = state.val;
             }
             else {
-                ack = typeof args[0] === "boolean" ? args[0] : false;
+                ack = typeof args[0] === 'boolean' ? args[0] : false;
             }
             if (!id.startsWith(ret.namespace))
-                id = ret.namespace + "." + id;
+                id = ret.namespace + '.' + id;
             if (!db.hasState(id) || db.getState(id).val !== state) {
                 db.publishState(id, { val: state, ack });
             }
@@ -285,12 +287,12 @@ function createAdapterMock(db, options = {}) {
         setForeignState: ((id, state, ...args) => {
             const callback = getCallback(...args);
             let ack;
-            if (state != null && typeof state === "object") {
+            if (state != null && typeof state === 'object') {
                 ack = !!state.ack;
                 state = state.val;
             }
             else {
-                ack = typeof args[0] === "boolean" ? args[0] : false;
+                ack = typeof args[0] === 'boolean' ? args[0] : false;
             }
             db.publishState(id, { val: state, ack });
             if (callback)
@@ -299,12 +301,12 @@ function createAdapterMock(db, options = {}) {
         setForeignStateChanged: ((id, state, ...args) => {
             const callback = getCallback(...args);
             let ack;
-            if (state != null && typeof state === "object") {
+            if (state != null && typeof state === 'object') {
                 ack = !!state.ack;
                 state = state.val;
             }
             else {
-                ack = typeof args[0] === "boolean" ? args[0] : false;
+                ack = typeof args[0] === 'boolean' ? args[0] : false;
             }
             if (!db.hasState(id) || db.getState(id).val !== state) {
                 db.publishState(id, { val: state, ack });
@@ -314,7 +316,7 @@ function createAdapterMock(db, options = {}) {
         }),
         getState: ((id, ...args) => {
             if (!id.startsWith(ret.namespace))
-                id = ret.namespace + "." + id;
+                id = ret.namespace + '.' + id;
             const callback = getCallback(...args);
             if (callback)
                 callback(null, db.getState(id));
@@ -326,7 +328,7 @@ function createAdapterMock(db, options = {}) {
         }),
         getStates: ((pattern, ...args) => {
             if (!pattern.startsWith(ret.namespace))
-                pattern = ret.namespace + "." + pattern;
+                pattern = ret.namespace + '.' + pattern;
             const callback = getCallback(...args);
             if (callback)
                 callback(null, db.getStates(pattern));
@@ -338,7 +340,7 @@ function createAdapterMock(db, options = {}) {
         }),
         delState: ((id, ...args) => {
             if (!id.startsWith(ret.namespace))
-                id = ret.namespace + "." + id;
+                id = ret.namespace + '.' + id;
             db.deleteState(id);
             const callback = getCallback(...args);
             if (callback)
@@ -388,16 +390,16 @@ function createAdapterMock(db, options = {}) {
         formatValue: (0, sinon_1.stub)(),
         formatDate: (0, sinon_1.stub)(),
         terminate: ((reason, exitCode) => {
-            if (typeof reason === "number") {
+            if (typeof reason === 'number') {
                 // Only the exit code was passed
                 exitCode = reason;
                 reason = undefined;
             }
-            const errorMessage = `Adapter.terminate was called${typeof exitCode === "number" ? ` (exit code ${exitCode})` : ""}: ${reason ? reason : "Without reason"}`;
+            const errorMessage = `Adapter.terminate was called${typeof exitCode === 'number' ? ` (exit code ${exitCode})` : ''}: ${reason ? reason : 'Without reason'}`;
             // Terminates execution by
             const err = new Error(errorMessage);
             // @ts-expect-error I'm too lazy to add terminateReason to the error type
-            err.terminateReason = reason || "no reason given!";
+            err.terminateReason = reason || 'no reason given!';
             throw err;
         }),
         supportsFeature: (0, sinon_1.stub)(),
@@ -407,19 +409,19 @@ function createAdapterMock(db, options = {}) {
         on: ((event, handler) => {
             // Remember the event handlers so we can call them on demand
             switch (event) {
-                case "ready":
+                case 'ready':
                     ret.readyHandler = handler;
                     break;
-                case "message":
+                case 'message':
                     ret.messageHandler = handler;
                     break;
-                case "objectChange":
+                case 'objectChange':
                     ret.objectChangeHandler = handler;
                     break;
-                case "stateChange":
+                case 'stateChange':
                     ret.stateChangeHandler = handler;
                     break;
-                case "unload":
+                case 'unload':
                     ret.unloadHandler = handler;
                     break;
             }
@@ -428,38 +430,38 @@ function createAdapterMock(db, options = {}) {
         removeListener: ((event, _listener) => {
             // TODO This is not entirely correct
             switch (event) {
-                case "ready":
+                case 'ready':
                     ret.readyHandler = undefined;
                     break;
-                case "message":
+                case 'message':
                     ret.messageHandler = undefined;
                     break;
-                case "objectChange":
+                case 'objectChange':
                     ret.objectChangeHandler = undefined;
                     break;
-                case "stateChange":
+                case 'stateChange':
                     ret.stateChangeHandler = undefined;
                     break;
-                case "unload":
+                case 'unload':
                     ret.unloadHandler = undefined;
                     break;
             }
             return ret;
         }),
         removeAllListeners: ((event) => {
-            if (!event || event === "ready") {
+            if (!event || event === 'ready') {
                 ret.readyHandler = undefined;
             }
-            if (!event || event === "message") {
+            if (!event || event === 'message') {
                 ret.messageHandler = undefined;
             }
-            if (!event || event === "objectChange") {
+            if (!event || event === 'objectChange') {
                 ret.objectChangeHandler = undefined;
             }
-            if (!event || event === "stateChange") {
+            if (!event || event === 'stateChange') {
                 ret.stateChangeHandler = undefined;
             }
-            if (!event || event === "unload") {
+            if (!event || event === 'unload') {
                 ret.unloadHandler = undefined;
             }
             return ret;
@@ -480,10 +482,7 @@ function createAdapterMock(db, options = {}) {
             ret.resetMockBehavior();
         },
     });
-    (0, tools_1.stubAndPromisifyImplementedMethods)(ret, implementedMethods, [
-        "getObjectView",
-        "getObjectList",
-    ]);
+    (0, tools_1.stubAndPromisifyImplementedMethods)(ret, implementedMethods, ['getObjectView', 'getObjectList']);
     // Access the options object directly, so we can react to later changes
     Object.defineProperties(ret, {
         readyHandler: {

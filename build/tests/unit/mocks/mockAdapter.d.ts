@@ -1,6 +1,6 @@
-import type { MockDatabase } from "./mockDatabase";
-import { MockLogger } from "./mockLogger";
-import { Mock } from "./tools";
+import type { MockDatabase } from './mockDatabase';
+import { MockLogger } from './mockLogger';
+import { Mock } from './tools';
 export type MockAdapter = Mock<ioBroker.Adapter> & {
     readyHandler: ioBroker.ReadyHandler | undefined;
     objectChangeHandler: ioBroker.ObjectChangeHandler | undefined;

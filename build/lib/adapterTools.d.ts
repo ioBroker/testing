@@ -8,7 +8,7 @@ export declare function loadNpmPackage(adapterDir: string): Record<string, any>;
  * @param adapterDir The directory the adapter resides in
  */
 export declare function loadIoPackage(adapterDir: string): Record<string, any>;
-export declare function getAdapterExecutionMode(adapterDir: string): ioBroker.AdapterCommon["mode"];
+export declare function getAdapterExecutionMode(adapterDir: string): ioBroker.AdapterCommon['mode'];
 /**
  * Locates an adapter's main file
  * @param adapterDir The directory the adapter resides in

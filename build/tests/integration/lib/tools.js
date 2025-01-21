@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTestControllerDir = getTestControllerDir;
 exports.getTestDataDir = getTestDataDir;
@@ -36,7 +46,7 @@ const adapterTools_1 = require("../../../lib/adapterTools");
  * @param testDir The directory the integration tests are executed in
  */
 function getTestControllerDir(appName, testDir) {
-    return path.resolve(testDir, "node_modules", `${appName}.js-controller`);
+    return path.resolve(testDir, 'node_modules', `${appName}.js-controller`);
 }
 /**
  * Locates the directory where JS-Controller stores its data for integration tests
@@ -52,7 +62,7 @@ function getTestDataDir(appName, testDir) {
  * @param testDir The directory the integration tests are executed in
  */
 function getTestLogDir(appName, testDir) {
-    return path.resolve(testDir, "log");
+    return path.resolve(testDir, 'log');
 }
 /**
  * Locates the directory where JS-Controller stores its sqlite db during integration tests
@@ -60,7 +70,7 @@ function getTestLogDir(appName, testDir) {
  * @param testDir The directory the integration tests are executed in
  */
 function getTestDBDir(appName, testDir) {
-    return path.resolve(getTestDataDir(appName, testDir), "sqlite");
+    return path.resolve(getTestDataDir(appName, testDir), 'sqlite');
 }
 /**
  * Locates the directory where the adapter will be be stored for integration tests
@@ -69,5 +79,5 @@ function getTestDBDir(appName, testDir) {
  */
 function getTestAdapterDir(adapterDir, testDir) {
     const adapterName = (0, adapterTools_1.getAdapterFullName)(adapterDir);
-    return path.resolve(testDir, "node_modules", adapterName);
+    return path.resolve(testDir, 'node_modules', adapterName);
 }

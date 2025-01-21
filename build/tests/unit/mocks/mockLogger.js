@@ -16,7 +16,7 @@ function createLoggerMock() {
         error: (0, sinon_1.stub)(),
         debug: (0, sinon_1.stub)(),
         silly: (0, sinon_1.stub)(),
-        level: "info",
+        level: 'info',
         // Mock-specific methods
         resetMockHistory() {
             // reset Logger

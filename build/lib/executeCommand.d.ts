@@ -6,9 +6,9 @@ export interface ExecuteCommandOptions {
     /** Where to redirect the stdin. Default: process.stdin */
     stdin: NodeJS.ReadStream;
     /** A write stream to redirect the stdout, "ignore" to ignore it or "pipe" to return it as a string. Default: process.stdout */
-    stdout: NodeJS.WriteStream | "pipe" | "ignore";
+    stdout: NodeJS.WriteStream | 'pipe' | 'ignore';
     /** A write stream to redirect the stderr, "ignore" to ignore it or "pipe" to return it as a string. Default: process.stderr */
-    stderr: NodeJS.WriteStream | "pipe" | "ignore";
+    stderr: NodeJS.WriteStream | 'pipe' | 'ignore';
 }
 export interface ExecuteCommandResult {
     /** The exit code of the spawned process */

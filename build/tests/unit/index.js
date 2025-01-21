@@ -9,12 +9,12 @@ exports.testAdapterWithMocks = testAdapterWithMocks;
 function testAdapterWithMocks(_adapterDir, options = {}) {
     describe(`Unit tests`, async () => {
         // Call the user's tests
-        if (typeof options.defineAdditionalTests === "function") {
+        if (typeof options.defineAdditionalTests === 'function') {
             options.defineAdditionalTests();
         }
         else {
-            it("DEPRECATED!", () => {
-                console.warn("\u001b[33mUnit tests for adapter startup are deprecated!");
+            it('DEPRECATED!', () => {
+                console.warn('\u001b[33mUnit tests for adapter startup are deprecated!');
                 console.warn(`If you do not define your own tests, you can remove the "test:unit" script`);
                 console.warn(`from package.json and from your Travis/Github Actions workflow.\u001b[0m`);
             });

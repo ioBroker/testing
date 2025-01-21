@@ -1,9 +1,9 @@
-import EventEmitter from "events";
+import EventEmitter from 'events';
 export type ObjectsDB = Record<string, ioBroker.Object>;
 export type StatesDB = Record<string, ioBroker.State>;
 export interface DBConnection {
-    on(event: "objectChange", handler: ioBroker.ObjectChangeHandler): this;
-    on(event: "stateChange", handler: ioBroker.StateChangeHandler): this;
+    on(event: 'objectChange', handler: ioBroker.ObjectChangeHandler): this;
+    on(event: 'stateChange', handler: ioBroker.StateChangeHandler): this;
 }
 /** The DB connection capsules access to the states and objects DB */
 export declare class DBConnection extends EventEmitter {
@@ -25,9 +25,9 @@ export declare class DBConnection extends EventEmitter {
     private _statesClient;
     /** The underlying states client instance that can be used to access the states DB */
     get statesClient(): any;
-    get objectsType(): "file" | "jsonl";
+    get objectsType(): 'file' | 'jsonl';
     get objectsPath(): string;
-    get statesType(): "file" | "jsonl";
+    get statesType(): 'file' | 'jsonl';
     get statesPath(): string;
     getSystemConfig(): any;
     backup(): Promise<{
@@ -44,15 +44,15 @@ export declare class DBConnection extends EventEmitter {
     private createObjectsDB;
     /** Creates the states DB and sets up listeners for it */
     private createStatesDB;
-    readonly getObject: ioBroker.Adapter["getForeignObjectAsync"];
-    readonly setObject: ioBroker.Adapter["setForeignObjectAsync"];
-    readonly delObject: ioBroker.Adapter["delForeignObjectAsync"];
-    readonly getState: ioBroker.Adapter["getForeignStateAsync"];
-    readonly setState: ioBroker.Adapter["setForeignStateAsync"];
-    readonly delState: ioBroker.Adapter["delForeignStateAsync"];
+    readonly getObject: ioBroker.Adapter['getForeignObjectAsync'];
+    readonly setObject: ioBroker.Adapter['setForeignObjectAsync'];
+    readonly delObject: ioBroker.Adapter['delForeignObjectAsync'];
+    readonly getState: ioBroker.Adapter['getForeignStateAsync'];
+    readonly setState: ioBroker.Adapter['setForeignStateAsync'];
+    readonly delState: ioBroker.Adapter['delForeignStateAsync'];
     subscribeMessage(id: string): void;
     pushMessage(instanceId: string, msg: any, callback: (err: Error | null, id: any) => void): void;
-    readonly getObjectViewAsync: ioBroker.Adapter["getObjectViewAsync"];
+    readonly getObjectViewAsync: ioBroker.Adapter['getObjectViewAsync'];
     getStateIDs(pattern?: string): Promise<string[]>;
     getObjectIDs(pattern?: string): Promise<string[]>;
 }

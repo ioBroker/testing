@@ -15,13 +15,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -38,24 +48,27 @@ exports.getAdapterName = getAdapterName;
 exports.getAdapterFullName = getAdapterFullName;
 exports.getAdapterDependencies = getAdapterDependencies;
 // Add debug logging for tests
+// @ts-expect-error no types
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = require("fs-extra");
 const path = __importStar(require("path"));
-const debug = (0, debug_1.default)("testing:unit:adapterTools");
+const debug = (0, debug_1.default)('testing:unit:adapterTools');
 /**
  * Loads an adapter's package.json
  * @param adapterDir The directory the adapter resides in
  */
 function loadNpmPackage(adapterDir) {
-    return require(path.join(adapterDir, "package.json"));
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require(path.join(adapterDir, 'package.json'));
 }
 /**
  * Loads an adapter's io-package.json
  * @param adapterDir The directory the adapter resides in
  */
 function loadIoPackage(adapterDir) {
-    return require(path.join(adapterDir, "io-package.json"));
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require(path.join(adapterDir, 'io-package.json'));
 }
 function getAdapterExecutionMode(adapterDir) {
     const ioPackage = loadIoPackage(adapterDir);
@@ -70,11 +83,11 @@ async function locateAdapterMainFile(adapterDir) {
     const ioPackage = loadIoPackage(adapterDir);
     const npmPackage = loadNpmPackage(adapterDir);
     // First look for the file defined in io-package.json or package.json or use "main.js" as a fallback
-    const mainFile = typeof ioPackage.common.main === "string"
+    const mainFile = typeof ioPackage.common.main === 'string'
         ? ioPackage.common.main
-        : typeof npmPackage.main === "string"
+        : typeof npmPackage.main === 'string'
             ? npmPackage.main
-            : "main.js";
+            : 'main.js';
     let ret = path.join(adapterDir, mainFile);
     debug(`  => trying ${ret}`);
     if (await (0, fs_extra_1.pathExists)(ret)) {
@@ -82,7 +95,7 @@ async function locateAdapterMainFile(adapterDir) {
         return ret;
     }
     // If both don't exist, JS-Controller uses <adapter name>.js as another fallback
-    ret = path.join(adapterDir, ioPackage.common.name + ".js");
+    ret = path.join(adapterDir, ioPackage.common.name + '.js');
     debug(`  => trying ${ret}`);
     if (await (0, fs_extra_1.pathExists)(ret)) {
         debug(`  => found ${mainFile}`);
@@ -117,7 +130,7 @@ function loadInstanceObjects(adapterDir) {
 /** Returns the branded name of "iobroker" */
 function getAppName(adapterDir) {
     const npmPackage = loadNpmPackage(adapterDir);
-    return npmPackage.name.split(".")[0] || "iobroker";
+    return npmPackage.name.split('.')[0] || 'iobroker';
 }
 /** Returns the name of an adapter without the prefix */
 function getAdapterName(adapterDir) {
@@ -135,13 +148,13 @@ function getAdapterDependencies(adapterDir) {
     const ret = {};
     if ((0, typeguards_1.isArray)(ioPackage.common.dependencies)) {
         for (const dep of ioPackage.common.dependencies) {
-            if (typeof dep === "string") {
-                ret[dep] = "latest";
+            if (typeof dep === 'string') {
+                ret[dep] = 'latest';
             }
             else if ((0, typeguards_1.isObject)(dep)) {
                 const key = Object.keys(dep)[0];
                 if (key)
-                    ret[key] = dep[key] || "latest";
+                    ret[key] = dep[key] || 'latest';
             }
         }
     }

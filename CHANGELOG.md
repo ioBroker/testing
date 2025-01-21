@@ -2,8 +2,11 @@
 
 <!--
 	PLACEHOLDER for the next version:
-	## __WORK IN PROGRESS__
+	## **WORK IN PROGRESS**
 -->
+## **WORK IN PROGRESS**
+* Packages were updated
+
 ## 5.0.0 (2024-09-14)
 * Types were migrated to '@iobroker/types' from '@types/iobroker'
 

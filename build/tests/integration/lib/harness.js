@@ -15,20 +15,31 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TestHarness = void 0;
-/* eslint-disable @typescript-eslint/no-inferrable-types */
+// @ts-expect-error no types
 const async_1 = require("alcalzone-shared/async");
+// @ts-expect-error no types
 const objects_1 = require("alcalzone-shared/objects");
 const child_process_1 = require("child_process");
 const debug_1 = __importDefault(require("debug"));
@@ -36,9 +47,9 @@ const events_1 = require("events");
 const path = __importStar(require("path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
 const tools_1 = require("./tools");
-const debug = (0, debug_1.default)("testing:integration:TestHarness");
+const debug = (0, debug_1.default)('testing:integration:TestHarness');
 const isWindows = /^win/.test(process.platform);
-const fromAdapterID = "system.adapter.test.0";
+const fromAdapterID = 'system.adapter.test.0';
 /**
  * The test harness capsules the execution of the JS-Controller and the adapter instance and monitors their status.
  * Use it in every test to start a fresh adapter instance
@@ -54,7 +65,7 @@ class TestHarness extends events_1.EventEmitter {
         this.testDir = testDir;
         this.dbConnection = dbConnection;
         this.sendToID = 1;
-        debug("Creating instance");
+        debug('Creating instance');
         this.adapterName = (0, adapterTools_1.getAdapterName)(this.adapterDir);
         this.appName = (0, adapterTools_1.getAppName)(adapterDir);
         this.testControllerDir = (0, tools_1.getTestControllerDir)(this.appName, testDir);
@@ -64,24 +75,24 @@ class TestHarness extends events_1.EventEmitter {
         debug(`    adapter:    ${this.testAdapterDir}`);
         debug(`  appName:           ${this.appName}`);
         debug(`  adapterName:       ${this.adapterName}`);
-        dbConnection.on("objectChange", (id, obj) => {
-            this.emit("objectChange", id, obj);
+        dbConnection.on('objectChange', (id, obj) => {
+            this.emit('objectChange', id, obj);
         });
-        dbConnection.on("stateChange", (id, state) => {
-            this.emit("stateChange", id, state);
+        dbConnection.on('stateChange', (id, state) => {
+            this.emit('stateChange', id, state);
         });
     }
     /** Gives direct access to the Objects DB */
     get objects() {
         if (!this.dbConnection.objectsClient) {
-            throw new Error("Objects DB is not running");
+            throw new Error('Objects DB is not running');
         }
         return this.dbConnection.objectsClient;
     }
     /** Gives direct access to the States DB */
     get states() {
         if (!this.dbConnection.statesClient) {
-            throw new Error("States DB is not running");
+            throw new Error('States DB is not running');
         }
         return this.dbConnection.statesClient;
     }
@@ -108,27 +119,28 @@ class TestHarness extends events_1.EventEmitter {
         if (!this.isControllerRunning())
             return;
         if (!this.didAdapterStop()) {
-            debug("Stopping adapter instance...");
+            debug('Stopping adapter instance...');
             // Give the adapter time to stop (as long as configured in the io-package.json)
             let stopTimeout;
             try {
-                stopTimeout = (await this.dbConnection.getObject(`system.adapter.${this.adapterName}.0`)).common.stopTimeout;
+                stopTimeout = (await this.dbConnection.getObject(`system.adapter.${this.adapterName}.0`))
+                    .common.stopTimeout;
                 stopTimeout += 1000;
             }
             catch { }
-            stopTimeout || (stopTimeout = 5000); // default 5s
+            stopTimeout ||= 5000; // default 5s
             debug(`  => giving it ${stopTimeout}ms to terminate`);
             await Promise.race([this.stopAdapter(), (0, async_1.wait)(stopTimeout)]);
             if (this.isAdapterRunning()) {
-                debug("Adapter did not terminate, killing it");
-                this._adapterProcess.kill("SIGKILL");
+                debug('Adapter did not terminate, killing it');
+                this._adapterProcess.kill('SIGKILL');
             }
             else {
-                debug("Adapter terminated");
+                debug('Adapter terminated');
             }
         }
         else {
-            debug("Adapter failed to start - no need to terminate!");
+            debug('Adapter failed to start - no need to terminate!');
         }
         await this.dbConnection.stop();
     }
@@ -138,23 +150,23 @@ class TestHarness extends events_1.EventEmitter {
      */
     async startAdapter(env = {}) {
         if (this.isAdapterRunning())
-            throw new Error("The adapter is already running!");
+            throw new Error('The adapter is already running!');
         else if (this.didAdapterStop())
-            throw new Error("This test harness has already been used. Please create a new one for each test!");
+            throw new Error('This test harness has already been used. Please create a new one for each test!');
         const mainFileAbsolute = await (0, adapterTools_1.locateAdapterMainFile)(this.testAdapterDir);
         const mainFileRelative = path.relative(this.testAdapterDir, mainFileAbsolute);
         const onClose = (code, signal) => {
             this._adapterProcess.removeAllListeners();
             this._adapterExit = code != undefined ? code : signal;
-            this.emit("failed", this._adapterExit);
+            this.emit('failed', this._adapterExit);
         };
-        this._adapterProcess = (0, child_process_1.spawn)(isWindows ? "node.exe" : "node", [mainFileRelative, "--console"], {
+        this._adapterProcess = (0, child_process_1.spawn)(isWindows ? 'node.exe' : 'node', [mainFileRelative, '--console'], {
             cwd: this.testAdapterDir,
-            stdio: ["inherit", "inherit", "inherit"],
+            stdio: ['inherit', 'inherit', 'inherit'],
             env: { ...process.env, ...env },
         })
-            .on("close", onClose)
-            .on("exit", onClose);
+            .on('close', onClose)
+            .on('exit', onClose);
     }
     /**
      * Starts the adapter in a separate process and resolves after it has started
@@ -166,13 +178,13 @@ class TestHarness extends events_1.EventEmitter {
             const waitForStateId = waitForConnection
                 ? `${this.adapterName}.0.info.connection`
                 : `system.adapter.${this.adapterName}.0.alive`;
-            this.on("stateChange", async (id, state) => {
+            this.on('stateChange', async (id, state) => {
                 if (id === waitForStateId && state && state.val === true) {
                     resolve();
                 }
             })
-                .on("failed", (code) => {
-                reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === "number" ? "code" : "signal"} ${code}`));
+                .on('failed', code => {
+                reject(new Error(`The adapter startup was interrupted unexpectedly with ${typeof code === 'number' ? 'code' : 'signal'} ${code}`));
             })
                 .startAdapter(env);
         });
@@ -196,24 +208,22 @@ class TestHarness extends events_1.EventEmitter {
                 this._adapterProcess.removeAllListeners();
                 this._adapterExit = code != undefined ? code : signal;
                 this._adapterProcess = undefined;
-                debug("Adapter process terminated:");
+                debug('Adapter process terminated:');
                 debug(`  Code:   ${code}`);
                 debug(`  Signal: ${signal}`);
                 resolve();
             };
-            this._adapterProcess.removeAllListeners()
-                .on("close", onClose)
-                .on("exit", onClose);
+            this._adapterProcess.removeAllListeners().on('close', onClose).on('exit', onClose);
             // Tell adapter to stop
             try {
                 await this.dbConnection.setState(`system.adapter.${this.adapterName}.0.sigKill`, {
                     val: -1,
-                    from: "system.host.testing",
+                    from: 'system.host.testing',
                 });
             }
             catch {
                 // DB connection may be closed already, kill the process
-                this._adapterProcess?.kill("SIGTERM");
+                this._adapterProcess?.kill('SIGTERM');
             }
         });
     }
@@ -234,7 +244,7 @@ class TestHarness extends events_1.EventEmitter {
     /** Enables the sendTo method */
     async enableSendTo() {
         await this.dbConnection.setObject(fromAdapterID, {
-            type: "instance",
+            type: 'instance',
             common: {},
             native: {},
             instanceObjects: [],
@@ -247,10 +257,10 @@ class TestHarness extends events_1.EventEmitter {
         const stateChangedHandler = (id, state) => {
             if (id === `messagebox.${fromAdapterID}`) {
                 callback(state.message);
-                this.removeListener("stateChange", stateChangedHandler);
+                this.removeListener('stateChange', stateChangedHandler);
             }
         };
-        this.addListener("stateChange", stateChangedHandler);
+        this.addListener('stateChange', stateChangedHandler);
         this.dbConnection.pushMessage(`system.adapter.${target}`, {
             command: command,
             message: message,
@@ -261,7 +271,7 @@ class TestHarness extends events_1.EventEmitter {
                 ack: false,
                 time: Date.now(),
             },
-        }, (err, id) => console.log("published message " + id));
+        }, (err, id) => console.log('published message ' + id));
     }
 }
 exports.TestHarness = TestHarness;

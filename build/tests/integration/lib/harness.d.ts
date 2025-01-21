@@ -1,10 +1,10 @@
-import { ChildProcess } from "child_process";
-import { EventEmitter } from "events";
-import type { DBConnection } from "./dbConnection";
+import { ChildProcess } from 'child_process';
+import { EventEmitter } from 'events';
+import type { DBConnection } from './dbConnection';
 export interface TestHarness {
-    on(event: "objectChange", handler: ioBroker.ObjectChangeHandler): this;
-    on(event: "stateChange", handler: ioBroker.StateChangeHandler): this;
-    on(event: "failed", handler: (codeOrSignal: number | string) => void): this;
+    on(event: 'objectChange', handler: ioBroker.ObjectChangeHandler): this;
+    on(event: 'stateChange', handler: ioBroker.StateChangeHandler): this;
+    on(event: 'failed', handler: (codeOrSignal: number | string) => void): this;
 }
 /**
  * The test harness capsules the execution of the JS-Controller and the adapter instance and monitors their status.
@@ -60,7 +60,7 @@ export declare class TestHarness extends EventEmitter {
      * Updates the adapter config. The changes can be a subset of the target object
      */
     changeAdapterConfig(adapterName: string, changes: Record<string, any>): Promise<void>;
-    getAdapterExecutionMode(): ioBroker.AdapterCommon["mode"];
+    getAdapterExecutionMode(): ioBroker.AdapterCommon['mode'];
     /** Enables the sendTo method */
     enableSendTo(): Promise<void>;
     private sendToID;

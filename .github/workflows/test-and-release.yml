@@ -3,114 +3,114 @@ name: Test and Release
 # Run this job on all pushes and pull requests
 # as well as tags with a semantic version
 on:
-  push:
-    branches:
-      - "*"
-    tags:
-      # normal versions
-      - "v[0-9]+.[0-9]+.[0-9]+"
-      # pre-releases
-      - "v[0-9]+.[0-9]+.[0-9]+-**"
-  pull_request: {}
+    push:
+        branches:
+            - '*'
+        tags:
+            # normal versions
+            - 'v[0-9]+.[0-9]+.[0-9]+'
+            # pre-releases
+            - 'v[0-9]+.[0-9]+.[0-9]+-**'
+    pull_request: {}
 
 jobs:
-  # Performs quick checks before the expensive test runs
-  check-and-lint:
-    if: contains(github.event.head_commit.message, '[skip ci]') == false
+    # Performs quick checks before the expensive test runs
+    check-and-lint:
+        if: contains(github.event.head_commit.message, '[skip ci]') == false
 
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.x] # This should be LTS
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [20.x] # This should be LTS
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+            - name: Install dependencies
+              run: npm ci
 
-      - name: Perform a type check
-        run: npm run check
-        env:
-          CI: true
+            - name: Perform a type check
+              run: npm run check
+              env:
+                  CI: true
 
-      - name: Lint TypeScript code
-        run: npm run lint
+            - name: Lint TypeScript code
+              run: npm run lint
 
-  # ===================
+    # ===================
 
-  # Runs unit tests on all supported node versions and OSes
-  unit-tests:
-    if: contains(github.event.head_commit.message, '[skip ci]') == false
+    # Runs unit tests on all supported node versions and OSes
+    unit-tests:
+        if: contains(github.event.head_commit.message, '[skip ci]') == false
 
-    needs: [check-and-lint]
+        needs: [check-and-lint]
 
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x, 22.x]
-        os: [ubuntu-latest]
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                node-version: [18.x, 20.x, 22.x]
+                os: [ubuntu-latest]
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+            - name: Install dependencies
+              run: npm ci
 
-      - name: Run component tests
-        run: npm run test
-        env:
-          CI: true
+            - name: Run component tests
+              run: npm run test
+              env:
+                  CI: true
 
-  # ===================
+    # ===================
 
-  # Deploys the final package to NPM
-  deploy:
-    # Trigger this step only when a commit on master is tagged with a version number
-    if: |
-      contains(github.event.head_commit.message, '[skip ci]') == false &&
-      github.event_name == 'push' &&
-      startsWith(github.ref, 'refs/tags/v')
+    # Deploys the final package to NPM
+    deploy:
+        # Trigger this step only when a commit on master is tagged with a version number
+        if: |
+            contains(github.event.head_commit.message, '[skip ci]') == false &&
+            github.event_name == 'push' &&
+            startsWith(github.ref, 'refs/tags/v')
 
-    needs: [unit-tests]
+        needs: [unit-tests]
 
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.x] # This should be LTS
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [20.x] # This should be LTS
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+            - name: Install dependencies
+              run: npm ci
 
-      - name: Create a clean build
-        run: npm run build
+            - name: Create a clean build
+              run: npm run build
 
-      - name: Publish package to npm
-        run: |
-          npm config set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-          npm whoami
-          npm publish
+            - name: Publish package to npm
+              run: |
+                  npm config set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+                  npm whoami
+                  npm publish
