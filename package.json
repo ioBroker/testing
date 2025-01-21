@@ -61,7 +61,7 @@
   "dependencies": {
     "alcalzone-shared": "~5.0.0",
     "chai": "^4.5.0",
-    "chai-as-promised": "^7.1.2",
+    "chai-as-promised": "^8.0.1",
     "debug": "^4.4.0",
     "fs-extra": "^11.3.0",
     "mocha": "^11.0.1",
