@@ -1,5 +1,4 @@
 // Add debug logging for tests
-// @ts-expect-error no types
 import { isArray, isObject } from 'alcalzone-shared/typeguards';
 import debugModule from 'debug';
 import { pathExists } from 'fs-extra';
@@ -8,19 +7,19 @@ const debug = debugModule('testing:unit:adapterTools');
 
 /**
  * Loads an adapter's package.json
+ *
  * @param adapterDir The directory the adapter resides in
  */
 export function loadNpmPackage(adapterDir: string): Record<string, any> {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     return require(path.join(adapterDir, 'package.json'));
 }
 
 /**
  * Loads an adapter's io-package.json
+ *
  * @param adapterDir The directory the adapter resides in
  */
 export function loadIoPackage(adapterDir: string): Record<string, any> {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     return require(path.join(adapterDir, 'io-package.json'));
 }
 
@@ -31,6 +30,7 @@ export function getAdapterExecutionMode(adapterDir: string): ioBroker.AdapterCom
 
 /**
  * Locates an adapter's main file
+ *
  * @param adapterDir The directory the adapter resides in
  */
 export async function locateAdapterMainFile(adapterDir: string): Promise<string> {
@@ -54,7 +54,7 @@ export async function locateAdapterMainFile(adapterDir: string): Promise<string>
     }
 
     // If both don't exist, JS-Controller uses <adapter name>.js as another fallback
-    ret = path.join(adapterDir, ioPackage.common.name + '.js');
+    ret = path.join(adapterDir, `${ioPackage.common.name}.js`);
     debug(`  => trying ${ret}`);
     if (await pathExists(ret)) {
         debug(`  => found ${mainFile}`);
@@ -66,6 +66,7 @@ export async function locateAdapterMainFile(adapterDir: string): Promise<string>
 
 /**
  * Locates an adapter's config to populate the `adapter.config` object with
+ *
  * @param adapterDir The directory the adapter resides in
  */
 export function loadAdapterConfig(adapterDir: string): Record<string, any> {
@@ -75,6 +76,7 @@ export function loadAdapterConfig(adapterDir: string): Record<string, any> {
 
 /**
  * Loads the adapter's common configuration from `io-package.json`
+ *
  * @param adapterDir The directory the adapter resides in
  */
 export function loadAdapterCommon(adapterDir: string): Record<string, any> {
@@ -84,6 +86,7 @@ export function loadAdapterCommon(adapterDir: string): Record<string, any> {
 
 /**
  * Loads the instanceObjects for an adapter from its `io-package.json`
+ *
  * @param adapterDir The directory the adapter resides in
  */
 export function loadInstanceObjects(adapterDir: string): ioBroker.Object[] {
@@ -119,7 +122,9 @@ export function getAdapterDependencies(adapterDir: string): Record<string, strin
                 ret[dep] = 'latest';
             } else if (isObject(dep)) {
                 const key = Object.keys(dep)[0];
-                if (key) ret[key] = (dep as Record<string, string>)[key] || 'latest';
+                if (key) {
+                    ret[key] = (dep as Record<string, string>)[key] || 'latest';
+                }
             }
         }
     }

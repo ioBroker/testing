@@ -23,7 +23,7 @@ export interface TestAdapterOptions {
  * This is meant to be executed in a mocha context.
  */
 export function testAdapterWithMocks(_adapterDir: string, options: TestAdapterOptions = {}): void {
-    describe(`Unit tests`, async () => {
+    describe(`Unit tests`, () => {
         // Call the user's tests
         if (typeof options.defineAdditionalTests === 'function') {
             options.defineAdditionalTests();
@@ -34,5 +34,6 @@ export function testAdapterWithMocks(_adapterDir: string, options: TestAdapterOp
                 console.warn(`from package.json and from your Travis/Github Actions workflow.\u001b[0m`);
             });
         }
+        return Promise.resolve();
     });
 }

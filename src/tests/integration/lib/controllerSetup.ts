@@ -64,7 +64,9 @@ export class ControllerSetup {
 
         // Delete a possible package-lock.json as it can mess with future installations
         const pckLockPath = path.join(this.testDir, 'package-lock.json');
-        if (await pathExists(pckLockPath)) await unlink(pckLockPath);
+        if (await pathExists(pckLockPath)) {
+            await unlink(pckLockPath);
+        }
 
         // Set the engineStrict flag on new Node.js versions to be in line with newer ioBroker installations
         const nodeMajorVersion = parseInt(process.versions.node.split('.')[0], 10);
@@ -80,15 +82,15 @@ export class ControllerSetup {
             cwd: this.testDir,
         });
         // Prepare/clean the databases and config
-        if (wasJsControllerInstalled) await this.setupJsController();
+        if (wasJsControllerInstalled) {
+            await this.setupJsController();
+        }
 
         debug('  => done!');
     }
 
     /**
      * Tests if JS-Controller is already installed
-     * @param appName The branded name of "iobroker"
-     * @param testDir The directory the integration tests are executed in
      */
     async isJsControllerInstalled(): Promise<boolean> {
         debug('Testing if JS-Controller is installed...');
@@ -171,14 +173,14 @@ export class ControllerSetup {
             cwd: this.testControllerDir,
             stdout: 'ignore',
         });
-        if (setupResult.exitCode !== 0) throw new Error(`${this.appName} setup first failed!`);
+        if (setupResult.exitCode !== 0) {
+            throw new Error(`${this.appName} setup first failed!`);
+        }
         debug('  => done!');
     }
 
     /**
      * Changes the objects and states db to use alternative ports
-     * @param appName The branded name of "iobroker"
-     * @param testDir The directory the integration tests are executed in
      */
     public setupSystemConfig(dbConnection: DBConnection): void {
         debug(`Moving databases to different ports...`);
@@ -192,8 +194,6 @@ export class ControllerSetup {
 
     /**
      * Clears the log dir for integration tests (and creates it if it doesn't exist)
-     * @param appName The branded name of "iobroker"
-     * @param testDir The directory the integration tests are executed in
      */
     public clearLogDir(): Promise<void> {
         debug('Cleaning log directory...');
@@ -202,8 +202,6 @@ export class ControllerSetup {
 
     /**
      * Clears the sqlite DB dir for integration tests (and creates it if it doesn't exist)
-     * @param appName The branded name of "iobroker"
-     * @param testDir The directory the integration tests are executed in
      */
     public clearDBDir(): Promise<void> {
         debug('Cleaning SQLite directory...');
@@ -212,7 +210,6 @@ export class ControllerSetup {
 
     /**
      * Disables all admin instances in the objects DB
-     * @param objects The contents of objects.json
      */
     public async disableAdminInstances(dbConnection: DBConnection): Promise<void> {
         debug('Disabling admin instances...');

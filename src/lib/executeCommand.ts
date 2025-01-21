@@ -1,4 +1,4 @@
-import { SpawnOptions, spawn } from 'child_process';
+import { type SpawnOptions, spawn } from 'child_process';
 
 const isWindows = /^win/.test(process.platform);
 
@@ -32,6 +32,7 @@ export function executeCommand(
 ): Promise<ExecuteCommandResult>;
 /**
  * Executes a command and returns the exit code and (if requested) the stdout
+ *
  * @param command The command to execute
  * @param args The command line arguments for the command
  * @param options (optional) Some options for the command execution
@@ -49,19 +50,25 @@ export function executeCommand(
     return new Promise(resolve => {
         let args: string[] | undefined;
         if (Array.isArray(argsOrOptions)) {
-            args = argsOrOptions as string[];
+            args = argsOrOptions;
         } else if (argsOrOptions && typeof argsOrOptions === 'object') {
             // no args were given
             options = argsOrOptions;
         }
-        if (options == null) options = {};
-        if (args == null) args = [];
+        if (options == null) {
+            options = {};
+        }
+        if (args == null) {
+            args = [];
+        }
 
         const spawnOptions: SpawnOptions = {
             stdio: [options.stdin || process.stdin, options.stdout || process.stdout, options.stderr || process.stderr],
             windowsHide: true,
         };
-        if (options.cwd != null) spawnOptions.cwd = options.cwd;
+        if (options.cwd != null) {
+            spawnOptions.cwd = options.cwd;
+        }
 
         // Fix npm / node executable paths on Windows
         if (isWindows) {
@@ -75,9 +82,11 @@ export function executeCommand(
             }
         }
 
-        if (options.logCommandExecution == null) options.logCommandExecution = false;
+        if (options.logCommandExecution == null) {
+            options.logCommandExecution = false;
+        }
         if (options.logCommandExecution) {
-            console.log('executing: ' + `${command} ${args.join(' ')}`);
+            console.log(`executing: ${command} ${args.join(' ')}`);
         }
 
         // Now execute the npm process and avoid throwing errors
@@ -96,14 +105,18 @@ export function executeCommand(
             if (options.stdout === 'pipe') {
                 bufferedStdout = '';
                 cmd.stdout!.on('data', (chunk: Buffer | string) => {
-                    if (Buffer.isBuffer(chunk)) chunk = chunk.toString('utf8');
+                    if (Buffer.isBuffer(chunk)) {
+                        chunk = chunk.toString('utf8');
+                    }
                     bufferedStdout! += chunk;
                 });
             }
             if (options.stderr === 'pipe') {
                 bufferedStderr = '';
                 cmd.stderr!.on('data', (chunk: Buffer | string) => {
-                    if (Buffer.isBuffer(chunk)) chunk = chunk.toString('utf8');
+                    if (Buffer.isBuffer(chunk)) {
+                        chunk = chunk.toString('utf8');
+                    }
                     bufferedStderr! += chunk;
                 });
             }

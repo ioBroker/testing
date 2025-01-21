@@ -150,10 +150,15 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
                 // Adapters with these modes are allowed to "immediately" exit with code 0
                 switch (harness.getAdapterExecutionMode()) {
                     case 'schedule':
+                        allowedExitCodes.add(0);
+                        break;
                     case 'once':
+                        allowedExitCodes.add(0);
+                        break;
                     // @ts-expect-error subscribe was deprecated
                     case 'subscribe':
                         allowedExitCodes.add(0);
+                        break;
                 }
 
                 return new Promise<string>((resolve, reject) => {
@@ -191,7 +196,7 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
                                 );
                             }
                         });
-                    harness.startAdapter();
+                    void harness.startAdapter();
                 }).then(msg => console.log(msg));
             });
         });

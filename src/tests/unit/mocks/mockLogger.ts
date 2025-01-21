@@ -2,8 +2,8 @@ import { stub } from 'sinon';
 import {
     doResetBehavior,
     doResetHistory,
-    ImplementedMethodDictionary,
-    Mock,
+    type ImplementedMethodDictionary,
+    type Mock,
     stubAndPromisifyImplementedMethods,
 } from './tools';
 

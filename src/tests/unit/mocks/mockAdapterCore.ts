@@ -1,6 +1,6 @@
 import * as os from 'os';
 import * as path from 'path';
-import { createAdapterMock, MockAdapter } from './mockAdapter';
+import { createAdapterMock, type MockAdapter } from './mockAdapter';
 import type { MockDatabase } from './mockDatabase';
 
 interface MockAdapterConstructor {
@@ -13,8 +13,17 @@ export interface MockAdapterCoreOptions {
     adapterDir?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export function mockAdapterCore(database: MockDatabase, options: MockAdapterCoreOptions = {}) {
+export function mockAdapterCore(
+    database: MockDatabase,
+    options: MockAdapterCoreOptions = {},
+): {
+    controllerDir: string;
+    getConfig: () => Record<string, any>;
+    Adapter: (this: MockAdapter | void, nameOrOptions: string | ioBroker.AdapterOptions) => MockAdapter;
+    adapter: (this: MockAdapter | void, nameOrOptions: string | ioBroker.AdapterOptions) => MockAdapter;
+    getAbsoluteDefaultDataDir: () => string;
+    getAbsoluteInstanceDataDir: (adapterObject: MockAdapter) => string;
+} {
     /**
      * The root directory of JS-Controller
      * If this has to exist in the test, the user/tester has to take care of it!
@@ -45,11 +54,15 @@ export function mockAdapterCore(database: MockDatabase, options: MockAdapterCore
 
     const AdapterConstructor = function (this: MockAdapter | void, nameOrOptions: string | ioBroker.AdapterOptions) {
         // This needs to be a class with the correct `this` context or the ES6 tests won't work
-        if (!(this instanceof AdapterConstructor)) return new AdapterConstructor(nameOrOptions);
+        if (!(this instanceof AdapterConstructor)) {
+            return new AdapterConstructor(nameOrOptions);
+        }
 
         const createAdapterMockOptions = typeof nameOrOptions === 'string' ? { name: nameOrOptions } : nameOrOptions;
         createAdapterMock.bind(this)(database, createAdapterMockOptions);
-        if (typeof options.onAdapterCreated === 'function') options.onAdapterCreated(this);
+        if (typeof options.onAdapterCreated === 'function') {
+            options.onAdapterCreated(this);
+        }
         return this;
     } as MockAdapterConstructor;
 

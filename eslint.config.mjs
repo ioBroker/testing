@@ -1,93 +1,37 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import js from '@eslint/js';
-import { FlatCompat } from '@eslint/eslintrc';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all,
-});
+import config from '@iobroker/eslint-config';
 
 export default [
+    ...config,
     {
-        ignores: ['**/build/', '**/node_modules/'],
-    },
-    ...compat.extends('plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'),
-    {
-        plugins: {},
-
-        files: ['src/**/*.ts'],
-        linterOptions: {
-            reportUnusedDisableDirectives: true,
-        },
-
-        rules: {
-            '@typescript-eslint/no-unsafe-declaration-merging': 'off',
-            '@typescript-eslint/no-parameter-properties': 'off',
-            '@typescript-eslint/no-explicit-any': 'off',
-
-            '@typescript-eslint/no-use-before-define': [
-                'error',
-                {
-                    functions: false,
-                    typedefs: false,
-                    classes: false,
+        languageOptions: {
+            parserOptions: {
+                projectService: {
+                    allowDefaultProject: ['*.mjs'],
                 },
-            ],
-
-            '@typescript-eslint/no-unused-vars': [
-                'error',
-                {
-                    ignoreRestSiblings: true,
-                    argsIgnorePattern: '^_',
-                },
-            ],
-
-            '@typescript-eslint/explicit-function-return-type': [
-                'warn',
-                {
-                    allowExpressions: true,
-                    allowTypedFunctionExpressions: true,
-                },
-            ],
-
-            '@typescript-eslint/no-object-literal-type-assertion': 'off',
-            '@typescript-eslint/interface-name-prefix': 'off',
-            '@typescript-eslint/no-non-null-assertion': 'off',
-
-            '@typescript-eslint/no-inferrable-types': [
-                'error',
-                {
-                    ignoreParameters: true,
-                    ignoreProperties: true,
-                },
-            ],
+                tsconfigRootDir: import.meta.dirname,
+                project: './tsconfig.json',
+            },
         },
     },
     {
-        files: ['**/*.test.ts'],
-
-        rules: {
-            '@typescript-eslint/explicit-function-return-type': 'off',
-        },
+        ignores: [
+            'src-admin/**/*',
+            'admin/**/*',
+            'node_modules/**/*',
+            'test/**/*',
+            'build/**/*',
+            'tasks.js',
+            'tmp/**/*',
+            '.**/*',
+        ],
     },
     {
-        files: ['**/*.js'],
+        // disable temporary the rule 'jsdoc/require-param' and enable 'jsdoc/require-jsdoc'
         rules: {
-            // Disable all TypeScript-specific rules for JavaScript files
+            'jsdoc/require-jsdoc': 'off',
+            'jsdoc/require-param': 'off',
+
             '@typescript-eslint/no-require-imports': 'off',
-            '@typescript-eslint/no-parameter-properties': 'off',
-            '@typescript-eslint/no-explicit-any': 'off',
-            '@typescript-eslint/no-use-before-define': 'off',
-            '@typescript-eslint/no-unused-vars': 'off',
-            '@typescript-eslint/explicit-function-return-type': 'off',
-            '@typescript-eslint/no-object-literal-type-assertion': 'off',
-            '@typescript-eslint/interface-name-prefix': 'off',
-            '@typescript-eslint/no-non-null-assertion': 'off',
-            '@typescript-eslint/no-inferrable-types': 'off',
         },
     },
 ];

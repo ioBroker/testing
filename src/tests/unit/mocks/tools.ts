@@ -1,6 +1,4 @@
-// @ts-expect-error no types
 import { promisify, promisifyNoError } from 'alcalzone-shared/async';
-// @ts-expect-error no types
 import type { Equals, Overwrite } from 'alcalzone-shared/types';
 import { stub } from 'sinon';
 
@@ -23,15 +21,21 @@ export type Mock<T extends {}> = Overwrite<T, { [K in MockableMethods<T>]: sinon
 export function doResetHistory(parent: Record<string, any>): void {
     for (const prop of Object.keys(parent)) {
         const val = parent[prop];
-        if (val && typeof val.resetHistory === 'function') val.resetHistory();
+        if (val && typeof val.resetHistory === 'function') {
+            val.resetHistory();
+        }
     }
 }
 
 export function doResetBehavior(parent: Record<string, any>, implementedMethods: Record<string, any>): void {
     for (const prop of Object.keys(parent)) {
-        if (prop in implementedMethods || (prop.endsWith('Async') && prop.slice(0, -5) in implementedMethods)) continue;
+        if (prop in implementedMethods || (prop.endsWith('Async') && prop.slice(0, -5) in implementedMethods)) {
+            continue;
+        }
         const val = parent[prop];
-        if (val && typeof val.resetBehavior === 'function') val.resetBehavior();
+        if (val && typeof val.resetBehavior === 'function') {
+            val.resetBehavior();
+        }
     }
 }
 
@@ -47,28 +51,29 @@ export function stubAndPromisifyImplementedMethods<T extends string>(
     // The methods implemented above are no stubs, but we claimed they are
     // Therefore hook them up with a real stub
     for (const methodName of Object.keys(implementedMethods) as T[]) {
-        if (methodName.endsWith('Async')) continue;
+        if (methodName.endsWith('Async')) {
+            continue;
+        }
 
         const originalMethod = parent[methodName];
         const callbackFake = (parent[methodName] = stub());
         callbackFake.callsFake(originalMethod);
         // Prevent the user from changing the stub's behavior
-        if (allowUserOverrides.indexOf(methodName) === -1) {
+        if (!allowUserOverrides.includes(methodName)) {
             callbackFake.returns = dontOverwriteThis;
             callbackFake.callsFake = dontOverwriteThis;
         }
 
         // Construct the async fake if there's any
         const asyncType = implementedMethods[methodName];
-        if (asyncType === 'none') continue;
+        if (asyncType === 'none') {
+            continue;
+        }
         const promisifyMethod = asyncType === 'no error' ? promisifyNoError : promisify;
         const asyncFake = stub().callsFake(promisifyMethod<any>(originalMethod, parent));
         parent[`${methodName}Async` as T] = asyncFake;
         // Prevent the user from changing the stub's behavior
-        if (
-            allowUserOverrides.indexOf(methodName) === -1 ||
-            allowUserOverrides.indexOf((methodName + 'Async') as T) === -1
-        ) {
+        if (!allowUserOverrides.includes(methodName) || !allowUserOverrides.includes(`${methodName}Async` as T)) {
             asyncFake.returns = dontOverwriteThis;
             asyncFake.callsFake = dontOverwriteThis;
         }

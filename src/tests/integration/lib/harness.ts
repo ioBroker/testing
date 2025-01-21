@@ -1,8 +1,6 @@
-// @ts-expect-error no types
 import { wait } from 'alcalzone-shared/async';
-// @ts-expect-error no types
 import { extend } from 'alcalzone-shared/objects';
-import { ChildProcess, spawn } from 'child_process';
+import { type ChildProcess, spawn } from 'child_process';
 import debugModule from 'debug';
 import { EventEmitter } from 'events';
 import * as path from 'path';
@@ -106,7 +104,9 @@ export class TestHarness extends EventEmitter {
 
     /** Stops the controller instance (and the adapter if it is running) */
     public async stopController(): Promise<void> {
-        if (!this.isControllerRunning()) return;
+        if (!this.isControllerRunning()) {
+            return;
+        }
 
         if (!this.didAdapterStop()) {
             debug('Stopping adapter instance...');
@@ -116,7 +116,9 @@ export class TestHarness extends EventEmitter {
                 stopTimeout = ((await this.dbConnection.getObject(`system.adapter.${this.adapterName}.0`)) as any)
                     .common.stopTimeout;
                 stopTimeout += 1000;
-            } catch {}
+            } catch {
+                // ignore
+            }
             stopTimeout ||= 5000; // default 5s
             debug(`  => giving it ${stopTimeout}ms to terminate`);
             await Promise.race([this.stopAdapter(), wait(stopTimeout)]);
@@ -136,12 +138,15 @@ export class TestHarness extends EventEmitter {
 
     /**
      * Starts the adapter in a separate process and monitors its status
+     *
      * @param env Additional environment variables to set
      */
     public async startAdapter(env: NodeJS.ProcessEnv = {}): Promise<void> {
-        if (this.isAdapterRunning()) throw new Error('The adapter is already running!');
-        else if (this.didAdapterStop())
+        if (this.isAdapterRunning()) {
+            throw new Error('The adapter is already running!');
+        } else if (this.didAdapterStop()) {
             throw new Error('This test harness has already been used. Please create a new one for each test!');
+        }
 
         const mainFileAbsolute = await locateAdapterMainFile(this.testAdapterDir);
         const mainFileRelative = path.relative(this.testAdapterDir, mainFileAbsolute);
@@ -163,6 +168,7 @@ export class TestHarness extends EventEmitter {
 
     /**
      * Starts the adapter in a separate process and resolves after it has started
+     *
      * @param waitForConnection By default, the test will wait for the adapter's `alive` state to become true. Set this to `true` to wait for the `info.connection` state instead.
      * @param env Additional environment variables to set
      */
@@ -171,7 +177,7 @@ export class TestHarness extends EventEmitter {
             const waitForStateId = waitForConnection
                 ? `${this.adapterName}.0.info.connection`
                 : `system.adapter.${this.adapterName}.0.alive`;
-            this.on('stateChange', async (id, state) => {
+            void this.on('stateChange', (id, state) => {
                 if (id === waitForStateId && state && state.val === true) {
                     resolve();
                 }
@@ -201,11 +207,16 @@ export class TestHarness extends EventEmitter {
 
     /** Stops the adapter process */
     public stopAdapter(): Promise<void> | undefined {
-        if (!this.isAdapterRunning()) return;
+        if (!this.isAdapterRunning()) {
+            return;
+        }
 
+        // eslint-disable-next-line no-async-promise-executor
         return new Promise<void>(async resolve => {
             const onClose = (code: number | undefined, signal: string): void => {
-                if (!this._adapterProcess) return;
+                if (!this._adapterProcess) {
+                    return;
+                }
                 this._adapterProcess.removeAllListeners();
 
                 this._adapterExit = code != undefined ? code : signal;
@@ -285,7 +296,7 @@ export class TestHarness extends EventEmitter {
                     time: Date.now(),
                 },
             },
-            (err: any, id: any) => console.log('published message ' + id),
+            (err: any, id: any) => console.log(`published message ${id}`),
         );
     }
 }

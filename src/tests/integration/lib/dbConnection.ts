@@ -76,7 +76,9 @@ export class DBConnection extends EventEmitter {
         const objects = await readFile(this.objectsPath);
         const states = await readFile(this.statesPath);
 
-        if (wasRunning) await this.start();
+        if (wasRunning) {
+            await this.start();
+        }
 
         return { objects, states };
     }
@@ -89,7 +91,9 @@ export class DBConnection extends EventEmitter {
         await writeFile(this.objectsPath, objects);
         await writeFile(this.statesPath, states);
 
-        if (wasRunning) await this.start();
+        if (wasRunning) {
+            await this.start();
+        }
     }
 
     public setSystemConfig(systemConfig: any): void {
@@ -160,7 +164,6 @@ export class DBConnection extends EventEmitter {
             paths: [path.join(this.testDir, 'node_modules'), path.join(this.testControllerDir, 'node_modules')],
         });
         debug(`  => objects DB lib found at ${objectsDbPath}`);
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { Server, Client } = require(objectsDbPath);
 
         // First create the server
@@ -212,7 +215,6 @@ export class DBConnection extends EventEmitter {
             paths: [path.join(this.testDir, 'node_modules'), path.join(this.testControllerDir, 'node_modules')],
         });
         debug(`  => states DB lib found at ${statesDbPath}`);
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { Server, Client } = require(statesDbPath);
 
         // First create the server
@@ -240,42 +242,44 @@ export class DBConnection extends EventEmitter {
         debug('  => done!');
     }
 
-    public readonly getObject: ioBroker.Adapter['getForeignObjectAsync'] = async id => {
+    public readonly getObject: ioBroker.Adapter['getForeignObjectAsync'] = id => {
         if (!this._objectsClient) {
             throw new Error('Objects DB is not running');
         }
         return this._objectsClient.getObjectAsync(id);
     };
 
-    public readonly setObject: ioBroker.Adapter['setForeignObjectAsync'] = async (...args) => {
+    public readonly setObject: ioBroker.Adapter['setForeignObjectAsync'] = (...args): ioBroker.SetObjectPromise => {
         if (!this._objectsClient) {
             throw new Error('Objects DB is not running');
         }
         return this._objectsClient.setObjectAsync(...args);
     };
 
-    public readonly delObject: ioBroker.Adapter['delForeignObjectAsync'] = async (...args) => {
+    public readonly delObject: ioBroker.Adapter['delForeignObjectAsync'] = (...args): Promise<void> => {
         if (!this._objectsClient) {
             throw new Error('Objects DB is not running');
         }
         return this._objectsClient.delObjectAsync(...args);
     };
 
-    public readonly getState: ioBroker.Adapter['getForeignStateAsync'] = async id => {
+    public readonly getState: ioBroker.Adapter['getForeignStateAsync'] = (
+        id: string,
+    ): Promise<ioBroker.State | null | undefined> => {
         if (!this._statesClient) {
             throw new Error('States DB is not running');
         }
         return this._statesClient.getStateAsync(id);
     };
 
-    public readonly setState: ioBroker.Adapter['setForeignStateAsync'] = (async (...args: any[]) => {
+    public readonly setState: ioBroker.Adapter['setForeignStateAsync'] = ((...args: any[]): Promise<void> => {
         if (!this._statesClient) {
             throw new Error('States DB is not running');
         }
         return this._statesClient.setStateAsync(...args);
     }) as any;
 
-    public readonly delState: ioBroker.Adapter['delForeignStateAsync'] = async (...args) => {
+    public readonly delState: ioBroker.Adapter['delForeignStateAsync'] = (...args): Promise<void> => {
         if (!this._statesClient) {
             throw new Error('States DB is not running');
         }
@@ -296,21 +300,21 @@ export class DBConnection extends EventEmitter {
         this._statesClient.pushMessage(instanceId, msg, callback);
     }
 
-    public readonly getObjectViewAsync: ioBroker.Adapter['getObjectViewAsync'] = async (...args) => {
+    public readonly getObjectViewAsync: ioBroker.Adapter['getObjectViewAsync'] = (...args) => {
         if (!this._objectsClient) {
             throw new Error('Objects DB is not running');
         }
         return this._objectsClient.getObjectViewAsync(...args);
     };
 
-    public async getStateIDs(pattern = '*'): Promise<string[]> {
+    public getStateIDs(pattern = '*'): Promise<string[]> {
         if (!this._statesClient) {
             throw new Error('States DB is not running');
         }
         return this._statesClient.getKeysAsync?.(pattern) || this._statesClient.getKeys?.(pattern);
     }
 
-    public async getObjectIDs(pattern = '*'): Promise<string[]> {
+    public getObjectIDs(pattern = '*'): Promise<string[]> {
         if (!this._objectsClient) {
             throw new Error('Objects DB is not running');
         }

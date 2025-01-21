@@ -2,12 +2,12 @@
 import { extend, values } from 'alcalzone-shared/objects';
 import { stub } from 'sinon';
 import type { MockDatabase } from './mockDatabase';
-import { createLoggerMock, MockLogger } from './mockLogger';
+import { createLoggerMock, type MockLogger } from './mockLogger';
 import {
     doResetBehavior,
     doResetHistory,
-    ImplementedMethodDictionary,
-    Mock,
+    type ImplementedMethodDictionary,
+    type Mock,
     stubAndPromisifyImplementedMethods,
 } from './tools';
 
@@ -96,13 +96,17 @@ const implementedMethods: ImplementedMethodDictionary<ioBroker.Adapter> = {
 
 function getCallback<T extends (...args: any[]) => any>(...args: any[]): T | undefined {
     const lastArg = args[args.length - 1];
-    if (typeof lastArg === 'function') return lastArg as T;
+    if (typeof lastArg === 'function') {
+        return lastArg as T;
+    }
 }
 
 /** Stub implementation which can be promisified */
 const asyncEnabledStub = ((...args: any[]) => {
     const callback = getCallback(...args);
-    if (typeof callback === 'function') callback();
+    if (typeof callback === 'function') {
+        callback();
+    }
 }) as sinon.SinonStub;
 
 /**
@@ -145,22 +149,34 @@ export function createAdapterMock(
         idToDCS: stub(),
 
         getObject: ((id: string, ...args: any[]) => {
-            if (!id.startsWith(ret.namespace)) id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             const callback = getCallback<ioBroker.GetObjectCallback>(...args);
-            if (callback) callback(null, db.getObject(id));
+            if (callback) {
+                callback(null, db.getObject(id));
+            }
         }) as sinon.SinonStub,
         setObject: ((id: string, obj: ioBroker.Object, ...args: any[]) => {
-            if (!id.startsWith(ret.namespace)) id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             obj._id = id;
             db.publishObject(obj);
             const callback = getCallback<ioBroker.SetObjectCallback>(...args);
-            if (callback) callback(null, { id });
+            if (callback) {
+                callback(null, { id });
+            }
         }) as sinon.SinonStub,
         setObjectNotExists: ((id: string, obj: ioBroker.Object, ...args: any[]) => {
-            if (!id.startsWith(ret.namespace)) id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             const callback = getCallback<ioBroker.SetObjectCallback>(...args);
             if (db.hasObject(id)) {
-                if (callback) callback(null, { id });
+                if (callback) {
+                    callback(null, { id });
+                }
             } else {
                 ret.setObject(id, obj, callback);
             }
@@ -182,8 +198,12 @@ export function createAdapterMock(
             if (typeof callback === 'function') {
                 let objects: ioBroker.Object[] = values(db.getObjects('*'));
                 objects = objects.filter(obj => obj.type === search);
-                if (startkey) objects = objects.filter(obj => obj._id >= startkey);
-                if (endkey) objects = objects.filter(obj => obj._id <= endkey);
+                if (startkey) {
+                    objects = objects.filter(obj => obj._id >= startkey);
+                }
+                if (endkey) {
+                    objects = objects.filter(obj => obj._id <= endkey);
+                }
                 callback(null, {
                     rows: objects.map(obj => ({
                         id: obj._id,
@@ -229,41 +249,57 @@ export function createAdapterMock(
         }) as sinon.SinonStub,
 
         extendObject: ((id: string, obj: ioBroker.PartialObject, ...args: any[]) => {
-            if (!id.startsWith(ret.namespace)) id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             const existing = db.getObject(id) || {};
             const target = extend({}, existing, obj) as ioBroker.Object;
             target._id = id;
             db.publishObject(target);
             const callback = getCallback<ioBroker.ExtendObjectCallback>(...args);
-            if (callback) callback(null, { id: target._id, value: target }, id);
+            if (callback) {
+                callback(null, { id: target._id, value: target }, id);
+            }
         }) as sinon.SinonStub,
         delObject: ((id: string, ...args: any[]) => {
-            if (!id.startsWith(ret.namespace)) id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             db.deleteObject(id);
             const callback = getCallback<ioBroker.ErrorCallback>(...args);
-            if (callback) callback(undefined);
+            if (callback) {
+                callback(undefined);
+            }
         }) as sinon.SinonStub,
 
         getForeignObject: ((id: string, ...args: any[]) => {
             const callback = getCallback<ioBroker.GetObjectCallback>(...args);
-            if (callback) callback(null, db.getObject(id));
+            if (callback) {
+                callback(null, db.getObject(id));
+            }
         }) as sinon.SinonStub,
         getForeignObjects: ((pattern: string, ...args: any[]) => {
             const type: ioBroker.ObjectType | undefined =
                 typeof args[0] === 'string' ? (args[0] as ioBroker.ObjectType) : undefined;
             const callback = getCallback<ioBroker.GetObjectsCallback>(...args);
-            if (callback) callback(null, db.getObjects(pattern, type));
+            if (callback) {
+                callback(null, db.getObjects(pattern, type));
+            }
         }) as sinon.SinonStub,
         setForeignObject: ((id: string, obj: ioBroker.Object, ...args: any[]) => {
             obj._id = id;
             db.publishObject(obj);
             const callback = getCallback<ioBroker.SetObjectCallback>(...args);
-            if (callback) callback(null, { id });
+            if (callback) {
+                callback(null, { id });
+            }
         }) as sinon.SinonStub,
         setForeignObjectNotExists: ((id: string, obj: ioBroker.Object, ...args: any[]) => {
             const callback = getCallback<ioBroker.SetObjectCallback>(...args);
             if (db.hasObject(id)) {
-                if (callback) callback(null, { id });
+                if (callback) {
+                    callback(null, { id });
+                }
             } else {
                 ret.setObject(id, obj, callback);
             }
@@ -274,19 +310,25 @@ export function createAdapterMock(
             target._id = id;
             db.publishObject(target);
             const callback = getCallback<ioBroker.ExtendObjectCallback>(...args);
-            if (callback) callback(null, { id: target._id, value: target }, id);
+            if (callback) {
+                callback(null, { id: target._id, value: target }, id);
+            }
         }) as sinon.SinonStub,
         findForeignObject: stub(),
         delForeignObject: ((id: string, ...args: any[]) => {
             db.deleteObject(id);
             const callback = getCallback<ioBroker.ErrorCallback>(...args);
-            if (callback) callback(undefined);
+            if (callback) {
+                callback(undefined);
+            }
         }) as sinon.SinonStub,
 
         setState: ((id: string, state: any, ...args: any[]) => {
             const callback = getCallback<ioBroker.SetStateCallback>(...args);
 
-            if (!id.startsWith(ret.namespace)) id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
 
             let ack: boolean;
             if (state != null && typeof state === 'object') {
@@ -297,7 +339,9 @@ export function createAdapterMock(
             }
 
             db.publishState(id, { val: state, ack });
-            if (callback) callback(null, id);
+            if (callback) {
+                callback(null, id);
+            }
         }) as sinon.SinonStub,
         setStateChanged: ((id: string, state: any, ...args: any[]) => {
             const callback = getCallback<ioBroker.SetStateCallback>(...args);
@@ -310,11 +354,15 @@ export function createAdapterMock(
                 ack = typeof args[0] === 'boolean' ? args[0] : false;
             }
 
-            if (!id.startsWith(ret.namespace)) id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             if (!db.hasState(id) || db.getState(id)!.val !== state) {
                 db.publishState(id, { val: state, ack });
             }
-            if (callback) callback(null, id);
+            if (callback) {
+                callback(null, id);
+            }
         }) as sinon.SinonStub,
         setForeignState: ((id: string, state: any, ...args: any[]) => {
             const callback = getCallback<ioBroker.SetStateCallback>(...args);
@@ -328,7 +376,9 @@ export function createAdapterMock(
             }
 
             db.publishState(id, { val: state, ack });
-            if (callback) callback(null, id);
+            if (callback) {
+                callback(null, id);
+            }
         }) as sinon.SinonStub,
         setForeignStateChanged: ((id: string, state: any, ...args: any[]) => {
             const callback = getCallback<ioBroker.SetStateCallback>(...args);
@@ -344,38 +394,58 @@ export function createAdapterMock(
             if (!db.hasState(id) || db.getState(id)!.val !== state) {
                 db.publishState(id, { val: state, ack });
             }
-            if (callback) callback(null, id);
+            if (callback) {
+                callback(null, id);
+            }
         }) as sinon.SinonStub,
 
         getState: ((id: string, ...args: any[]) => {
-            if (!id.startsWith(ret.namespace)) id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             const callback = getCallback<ioBroker.GetStateCallback>(...args);
-            if (callback) callback(null, db.getState(id));
+            if (callback) {
+                callback(null, db.getState(id));
+            }
         }) as sinon.SinonStub,
         getForeignState: ((id: string, ...args: any[]) => {
             const callback = getCallback<ioBroker.GetStateCallback>(...args);
-            if (callback) callback(null, db.getState(id));
+            if (callback) {
+                callback(null, db.getState(id));
+            }
         }) as sinon.SinonStub,
         getStates: ((pattern: string, ...args: any[]) => {
-            if (!pattern.startsWith(ret.namespace)) pattern = ret.namespace + '.' + pattern;
+            if (!pattern.startsWith(ret.namespace)) {
+                pattern = `${ret.namespace}.${pattern}`;
+            }
             const callback = getCallback<ioBroker.GetStatesCallback>(...args);
-            if (callback) callback(null, db.getStates(pattern));
+            if (callback) {
+                callback(null, db.getStates(pattern));
+            }
         }) as sinon.SinonStub,
         getForeignStates: ((pattern: string, ...args: any[]) => {
             const callback = getCallback<ioBroker.GetStatesCallback>(...args);
-            if (callback) callback(null, db.getStates(pattern));
+            if (callback) {
+                callback(null, db.getStates(pattern));
+            }
         }) as sinon.SinonStub,
 
         delState: ((id: string, ...args: any[]) => {
-            if (!id.startsWith(ret.namespace)) id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             db.deleteState(id);
             const callback = getCallback<ioBroker.ErrorCallback>(...args);
-            if (callback) callback(undefined);
+            if (callback) {
+                callback(undefined);
+            }
         }) as sinon.SinonStub,
         delForeignState: ((id: string, ...args: any[]) => {
             db.deleteState(id);
             const callback = getCallback<ioBroker.ErrorCallback>(...args);
-            if (callback) callback(undefined);
+            if (callback) {
+                callback(undefined);
+            }
         }) as sinon.SinonStub,
 
         getHistory: asyncEnabledStub,

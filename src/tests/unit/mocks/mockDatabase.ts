@@ -33,8 +33,12 @@ export class MockDatabase {
     }
 
     public publishObject(obj: ioBroker.PartialObject): void {
-        if (obj._id == null) throw new Error('An object must have an ID');
-        if (obj.type == null) throw new Error('An object must have a type');
+        if (obj._id == null) {
+            throw new Error('An object must have an ID');
+        }
+        if (obj.type == null) {
+            throw new Error('An object must have a type');
+        }
 
         const completeObject = extend({}, objectTemplate, obj) as ioBroker.Object;
         this.objects.set(obj._id, completeObject);
@@ -79,7 +83,7 @@ export class MockDatabase {
     public hasObject(id: string): boolean;
     public hasObject(namespace: string, id: string): boolean;
     public hasObject(namespaceOrId: string, id?: string): boolean {
-        id = namespaceOrId + (id ? '.' + id : '');
+        id = namespaceOrId + (id ? `.${id}` : '');
         return this.objects.has(id);
     }
 
@@ -87,14 +91,14 @@ export class MockDatabase {
     public getObject(namespace: string, id: string): ioBroker.Object | undefined;
     public getObject(namespaceOrId: string, id?: string): ioBroker.Object | undefined {
         // combines getObject and getForeignObject into one
-        id = namespaceOrId + (id ? '.' + id : '');
+        id = namespaceOrId + (id ? `.${id}` : '');
         return this.objects.get(id);
     }
 
     public hasState(id: string): boolean;
     public hasState(namespace: string, id: string): boolean;
     public hasState(namespaceOrId: string, id?: string): boolean {
-        id = namespaceOrId + (id ? '.' + id : '');
+        id = namespaceOrId + (id ? `.${id}` : '');
         return this.states.has(id);
     }
 
@@ -102,7 +106,7 @@ export class MockDatabase {
     public getState(namespace: string, id: string): ioBroker.State | undefined;
     public getState(namespaceOrId: string, id?: string): ioBroker.State | undefined {
         // combines getObject and getForeignObject into one
-        id = namespaceOrId + (id ? '.' + id : '');
+        id = namespaceOrId + (id ? `.${id}` : '');
         return this.states.get(id);
     }
 
@@ -110,19 +114,20 @@ export class MockDatabase {
     public getObjects(namespace: string, pattern: string, type?: ioBroker.ObjectType): Record<string, ioBroker.Object>;
     public getObjects(
         namespaceOrPattern: string,
+        // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
         patternOrType?: string | ioBroker.ObjectType,
         type?: ioBroker.ObjectType,
     ): Record<string, ioBroker.Object> {
         // combines getObjects and getForeignObjects into one
         let pattern: string;
         if (type != null) {
-            pattern = namespaceOrPattern + (patternOrType ? '.' + patternOrType : '');
+            pattern = namespaceOrPattern + (patternOrType ? `.${patternOrType}` : '');
         } else if (patternOrType != null) {
             if (['state', 'channel', 'device'].indexOf(patternOrType) > -1) {
                 type = patternOrType as ioBroker.ObjectType;
                 pattern = namespaceOrPattern;
             } else {
-                pattern = namespaceOrPattern + '.' + patternOrType;
+                pattern = `${namespaceOrPattern}.${patternOrType}`;
             }
         } else {
             pattern = namespaceOrPattern;
@@ -150,15 +155,26 @@ export class MockDatabase {
 /**
  * Returns a collection of predefined assertions to be used in unit tests
  * Those include assertions for:
- * * State exists
- * * State has a certain value, ack flag, object property
- * * Object exists
- * * Object has a certain common or native part
+ * - State exists
+ * - State has a certain value, ack flag, object property
+ * - Object exists
+ * - Object has a certain common or native part
+ *
  * @param db The mock database to operate on
  * @param adapter The mock adapter to operate on
  */
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export function createAsserts(db: MockDatabase, adapter: MockAdapter) {
+export function createAsserts(
+    db: MockDatabase,
+    adapter: MockAdapter,
+): {
+    assertObjectExists: (id: string | string[]) => void;
+    assertStateExists: (id: string | string[]) => void;
+    assertStateHasValue: (id: string | string[], value: any) => void;
+    assertStateIsAcked: (id: string | string[], ack: boolean) => void;
+    assertStateProperty: (id: string | string[], property: string, value: any) => void;
+    assertObjectCommon: (id: string | string[], common: ioBroker.ObjectCommon) => void;
+    assertObjectNative: (id: string | string[], native: Record<string, any>) => void;
+} {
     function normalizeID(id: string | string[]): string {
         if (Array.isArray(id)) {
             id = id.join('.');
