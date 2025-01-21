@@ -4,7 +4,7 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
-## **WORK IN PROGRESS**
+## 5.0.1 (2025-01-21)
 * Packages were updated
 
 ## 5.0.0 (2024-09-14)
