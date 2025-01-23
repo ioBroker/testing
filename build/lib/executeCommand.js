@@ -13,16 +13,19 @@ function executeCommand(command, argsOrOptions, options) {
             // no args were given
             options = argsOrOptions;
         }
-        if (options == null)
+        if (options == null) {
             options = {};
-        if (args == null)
+        }
+        if (args == null) {
             args = [];
+        }
         const spawnOptions = {
             stdio: [options.stdin || process.stdin, options.stdout || process.stdout, options.stderr || process.stderr],
             windowsHide: true,
         };
-        if (options.cwd != null)
+        if (options.cwd != null) {
             spawnOptions.cwd = options.cwd;
+        }
         // Fix npm / node executable paths on Windows
         if (isWindows) {
             if (command === 'npm') {
@@ -35,10 +38,11 @@ function executeCommand(command, argsOrOptions, options) {
                 command += '.exe';
             }
         }
-        if (options.logCommandExecution == null)
+        if (options.logCommandExecution == null) {
             options.logCommandExecution = false;
+        }
         if (options.logCommandExecution) {
-            console.log('executing: ' + `${command} ${args.join(' ')}`);
+            console.log(`executing: ${command} ${args.join(' ')}`);
         }
         // Now execute the npm process and avoid throwing errors
         try {
@@ -56,16 +60,18 @@ function executeCommand(command, argsOrOptions, options) {
             if (options.stdout === 'pipe') {
                 bufferedStdout = '';
                 cmd.stdout.on('data', (chunk) => {
-                    if (Buffer.isBuffer(chunk))
+                    if (Buffer.isBuffer(chunk)) {
                         chunk = chunk.toString('utf8');
+                    }
                     bufferedStdout += chunk;
                 });
             }
             if (options.stderr === 'pipe') {
                 bufferedStderr = '';
                 cmd.stderr.on('data', (chunk) => {
-                    if (Buffer.isBuffer(chunk))
+                    if (Buffer.isBuffer(chunk)) {
                         chunk = chunk.toString('utf8');
+                    }
                     bufferedStderr += chunk;
                 });
             }

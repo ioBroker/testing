@@ -4,7 +4,7 @@ import { testAdapterWithMocks } from './unit';
 import { createMocks } from './unit/harness/createMocks';
 import { createAsserts } from './unit/mocks/mockDatabase';
 export { TestHarness as IntegrationTestHarness } from './integration/lib/harness';
-export { MockAdapter } from './unit/mocks/mockAdapter';
+export type { MockAdapter } from './unit/mocks/mockAdapter';
 export { MockDatabase } from './unit/mocks/mockDatabase';
 /** Predefined test sets */
 export declare const tests: {
@@ -19,6 +19,6 @@ export declare const utils: {
         createMocks: typeof createMocks;
         createAsserts: typeof createAsserts;
         /** @deprecated Adapter startup unit tests are no longer supported */
-        startMockAdapter: () => {};
+        startMockAdapter: () => any;
     };
 };

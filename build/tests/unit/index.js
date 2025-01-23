@@ -7,7 +7,7 @@ exports.testAdapterWithMocks = testAdapterWithMocks;
  * This is meant to be executed in a mocha context.
  */
 function testAdapterWithMocks(_adapterDir, options = {}) {
-    describe(`Unit tests`, async () => {
+    describe(`Unit tests`, () => {
         // Call the user's tests
         if (typeof options.defineAdditionalTests === 'function') {
             options.defineAdditionalTests();
@@ -19,5 +19,6 @@ function testAdapterWithMocks(_adapterDir, options = {}) {
                 console.warn(`from package.json and from your Travis/Github Actions workflow.\u001b[0m`);
             });
         }
+        return Promise.resolve();
     });
 }

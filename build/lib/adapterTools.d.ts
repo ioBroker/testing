@@ -1,31 +1,37 @@
 /**
  * Loads an adapter's package.json
+ *
  * @param adapterDir The directory the adapter resides in
  */
 export declare function loadNpmPackage(adapterDir: string): Record<string, any>;
 /**
  * Loads an adapter's io-package.json
+ *
  * @param adapterDir The directory the adapter resides in
  */
 export declare function loadIoPackage(adapterDir: string): Record<string, any>;
 export declare function getAdapterExecutionMode(adapterDir: string): ioBroker.AdapterCommon['mode'];
 /**
  * Locates an adapter's main file
+ *
  * @param adapterDir The directory the adapter resides in
  */
 export declare function locateAdapterMainFile(adapterDir: string): Promise<string>;
 /**
  * Locates an adapter's config to populate the `adapter.config` object with
+ *
  * @param adapterDir The directory the adapter resides in
  */
 export declare function loadAdapterConfig(adapterDir: string): Record<string, any>;
 /**
  * Loads the adapter's common configuration from `io-package.json`
+ *
  * @param adapterDir The directory the adapter resides in
  */
 export declare function loadAdapterCommon(adapterDir: string): Record<string, any>;
 /**
  * Loads the instanceObjects for an adapter from its `io-package.json`
+ *
  * @param adapterDir The directory the adapter resides in
  */
 export declare function loadInstanceObjects(adapterDir: string): ioBroker.Object[];

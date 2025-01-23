@@ -37,9 +37,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TestHarness = void 0;
-// @ts-expect-error no types
 const async_1 = require("alcalzone-shared/async");
-// @ts-expect-error no types
 const objects_1 = require("alcalzone-shared/objects");
 const child_process_1 = require("child_process");
 const debug_1 = __importDefault(require("debug"));
@@ -116,8 +114,9 @@ class TestHarness extends events_1.EventEmitter {
     }
     /** Stops the controller instance (and the adapter if it is running) */
     async stopController() {
-        if (!this.isControllerRunning())
+        if (!this.isControllerRunning()) {
             return;
+        }
         if (!this.didAdapterStop()) {
             debug('Stopping adapter instance...');
             // Give the adapter time to stop (as long as configured in the io-package.json)
@@ -127,7 +126,9 @@ class TestHarness extends events_1.EventEmitter {
                     .common.stopTimeout;
                 stopTimeout += 1000;
             }
-            catch { }
+            catch {
+                // ignore
+            }
             stopTimeout ||= 5000; // default 5s
             debug(`  => giving it ${stopTimeout}ms to terminate`);
             await Promise.race([this.stopAdapter(), (0, async_1.wait)(stopTimeout)]);
@@ -146,13 +147,16 @@ class TestHarness extends events_1.EventEmitter {
     }
     /**
      * Starts the adapter in a separate process and monitors its status
+     *
      * @param env Additional environment variables to set
      */
     async startAdapter(env = {}) {
-        if (this.isAdapterRunning())
+        if (this.isAdapterRunning()) {
             throw new Error('The adapter is already running!');
-        else if (this.didAdapterStop())
+        }
+        else if (this.didAdapterStop()) {
             throw new Error('This test harness has already been used. Please create a new one for each test!');
+        }
         const mainFileAbsolute = await (0, adapterTools_1.locateAdapterMainFile)(this.testAdapterDir);
         const mainFileRelative = path.relative(this.testAdapterDir, mainFileAbsolute);
         const onClose = (code, signal) => {
@@ -170,6 +174,7 @@ class TestHarness extends events_1.EventEmitter {
     }
     /**
      * Starts the adapter in a separate process and resolves after it has started
+     *
      * @param waitForConnection By default, the test will wait for the adapter's `alive` state to become true. Set this to `true` to wait for the `info.connection` state instead.
      * @param env Additional environment variables to set
      */
@@ -178,7 +183,7 @@ class TestHarness extends events_1.EventEmitter {
             const waitForStateId = waitForConnection
                 ? `${this.adapterName}.0.info.connection`
                 : `system.adapter.${this.adapterName}.0.alive`;
-            this.on('stateChange', async (id, state) => {
+            void this.on('stateChange', (id, state) => {
                 if (id === waitForStateId && state && state.val === true) {
                     resolve();
                 }
@@ -199,12 +204,15 @@ class TestHarness extends events_1.EventEmitter {
     }
     /** Stops the adapter process */
     stopAdapter() {
-        if (!this.isAdapterRunning())
+        if (!this.isAdapterRunning()) {
             return;
+        }
+        // eslint-disable-next-line no-async-promise-executor
         return new Promise(async (resolve) => {
             const onClose = (code, signal) => {
-                if (!this._adapterProcess)
+                if (!this._adapterProcess) {
                     return;
+                }
                 this._adapterProcess.removeAllListeners();
                 this._adapterExit = code != undefined ? code : signal;
                 this._adapterProcess = undefined;
@@ -271,7 +279,7 @@ class TestHarness extends events_1.EventEmitter {
                 ack: false,
                 time: Date.now(),
             },
-        }, (err, id) => console.log('published message ' + id));
+        }, (err, id) => console.log(`published message ${id}`));
     }
 }
 exports.TestHarness = TestHarness;

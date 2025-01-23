@@ -55,43 +55,43 @@ class DBConnection extends events_1.default {
         this.testDir = testDir;
         this.logger = logger;
         this._isRunning = false;
-        this.getObject = async (id) => {
+        this.getObject = id => {
             if (!this._objectsClient) {
                 throw new Error('Objects DB is not running');
             }
             return this._objectsClient.getObjectAsync(id);
         };
-        this.setObject = async (...args) => {
+        this.setObject = (...args) => {
             if (!this._objectsClient) {
                 throw new Error('Objects DB is not running');
             }
             return this._objectsClient.setObjectAsync(...args);
         };
-        this.delObject = async (...args) => {
+        this.delObject = (...args) => {
             if (!this._objectsClient) {
                 throw new Error('Objects DB is not running');
             }
             return this._objectsClient.delObjectAsync(...args);
         };
-        this.getState = async (id) => {
+        this.getState = (id) => {
             if (!this._statesClient) {
                 throw new Error('States DB is not running');
             }
             return this._statesClient.getStateAsync(id);
         };
-        this.setState = (async (...args) => {
+        this.setState = ((...args) => {
             if (!this._statesClient) {
                 throw new Error('States DB is not running');
             }
             return this._statesClient.setStateAsync(...args);
         });
-        this.delState = async (...args) => {
+        this.delState = (...args) => {
             if (!this._statesClient) {
                 throw new Error('States DB is not running');
             }
             return this._statesClient.delStateAsync(...args);
         };
-        this.getObjectViewAsync = async (...args) => {
+        this.getObjectViewAsync = (...args) => {
             if (!this._objectsClient) {
                 throw new Error('Objects DB is not running');
             }
@@ -130,8 +130,9 @@ class DBConnection extends events_1.default {
         await this.stop();
         const objects = await (0, fs_extra_1.readFile)(this.objectsPath);
         const states = await (0, fs_extra_1.readFile)(this.statesPath);
-        if (wasRunning)
+        if (wasRunning) {
             await this.start();
+        }
         return { objects, states };
     }
     async restore(objects, states) {
@@ -140,8 +141,9 @@ class DBConnection extends events_1.default {
         await this.stop();
         await (0, fs_extra_1.writeFile)(this.objectsPath, objects);
         await (0, fs_extra_1.writeFile)(this.statesPath, states);
-        if (wasRunning)
+        if (wasRunning) {
             await this.start();
+        }
     }
     setSystemConfig(systemConfig) {
         const systemFilename = path.join(this.testDataDir, `${this.appName}.json`);
@@ -200,7 +202,6 @@ class DBConnection extends events_1.default {
             paths: [path.join(this.testDir, 'node_modules'), path.join(this.testControllerDir, 'node_modules')],
         });
         debug(`  => objects DB lib found at ${objectsDbPath}`);
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { Server, Client } = require(objectsDbPath);
         // First create the server
         await new Promise(resolve => {
@@ -245,7 +246,6 @@ class DBConnection extends events_1.default {
             paths: [path.join(this.testDir, 'node_modules'), path.join(this.testControllerDir, 'node_modules')],
         });
         debug(`  => states DB lib found at ${statesDbPath}`);
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { Server, Client } = require(statesDbPath);
         // First create the server
         await new Promise(resolve => {
@@ -281,13 +281,13 @@ class DBConnection extends events_1.default {
         }
         this._statesClient.pushMessage(instanceId, msg, callback);
     }
-    async getStateIDs(pattern = '*') {
+    getStateIDs(pattern = '*') {
         if (!this._statesClient) {
             throw new Error('States DB is not running');
         }
         return this._statesClient.getKeysAsync?.(pattern) || this._statesClient.getKeys?.(pattern);
     }
-    async getObjectIDs(pattern = '*') {
+    getObjectIDs(pattern = '*') {
         if (!this._objectsClient) {
             throw new Error('Objects DB is not running');
         }

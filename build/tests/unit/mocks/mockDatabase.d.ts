@@ -33,19 +33,20 @@ export declare class MockDatabase {
 /**
  * Returns a collection of predefined assertions to be used in unit tests
  * Those include assertions for:
- * * State exists
- * * State has a certain value, ack flag, object property
- * * Object exists
- * * Object has a certain common or native part
+ * - State exists
+ * - State has a certain value, ack flag, object property
+ * - Object exists
+ * - Object has a certain common or native part
+ *
  * @param db The mock database to operate on
  * @param adapter The mock adapter to operate on
  */
 export declare function createAsserts(db: MockDatabase, adapter: MockAdapter): {
-    assertObjectExists(id: string | string[]): void;
-    assertStateExists(id: string | string[]): void;
-    assertStateHasValue(id: string | string[], value: any): void;
-    assertStateIsAcked(id: string | string[], ack?: boolean): void;
-    assertStateProperty(id: string | string[], property: string, value: any): void;
-    assertObjectCommon(id: string | string[], common: ioBroker.ObjectCommon): void;
-    assertObjectNative(id: string | string[], native: Record<string, any>): void;
+    assertObjectExists: (id: string | string[]) => void;
+    assertStateExists: (id: string | string[]) => void;
+    assertStateHasValue: (id: string | string[], value: any) => void;
+    assertStateIsAcked: (id: string | string[], ack: boolean) => void;
+    assertStateProperty: (id: string | string[], property: string, value: any) => void;
+    assertObjectCommon: (id: string | string[], common: ioBroker.ObjectCommon) => void;
+    assertObjectNative: (id: string | string[], native: Record<string, any>) => void;
 };

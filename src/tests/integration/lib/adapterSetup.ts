@@ -1,6 +1,4 @@
 // Add debug logging for tests
-// @ts-expect-error no types
-import { entries } from 'alcalzone-shared/objects';
 import debugModule from 'debug';
 import { copy, pathExists, readJSON, remove, unlink, writeJSON } from 'fs-extra';
 import * as path from 'path';
@@ -78,7 +76,7 @@ export class AdapterSetup {
         const packageJsonPath = path.join(this.testDir, 'package.json');
         const packageJson = await readJSON(packageJsonPath);
         packageJson.dependencies[this.adapterFullName] = `file:./${tarballName}`;
-        for (const [dep, version] of entries(getAdapterDependencies(this.adapterDir))) {
+        for (const [dep, version] of Object.entries(getAdapterDependencies(this.adapterDir))) {
             // Don't overwrite the js-controller GitHub dependency with a probably lower one
             if (dep === 'js-controller') {
                 continue;

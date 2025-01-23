@@ -121,10 +121,15 @@ function testAdapter(adapterDir, options = {}) {
                 // Adapters with these modes are allowed to "immediately" exit with code 0
                 switch (harness.getAdapterExecutionMode()) {
                     case 'schedule':
+                        allowedExitCodes.add(0);
+                        break;
                     case 'once':
+                        allowedExitCodes.add(0);
+                        break;
                     // @ts-expect-error subscribe was deprecated
                     case 'subscribe':
                         allowedExitCodes.add(0);
+                        break;
                 }
                 return new Promise((resolve, reject) => {
                     // Register a handler to check the alive state and exit codes
@@ -147,7 +152,7 @@ function testAdapter(adapterDir, options = {}) {
                             resolve(`The expected ${typeof code === 'number' ? 'exit code' : 'signal'} ${code} was received.`);
                         }
                     });
-                    harness.startAdapter();
+                    void harness.startAdapter();
                 }).then(msg => console.log(msg));
             });
         });

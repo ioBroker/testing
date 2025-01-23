@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MockDatabase = void 0;
 exports.createAsserts = createAsserts;
-// @ts-expect-error no types
 const objects_1 = require("alcalzone-shared/objects");
 const str2regex_1 = require("../../../lib/str2regex");
 const objectTemplate = Object.freeze({
@@ -33,10 +32,12 @@ class MockDatabase {
         this.clearStates();
     }
     publishObject(obj) {
-        if (obj._id == null)
+        if (obj._id == null) {
             throw new Error('An object must have an ID');
-        if (obj.type == null)
+        }
+        if (obj.type == null) {
             throw new Error('An object must have a type');
+        }
         const completeObject = (0, objects_1.extend)({}, objectTemplate, obj);
         this.objects.set(obj._id, completeObject);
     }
@@ -73,28 +74,30 @@ class MockDatabase {
         }
     }
     hasObject(namespaceOrId, id) {
-        id = namespaceOrId + (id ? '.' + id : '');
+        id = namespaceOrId + (id ? `.${id}` : '');
         return this.objects.has(id);
     }
     getObject(namespaceOrId, id) {
         // combines getObject and getForeignObject into one
-        id = namespaceOrId + (id ? '.' + id : '');
+        id = namespaceOrId + (id ? `.${id}` : '');
         return this.objects.get(id);
     }
     hasState(namespaceOrId, id) {
-        id = namespaceOrId + (id ? '.' + id : '');
+        id = namespaceOrId + (id ? `.${id}` : '');
         return this.states.has(id);
     }
     getState(namespaceOrId, id) {
         // combines getObject and getForeignObject into one
-        id = namespaceOrId + (id ? '.' + id : '');
+        id = namespaceOrId + (id ? `.${id}` : '');
         return this.states.get(id);
     }
-    getObjects(namespaceOrPattern, patternOrType, type) {
+    getObjects(namespaceOrPattern, 
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+    patternOrType, type) {
         // combines getObjects and getForeignObjects into one
         let pattern;
         if (type != null) {
-            pattern = namespaceOrPattern + (patternOrType ? '.' + patternOrType : '');
+            pattern = namespaceOrPattern + (patternOrType ? `.${patternOrType}` : '');
         }
         else if (patternOrType != null) {
             if (['state', 'channel', 'device'].indexOf(patternOrType) > -1) {
@@ -102,35 +105,35 @@ class MockDatabase {
                 pattern = namespaceOrPattern;
             }
             else {
-                pattern = namespaceOrPattern + '.' + patternOrType;
+                pattern = `${namespaceOrPattern}.${patternOrType}`;
             }
         }
         else {
             pattern = namespaceOrPattern;
         }
         const idRegExp = (0, str2regex_1.str2regex)(pattern);
-        return (0, objects_1.composeObject)([...this.objects.entries()]
+        return Object.fromEntries([...this.objects.entries()]
             .filter(([id]) => idRegExp.test(id))
             .filter(([, obj]) => type == null || obj.type === type));
     }
     getStates(pattern) {
         // combines getStates and getForeignStates into one
         const idRegExp = (0, str2regex_1.str2regex)(pattern);
-        return (0, objects_1.composeObject)([...this.states.entries()].filter(([id]) => idRegExp.test(id)));
+        return Object.fromEntries([...this.states.entries()].filter(([id]) => idRegExp.test(id)));
     }
 }
 exports.MockDatabase = MockDatabase;
 /**
  * Returns a collection of predefined assertions to be used in unit tests
  * Those include assertions for:
- * * State exists
- * * State has a certain value, ack flag, object property
- * * Object exists
- * * Object has a certain common or native part
+ * - State exists
+ * - State has a certain value, ack flag, object property
+ * - Object exists
+ * - Object has a certain common or native part
+ *
  * @param db The mock database to operate on
  * @param adapter The mock adapter to operate on
  */
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 function createAsserts(db, adapter) {
     function normalizeID(id) {
         if (Array.isArray(id)) {

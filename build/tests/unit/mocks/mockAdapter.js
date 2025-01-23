@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createAdapterMock = createAdapterMock;
-// @ts-expect-error no types
 const objects_1 = require("alcalzone-shared/objects");
 const sinon_1 = require("sinon");
 const mockLogger_1 = require("./mockLogger");
@@ -75,14 +74,16 @@ const implementedMethods = {
 };
 function getCallback(...args) {
     const lastArg = args[args.length - 1];
-    if (typeof lastArg === 'function')
+    if (typeof lastArg === 'function') {
         return lastArg;
+    }
 }
 /** Stub implementation which can be promisified */
 const asyncEnabledStub = ((...args) => {
     const callback = getCallback(...args);
-    if (typeof callback === 'function')
+    if (typeof callback === 'function') {
         callback();
+    }
 });
 /**
  * Creates an adapter mock that is connected to a given database mock
@@ -115,28 +116,34 @@ function createAdapterMock(db, options = {}) {
         sendToHost: asyncEnabledStub,
         idToDCS: (0, sinon_1.stub)(),
         getObject: ((id, ...args) => {
-            if (!id.startsWith(ret.namespace))
-                id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(null, db.getObject(id));
+            }
         }),
         setObject: ((id, obj, ...args) => {
-            if (!id.startsWith(ret.namespace))
-                id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             obj._id = id;
             db.publishObject(obj);
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(null, { id });
+            }
         }),
         setObjectNotExists: ((id, obj, ...args) => {
-            if (!id.startsWith(ret.namespace))
-                id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             const callback = getCallback(...args);
             if (db.hasObject(id)) {
-                if (callback)
+                if (callback) {
                     callback(null, { id });
+                }
             }
             else {
                 ret.setObject(id, obj, callback);
@@ -151,12 +158,14 @@ function createAdapterMock(db, options = {}) {
             }
             const callback = getCallback(...args);
             if (typeof callback === 'function') {
-                let objects = (0, objects_1.values)(db.getObjects('*'));
+                let objects = Object.values(db.getObjects('*'));
                 objects = objects.filter(obj => obj.type === search);
-                if (startkey)
+                if (startkey) {
                     objects = objects.filter(obj => obj._id >= startkey);
-                if (endkey)
+                }
+                if (endkey) {
                     objects = objects.filter(obj => obj._id <= endkey);
+                }
                 callback(null, {
                     rows: objects.map(obj => ({
                         id: obj._id,
@@ -168,7 +177,7 @@ function createAdapterMock(db, options = {}) {
         getObjectList: (({ startkey, endkey, include_docs, }, ...args) => {
             const callback = getCallback(...args);
             if (typeof callback === 'function') {
-                let objects = (0, objects_1.values)(db.getObjects('*'));
+                let objects = Object.values(db.getObjects('*'));
                 if (startkey) {
                     objects = objects.filter(obj => obj._id >= startkey);
                 }
@@ -188,47 +197,55 @@ function createAdapterMock(db, options = {}) {
             }
         }),
         extendObject: ((id, obj, ...args) => {
-            if (!id.startsWith(ret.namespace))
-                id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             const existing = db.getObject(id) || {};
             const target = (0, objects_1.extend)({}, existing, obj);
             target._id = id;
             db.publishObject(target);
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(null, { id: target._id, value: target }, id);
+            }
         }),
         delObject: ((id, ...args) => {
-            if (!id.startsWith(ret.namespace))
-                id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             db.deleteObject(id);
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(undefined);
+            }
         }),
         getForeignObject: ((id, ...args) => {
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(null, db.getObject(id));
+            }
         }),
         getForeignObjects: ((pattern, ...args) => {
             const type = typeof args[0] === 'string' ? args[0] : undefined;
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(null, db.getObjects(pattern, type));
+            }
         }),
         setForeignObject: ((id, obj, ...args) => {
             obj._id = id;
             db.publishObject(obj);
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(null, { id });
+            }
         }),
         setForeignObjectNotExists: ((id, obj, ...args) => {
             const callback = getCallback(...args);
             if (db.hasObject(id)) {
-                if (callback)
+                if (callback) {
                     callback(null, { id });
+                }
             }
             else {
                 ret.setObject(id, obj, callback);
@@ -240,20 +257,23 @@ function createAdapterMock(db, options = {}) {
             target._id = id;
             db.publishObject(target);
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(null, { id: target._id, value: target }, id);
+            }
         }),
         findForeignObject: (0, sinon_1.stub)(),
         delForeignObject: ((id, ...args) => {
             db.deleteObject(id);
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(undefined);
+            }
         }),
         setState: ((id, state, ...args) => {
             const callback = getCallback(...args);
-            if (!id.startsWith(ret.namespace))
-                id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             let ack;
             if (state != null && typeof state === 'object') {
                 ack = !!state.ack;
@@ -263,8 +283,9 @@ function createAdapterMock(db, options = {}) {
                 ack = typeof args[0] === 'boolean' ? args[0] : false;
             }
             db.publishState(id, { val: state, ack });
-            if (callback)
+            if (callback) {
                 callback(null, id);
+            }
         }),
         setStateChanged: ((id, state, ...args) => {
             const callback = getCallback(...args);
@@ -276,13 +297,15 @@ function createAdapterMock(db, options = {}) {
             else {
                 ack = typeof args[0] === 'boolean' ? args[0] : false;
             }
-            if (!id.startsWith(ret.namespace))
-                id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             if (!db.hasState(id) || db.getState(id).val !== state) {
                 db.publishState(id, { val: state, ack });
             }
-            if (callback)
+            if (callback) {
                 callback(null, id);
+            }
         }),
         setForeignState: ((id, state, ...args) => {
             const callback = getCallback(...args);
@@ -295,8 +318,9 @@ function createAdapterMock(db, options = {}) {
                 ack = typeof args[0] === 'boolean' ? args[0] : false;
             }
             db.publishState(id, { val: state, ack });
-            if (callback)
+            if (callback) {
                 callback(null, id);
+            }
         }),
         setForeignStateChanged: ((id, state, ...args) => {
             const callback = getCallback(...args);
@@ -311,46 +335,56 @@ function createAdapterMock(db, options = {}) {
             if (!db.hasState(id) || db.getState(id).val !== state) {
                 db.publishState(id, { val: state, ack });
             }
-            if (callback)
+            if (callback) {
                 callback(null, id);
+            }
         }),
         getState: ((id, ...args) => {
-            if (!id.startsWith(ret.namespace))
-                id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(null, db.getState(id));
+            }
         }),
         getForeignState: ((id, ...args) => {
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(null, db.getState(id));
+            }
         }),
         getStates: ((pattern, ...args) => {
-            if (!pattern.startsWith(ret.namespace))
-                pattern = ret.namespace + '.' + pattern;
+            if (!pattern.startsWith(ret.namespace)) {
+                pattern = `${ret.namespace}.${pattern}`;
+            }
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(null, db.getStates(pattern));
+            }
         }),
         getForeignStates: ((pattern, ...args) => {
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(null, db.getStates(pattern));
+            }
         }),
         delState: ((id, ...args) => {
-            if (!id.startsWith(ret.namespace))
-                id = ret.namespace + '.' + id;
+            if (!id.startsWith(ret.namespace)) {
+                id = `${ret.namespace}.${id}`;
+            }
             db.deleteState(id);
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(undefined);
+            }
         }),
         delForeignState: ((id, ...args) => {
             db.deleteState(id);
             const callback = getCallback(...args);
-            if (callback)
+            if (callback) {
                 callback(undefined);
+            }
         }),
         getHistory: asyncEnabledStub,
         setBinaryState: asyncEnabledStub,

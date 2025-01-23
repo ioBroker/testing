@@ -1,4 +1,4 @@
-import { ChildProcess } from 'child_process';
+import { type ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import type { DBConnection } from './dbConnection';
 export interface TestHarness {
@@ -41,11 +41,13 @@ export declare class TestHarness extends EventEmitter {
     stopController(): Promise<void>;
     /**
      * Starts the adapter in a separate process and monitors its status
+     *
      * @param env Additional environment variables to set
      */
     startAdapter(env?: NodeJS.ProcessEnv): Promise<void>;
     /**
      * Starts the adapter in a separate process and resolves after it has started
+     *
      * @param waitForConnection By default, the test will wait for the adapter's `alive` state to become true. Set this to `true` to wait for the `info.connection` state instead.
      * @param env Additional environment variables to set
      */

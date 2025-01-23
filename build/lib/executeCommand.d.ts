@@ -23,6 +23,7 @@ export interface ExecuteCommandResult {
 export declare function executeCommand(command: string, options?: Partial<ExecuteCommandOptions>): Promise<ExecuteCommandResult>;
 /**
  * Executes a command and returns the exit code and (if requested) the stdout
+ *
  * @param command The command to execute
  * @param args The command line arguments for the command
  * @param options (optional) Some options for the command execution

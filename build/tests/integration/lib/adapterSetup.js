@@ -38,8 +38,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AdapterSetup = void 0;
 // Add debug logging for tests
-// @ts-expect-error no types
-const objects_1 = require("alcalzone-shared/objects");
 const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = require("fs-extra");
 const path = __importStar(require("path"));
@@ -78,8 +76,9 @@ class AdapterSetup {
         const packResult = await (0, executeCommand_1.executeCommand)('npm', ['pack', '--loglevel', 'silent'], {
             stdout: 'pipe',
         });
-        if (packResult.exitCode !== 0 || typeof packResult.stdout !== 'string')
+        if (packResult.exitCode !== 0 || typeof packResult.stdout !== 'string') {
             throw new Error(`Packing the adapter tarball failed!`);
+        }
         // The last non-empty line of `npm pack`s STDOUT contains the tarball path
         const stdoutLines = packResult.stdout.trim().split(/[\r\n]+/);
         const tarballName = stdoutLines[stdoutLines.length - 1].trim();
@@ -99,16 +98,18 @@ class AdapterSetup {
         const packageJsonPath = path.join(this.testDir, 'package.json');
         const packageJson = await (0, fs_extra_1.readJSON)(packageJsonPath);
         packageJson.dependencies[this.adapterFullName] = `file:./${tarballName}`;
-        for (const [dep, version] of (0, objects_1.entries)((0, adapterTools_1.getAdapterDependencies)(this.adapterDir))) {
+        for (const [dep, version] of Object.entries((0, adapterTools_1.getAdapterDependencies)(this.adapterDir))) {
             // Don't overwrite the js-controller GitHub dependency with a probably lower one
-            if (dep === 'js-controller')
+            if (dep === 'js-controller') {
                 continue;
+            }
             packageJson.dependencies[`${this.appName}.${dep}`] = version;
         }
         await (0, fs_extra_1.writeJSON)(packageJsonPath, packageJson, { spaces: 2 });
         debug('Deleting old remains of this adapter');
-        if (await (0, fs_extra_1.pathExists)(this.testAdapterDir))
+        if (await (0, fs_extra_1.pathExists)(this.testAdapterDir)) {
             await (0, fs_extra_1.remove)(this.testAdapterDir);
+        }
         debug('Installing adapter');
         // Defer to npm to install the controller (if it wasn't already)
         await (0, executeCommand_1.executeCommand)('npm', ['i', '--omit=dev'], {
@@ -126,15 +127,16 @@ class AdapterSetup {
             cwd: this.testControllerDir,
             stdout: 'ignore',
         });
-        if (addResult.exitCode !== 0)
+        if (addResult.exitCode !== 0) {
             throw new Error(`Adding the adapter instance failed!`);
+        }
         debug('  => done!');
     }
     async deleteOldInstances(dbConnection) {
         debug('Removing old adapter instances...');
         const allKeys = new Set([...(await dbConnection.getObjectIDs()), ...(await dbConnection.getStateIDs())]);
         const instanceRegex = new RegExp(`^system\\.adapter\\.${this.adapterName}\\.\\d+`);
-        const instanceObjsRegex = new RegExp(`^${this.adapterName}\\.\\d+\.`);
+        const instanceObjsRegex = new RegExp(`^${this.adapterName}\\.\\d+\\.`);
         const belongsToAdapter = (id) => {
             return (instanceRegex.test(id) ||
                 instanceObjsRegex.test(id) ||

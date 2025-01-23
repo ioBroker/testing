@@ -48,7 +48,6 @@ exports.getAdapterName = getAdapterName;
 exports.getAdapterFullName = getAdapterFullName;
 exports.getAdapterDependencies = getAdapterDependencies;
 // Add debug logging for tests
-// @ts-expect-error no types
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = require("fs-extra");
@@ -56,18 +55,18 @@ const path = __importStar(require("path"));
 const debug = (0, debug_1.default)('testing:unit:adapterTools');
 /**
  * Loads an adapter's package.json
+ *
  * @param adapterDir The directory the adapter resides in
  */
 function loadNpmPackage(adapterDir) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     return require(path.join(adapterDir, 'package.json'));
 }
 /**
  * Loads an adapter's io-package.json
+ *
  * @param adapterDir The directory the adapter resides in
  */
 function loadIoPackage(adapterDir) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     return require(path.join(adapterDir, 'io-package.json'));
 }
 function getAdapterExecutionMode(adapterDir) {
@@ -76,6 +75,7 @@ function getAdapterExecutionMode(adapterDir) {
 }
 /**
  * Locates an adapter's main file
+ *
  * @param adapterDir The directory the adapter resides in
  */
 async function locateAdapterMainFile(adapterDir) {
@@ -95,7 +95,7 @@ async function locateAdapterMainFile(adapterDir) {
         return ret;
     }
     // If both don't exist, JS-Controller uses <adapter name>.js as another fallback
-    ret = path.join(adapterDir, ioPackage.common.name + '.js');
+    ret = path.join(adapterDir, `${ioPackage.common.name}.js`);
     debug(`  => trying ${ret}`);
     if (await (0, fs_extra_1.pathExists)(ret)) {
         debug(`  => found ${mainFile}`);
@@ -105,6 +105,7 @@ async function locateAdapterMainFile(adapterDir) {
 }
 /**
  * Locates an adapter's config to populate the `adapter.config` object with
+ *
  * @param adapterDir The directory the adapter resides in
  */
 function loadAdapterConfig(adapterDir) {
@@ -113,6 +114,7 @@ function loadAdapterConfig(adapterDir) {
 }
 /**
  * Loads the adapter's common configuration from `io-package.json`
+ *
  * @param adapterDir The directory the adapter resides in
  */
 function loadAdapterCommon(adapterDir) {
@@ -121,6 +123,7 @@ function loadAdapterCommon(adapterDir) {
 }
 /**
  * Loads the instanceObjects for an adapter from its `io-package.json`
+ *
  * @param adapterDir The directory the adapter resides in
  */
 function loadInstanceObjects(adapterDir) {
@@ -153,8 +156,9 @@ function getAdapterDependencies(adapterDir) {
             }
             else if ((0, typeguards_1.isObject)(dep)) {
                 const key = Object.keys(dep)[0];
-                if (key)
+                if (key) {
                     ret[key] = dep[key] || 'latest';
+                }
             }
         }
     }

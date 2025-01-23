@@ -1,3 +1,4 @@
+import { type MockAdapter } from '../mocks/mockAdapter';
 import { MockDatabase } from '../mocks/mockDatabase';
 /**
  * Creates a new set of mocks, including a mock database and a mock adapter.
@@ -5,5 +6,5 @@ import { MockDatabase } from '../mocks/mockDatabase';
  */
 export declare function createMocks(adapterOptions: Partial<ioBroker.AdapterOptions>): {
     database: MockDatabase;
-    adapter: any;
+    adapter: MockAdapter;
 };

@@ -1,5 +1,4 @@
-// @ts-expect-error no types
-import { extend, values } from 'alcalzone-shared/objects';
+import { extend } from 'alcalzone-shared/objects';
 import { stub } from 'sinon';
 import type { MockDatabase } from './mockDatabase';
 import { createLoggerMock, type MockLogger } from './mockLogger';
@@ -196,7 +195,7 @@ export function createAdapterMock(
             }
             const callback = getCallback<ioBroker.GetObjectViewCallback<ioBroker.Object>>(...args);
             if (typeof callback === 'function') {
-                let objects: ioBroker.Object[] = values(db.getObjects('*'));
+                let objects: ioBroker.Object[] = Object.values(db.getObjects('*'));
                 objects = objects.filter(obj => obj.type === search);
                 if (startkey) {
                     objects = objects.filter(obj => obj._id >= startkey);
@@ -228,7 +227,7 @@ export function createAdapterMock(
             const callback = getCallback<ioBroker.GetObjectListCallback<ioBroker.Object>>(...args);
 
             if (typeof callback === 'function') {
-                let objects: ioBroker.Object[] = values(db.getObjects('*'));
+                let objects: ioBroker.Object[] = Object.values(db.getObjects('*'));
                 if (startkey) {
                     objects = objects.filter(obj => obj._id >= startkey);
                 }

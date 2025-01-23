@@ -34,7 +34,6 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validatePackageFiles = validatePackageFiles;
-// @ts-expect-error no types
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const chai_1 = require("chai");
 const fs = __importStar(require("fs"));
@@ -52,8 +51,9 @@ function validatePackageFiles(adapterDir) {
         'io-package.json': false,
     };
     function skipIfInvalid(...filenames) {
-        if (filenames.some(f => invalidFiles[f]))
+        if (filenames.some(f => invalidFiles[f])) {
             return this.skip();
+        }
     }
     function markAsInvalid(filename) {
         if (this.currentTest.state === 'failed' && invalidFiles[filename] === false) {
@@ -67,7 +67,6 @@ function validatePackageFiles(adapterDir) {
         it(`The property "${propertyPath}" exists`, () => {
             let prev = targetObj;
             for (const part of propertyParts) {
-                // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                 (0, chai_1.expect)(prev[part]).to.not.be.undefined;
                 prev = prev[part];
             }
@@ -85,7 +84,6 @@ function validatePackageFiles(adapterDir) {
                         skipIfInvalid.call(this, filename);
                     });
                     it('exists', () => {
-                        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                         (0, chai_1.expect)(fs.existsSync(packagePath), `${filename} is missing in the adapter dir. Please create it!`).to.be.true;
                     });
                     it('contains valid JSON', () => {
@@ -94,9 +92,7 @@ function validatePackageFiles(adapterDir) {
                         }, `${filename} contains invalid JSON!`).not.to.throw();
                     });
                     it('is an object', () => {
-                        (0, chai_1.expect)(
-                        // eslint-disable-next-line @typescript-eslint/no-require-imports
-                        require(packagePath), `${filename} must contain an object!`).to.be.an('object');
+                        (0, chai_1.expect)(require(packagePath), `${filename} must contain an object!`).to.be.an('object');
                     });
                 });
             }
@@ -105,9 +101,7 @@ function validatePackageFiles(adapterDir) {
             beforeEach(function () {
                 skipIfInvalid.call(this, 'package.json');
             });
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
             const packageContent = require(packageJsonPath);
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
             const iopackContent = require(ioPackageJsonPath);
             const requiredProperties = [
                 'name',
@@ -123,13 +117,12 @@ function validatePackageFiles(adapterDir) {
                 let name = packageContent.name;
                 (0, chai_1.expect)(name).to.match(/^iobroker\./, `The npm package name must start with lowercase "iobroker."!`);
                 name = name.replace(/^iobroker\./, '');
-                (0, chai_1.expect)(name).to.match(/[a-z0-9_\-]+/, `The adapter name must only contain lowercase letters, numbers, "-" and "_"!`);
+                (0, chai_1.expect)(name).to.match(/[-a-z0-9_]+/, `The adapter name must only contain lowercase letters, numbers, "-" and "_"!`);
                 (0, chai_1.expect)(name).to.match(/^[a-z]/, `The adapter name must start with a letter!`);
                 (0, chai_1.expect)(name).to.match(/[a-z0-9]$/, `The adapter name must end with a letter or number!`);
             });
             if (!iopackContent.common.onlyWWW) {
                 it(`property main is defined for non onlyWWW adapters`, () => {
-                    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                     (0, chai_1.expect)(packageContent.main).to.not.be.undefined;
                 });
             }
@@ -144,6 +137,7 @@ function validatePackageFiles(adapterDir) {
                     'peerDependencies',
                 ]) {
                     if ((0, typeguards_1.isObject)(packageContent[depType]) && 'npm' in packageContent[depType]) {
+                        // eslint-disable-next-line @typescript-eslint/only-throw-error
                         throw new chai_1.AssertionError(`npm must not be listed in ${depType}, found "${packageContent[depType].npm}"!`);
                     }
                 }
@@ -153,7 +147,6 @@ function validatePackageFiles(adapterDir) {
             beforeEach(function () {
                 skipIfInvalid.call(this, 'io-package.json');
             });
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
             const iopackContent = require(ioPackageJsonPath);
             const requiredProperties = [
                 'common.name',
@@ -169,8 +162,9 @@ function validatePackageFiles(adapterDir) {
             ];
             requiredProperties.forEach(prop => ensurePropertyExists(prop, iopackContent));
             it(`The title does not contain "adapter" or "iobroker"`, () => {
-                if (!iopackContent.title)
+                if (!iopackContent.title) {
                     return;
+                }
                 (0, chai_1.expect)(iopackContent.common.title).not.to.match(/iobroker|adapter/i);
             });
             it(`titleLang is an object to support multiple languages`, () => {
@@ -186,13 +180,11 @@ function validatePackageFiles(adapterDir) {
             });
             it(`common.authors is an array that is not empty`, () => {
                 const authors = iopackContent.common.authors;
-                // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                 (0, chai_1.expect)((0, typeguards_1.isArray)(authors)).to.be.true;
                 (0, chai_1.expect)(authors.length).to.be.at.least(1);
             });
             it(`common.news is an object that contains maximum 20 entries`, () => {
                 const news = iopackContent.common.news;
-                // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                 (0, chai_1.expect)((0, typeguards_1.isObject)(news)).to.be.true;
                 (0, chai_1.expect)(Object.keys(news).length).to.be.at.most(20);
             });
@@ -206,19 +198,16 @@ function validatePackageFiles(adapterDir) {
                         'limited',
                     ]);
                     if (iopackContent.common.licenseInformation.type !== 'free') {
-                        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                         (0, chai_1.expect)(iopackContent.common.licenseInformation.link, 'License link is missing').to.not.be
                             .undefined;
                     }
                 });
                 it(`common.license should not exist together with common.licenseInformation`, () => {
-                    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                     (0, chai_1.expect)(iopackContent.common.license, 'common.license must be removed').to.be.undefined;
                 });
             }
             else {
                 it(`common.license must exist without common.licenseInformation`, () => {
-                    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                     (0, chai_1.expect)(iopackContent.common.license, 'common.licenseInformation (preferred) or common.license (deprecated) must exist').to.not.be.undefined;
                 });
             }
@@ -238,7 +227,6 @@ function validatePackageFiles(adapterDir) {
                         iopackContent.common.adminUI?.config === 'html' ||
                         iopackContent.common.adminUI?.config === 'json' ||
                         iopackContent.common.adminUI?.config === 'materialize';
-                    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                     (0, chai_1.expect)(hasSupportedUI, 'Unsupported Admin UI, must be html, materialize or JSON config!').to.be
                         .true;
                 });
@@ -248,12 +236,10 @@ function validatePackageFiles(adapterDir) {
             beforeEach(function () {
                 skipIfInvalid.call(this, 'package.json', 'io-package.json');
             });
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
             const packageContent = require(packageJsonPath);
-            // eslint-disable-next-line @typescript-eslint/no-require-imports
             const iopackContent = require(ioPackageJsonPath);
             it('The name matches', () => {
-                (0, chai_1.expect)('iobroker.' + iopackContent.common.name).to.equal(packageContent.name);
+                (0, chai_1.expect)(`iobroker.${iopackContent.common.name}`).to.equal(packageContent.name);
             });
             it('The version matches', () => {
                 (0, chai_1.expect)(iopackContent.common.version).to.equal(packageContent.version);

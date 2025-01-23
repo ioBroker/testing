@@ -1,5 +1,4 @@
-// @ts-expect-error no types
-import { composeObject, extend } from 'alcalzone-shared/objects';
+import { extend } from 'alcalzone-shared/objects';
 import { str2regex } from '../../../lib/str2regex';
 import type { MockAdapter } from './mockAdapter';
 
@@ -135,7 +134,7 @@ export class MockDatabase {
 
         const idRegExp = str2regex(pattern);
 
-        return composeObject(
+        return Object.fromEntries(
             [...this.objects.entries()]
                 .filter(([id]) => idRegExp.test(id))
                 .filter(([, obj]) => type == null || obj.type === type),
@@ -145,7 +144,7 @@ export class MockDatabase {
     public getStates(pattern: string): Record<string, ioBroker.State> {
         // combines getStates and getForeignStates into one
         const idRegExp = str2regex(pattern);
-        return composeObject([...this.states.entries()].filter(([id]) => idRegExp.test(id))) as Record<
+        return Object.fromEntries([...this.states.entries()].filter(([id]) => idRegExp.test(id))) as Record<
             string,
             ioBroker.State
         >;
