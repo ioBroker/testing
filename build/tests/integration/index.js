@@ -34,8 +34,8 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.testAdapter = testAdapter;
-const os = __importStar(require("os"));
-const path = __importStar(require("path"));
+const os = __importStar(require("node:os"));
+const path = __importStar(require("node:path"));
 const adapterTools_1 = require("../../lib/adapterTools");
 const adapterSetup_1 = require("./lib/adapterSetup");
 const controllerSetup_1 = require("./lib/controllerSetup");
@@ -66,7 +66,7 @@ function testAdapter(adapterDir, options = {}) {
         const adapterSetup = new adapterSetup_1.AdapterSetup(adapterDir, testDir);
         // Installation happens in two steps:
         // First we need to set up JS Controller, so the databases etc. can be created
-        // First we need to copy all files and execute an npm install
+        // First, we need to copy all files and execute a `npm install`
         await controllerSetup.prepareTestDir(options.controllerVersion);
         // Only then we can install the adapter, because some (including VIS) try to access
         // the databases if JS Controller is installed
@@ -178,7 +178,7 @@ function testAdapter(adapterDir, options = {}) {
             describe('User-defined tests', () => {
                 // patch the global it() function so nobody can bypass the checks
                 global.it = patchedIt;
-                // a test suite is a special describe which sets up and tears down the test environment before and after ALL tests
+                // a test suite is a special `describe`, which sets up and tears down the test environment before and after ALL tests
                 const suiteBody = (fn) => {
                     isInSuite = true;
                     before(resetDbAndStartHarness);

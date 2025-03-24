@@ -1,7 +1,7 @@
 // Add debug logging for tests
 import debugModule from 'debug';
 import { copy, pathExists, readJSON, remove, unlink, writeJSON } from 'fs-extra';
-import * as path from 'path';
+import * as path from 'node:path';
 import { getAdapterDependencies, getAdapterFullName, getAdapterName, getAppName } from '../../../lib/adapterTools';
 import { executeCommand } from '../../../lib/executeCommand';
 import type { DBConnection } from './dbConnection';

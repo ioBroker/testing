@@ -1,4 +1,4 @@
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
 export type ObjectsDB = Record<string, ioBroker.Object>;
 export type StatesDB = Record<string, ioBroker.State>;
 export interface DBConnection {

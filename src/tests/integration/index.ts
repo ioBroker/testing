@@ -1,5 +1,5 @@
-import * as os from 'os';
-import * as path from 'path';
+import * as os from 'node:os';
+import * as path from 'node:path';
 import { getAdapterName, getAppName } from '../../lib/adapterTools';
 import { AdapterSetup } from './lib/adapterSetup';
 import { ControllerSetup } from './lib/controllerSetup';
@@ -79,7 +79,7 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
         // Installation happens in two steps:
         // First we need to set up JS Controller, so the databases etc. can be created
 
-        // First we need to copy all files and execute an npm install
+        // First, we need to copy all files and execute a `npm install`
         await controllerSetup.prepareTestDir(options.controllerVersion);
         // Only then we can install the adapter, because some (including VIS) try to access
         // the databases if JS Controller is installed
@@ -226,7 +226,7 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
                 // patch the global it() function so nobody can bypass the checks
                 global.it = patchedIt;
 
-                // a test suite is a special describe which sets up and tears down the test environment before and after ALL tests
+                // a test suite is a special `describe`, which sets up and tears down the test environment before and after ALL tests
                 const suiteBody = (fn: (getHarness: () => TestHarness) => void): void => {
                     isInSuite = true;
                     before(resetDbAndStartHarness);

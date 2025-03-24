@@ -1,9 +1,9 @@
 import { wait } from 'alcalzone-shared/async';
 import { extend } from 'alcalzone-shared/objects';
-import { type ChildProcess, spawn } from 'child_process';
+import { type ChildProcess, spawn } from 'node:child_process';
 import debugModule from 'debug';
-import { EventEmitter } from 'events';
-import * as path from 'path';
+import { EventEmitter } from 'node:events';
+import * as path from 'node:path';
 import { getAdapterExecutionMode, getAdapterName, getAppName, locateAdapterMainFile } from '../../../lib/adapterTools';
 import type { DBConnection } from './dbConnection';
 import { getTestAdapterDir, getTestControllerDir } from './tools';

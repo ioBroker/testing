@@ -38,13 +38,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DBConnection = void 0;
 const debug_1 = __importDefault(require("debug"));
-const events_1 = __importDefault(require("events"));
+const node_events_1 = __importDefault(require("node:events"));
 const fs_extra_1 = require("fs-extra");
-const path = __importStar(require("path"));
+const path = __importStar(require("node:path"));
 const tools_1 = require("./tools");
 const debug = (0, debug_1.default)('testing:integration:DBConnection');
 /** The DB connection capsules access to the states and objects DB */
-class DBConnection extends events_1.default {
+class DBConnection extends node_events_1.default {
     /**
      * @param appName The branded name of "iobroker"
      * @param testDir The directory the integration tests are executed in

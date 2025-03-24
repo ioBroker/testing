@@ -1,7 +1,7 @@
 import debugModule from 'debug';
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
 import { readFile, readJSONSync, writeFile, writeJSONSync } from 'fs-extra';
-import * as path from 'path';
+import * as path from 'node:path';
 import { getTestControllerDir, getTestDataDir } from './tools';
 
 const debug = debugModule('testing:integration:DBConnection');
