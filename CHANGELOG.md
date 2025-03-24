@@ -4,7 +4,7 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
-## **WORK IN PROGRESS**
+## 5.0.4 (2025-03-24)
 * Corrected the `delState` method in the adapter mock
 
 ## 5.0.3 (2025-01-23)
