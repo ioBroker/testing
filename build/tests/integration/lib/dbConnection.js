@@ -48,6 +48,7 @@ class DBConnection extends events_1.default {
     /**
      * @param appName The branded name of "iobroker"
      * @param testDir The directory the integration tests are executed in
+     * @param logger Logger object
      */
     constructor(appName, testDir, logger) {
         super();
@@ -85,11 +86,18 @@ class DBConnection extends events_1.default {
             }
             return this._statesClient.setStateAsync(...args);
         });
-        this.delState = (...args) => {
+        this.delState = async (...args) => {
             if (!this._statesClient) {
                 throw new Error('States DB is not running');
             }
-            return this._statesClient.delStateAsync(...args);
+            await new Promise((resolve, reject) => this._statesClient.delState(args[0], (err) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    resolve();
+                }
+            }));
         };
         this.getObjectViewAsync = (...args) => {
             if (!this._objectsClient) {
