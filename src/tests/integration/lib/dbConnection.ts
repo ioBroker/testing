@@ -19,6 +19,7 @@ export class DBConnection extends EventEmitter {
     /**
      * @param appName The branded name of "iobroker"
      * @param testDir The directory the integration tests are executed in
+     * @param logger Logger object
      */
     public constructor(
         private appName: string,
@@ -30,8 +31,8 @@ export class DBConnection extends EventEmitter {
         this.testDataDir = getTestDataDir(appName, testDir);
     }
 
-    private testDataDir: string;
-    private testControllerDir: string;
+    private readonly testDataDir: string;
+    private readonly testControllerDir: string;
 
     // TODO: These could use some better type definitions
     private _objectsServer: any;
@@ -279,11 +280,22 @@ export class DBConnection extends EventEmitter {
         return this._statesClient.setStateAsync(...args);
     }) as any;
 
-    public readonly delState: ioBroker.Adapter['delForeignStateAsync'] = (...args): Promise<void> => {
+    public readonly delState: ioBroker.Adapter['delForeignStateAsync'] = async (
+        ...args: [id: string, options?: unknown]
+    ): Promise<void> => {
         if (!this._statesClient) {
             throw new Error('States DB is not running');
         }
-        return this._statesClient.delStateAsync(...args);
+
+        await new Promise<void>((resolve, reject): void =>
+            this._statesClient.delState(args[0], (err: Error): void => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            }),
+        );
     };
 
     public subscribeMessage(id: string): void {
