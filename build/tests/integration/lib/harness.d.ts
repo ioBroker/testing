@@ -1,5 +1,5 @@
-import { type ChildProcess } from 'child_process';
-import { EventEmitter } from 'events';
+import { type ChildProcess } from 'node:child_process';
+import { EventEmitter } from 'node:events';
 import type { DBConnection } from './dbConnection';
 export interface TestHarness {
     on(event: 'objectChange', handler: ioBroker.ObjectChangeHandler): this;

@@ -38,7 +38,7 @@ exports.getTestDataDir = getTestDataDir;
 exports.getTestLogDir = getTestLogDir;
 exports.getTestDBDir = getTestDBDir;
 exports.getTestAdapterDir = getTestAdapterDir;
-const path = __importStar(require("path"));
+const path = __importStar(require("node:path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
 /**
  * Locates the directory where JS-Controller is installed for integration tests

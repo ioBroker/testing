@@ -39,10 +39,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TestHarness = void 0;
 const async_1 = require("alcalzone-shared/async");
 const objects_1 = require("alcalzone-shared/objects");
-const child_process_1 = require("child_process");
+const node_child_process_1 = require("node:child_process");
 const debug_1 = __importDefault(require("debug"));
-const events_1 = require("events");
-const path = __importStar(require("path"));
+const node_events_1 = require("node:events");
+const path = __importStar(require("node:path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
 const tools_1 = require("./tools");
 const debug = (0, debug_1.default)('testing:integration:TestHarness');
@@ -52,7 +52,7 @@ const fromAdapterID = 'system.adapter.test.0';
  * The test harness capsules the execution of the JS-Controller and the adapter instance and monitors their status.
  * Use it in every test to start a fresh adapter instance
  */
-class TestHarness extends events_1.EventEmitter {
+class TestHarness extends node_events_1.EventEmitter {
     /**
      * @param adapterDir The root directory of the adapter
      * @param testDir The directory the integration tests are executed in
@@ -164,7 +164,7 @@ class TestHarness extends events_1.EventEmitter {
             this._adapterExit = code != undefined ? code : signal;
             this.emit('failed', this._adapterExit);
         };
-        this._adapterProcess = (0, child_process_1.spawn)(isWindows ? 'node.exe' : 'node', [mainFileRelative, '--console'], {
+        this._adapterProcess = (0, node_child_process_1.spawn)(isWindows ? 'node.exe' : 'node', [mainFileRelative, '--console'], {
             cwd: this.testAdapterDir,
             stdio: ['inherit', 'inherit', 'inherit'],
             env: { ...process.env, ...env },

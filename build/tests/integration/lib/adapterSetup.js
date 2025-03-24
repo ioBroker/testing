@@ -40,7 +40,7 @@ exports.AdapterSetup = void 0;
 // Add debug logging for tests
 const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = require("fs-extra");
-const path = __importStar(require("path"));
+const path = __importStar(require("node:path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
 const executeCommand_1 = require("../../../lib/executeCommand");
 const tools_1 = require("./tools");

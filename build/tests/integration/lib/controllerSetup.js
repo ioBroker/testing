@@ -40,8 +40,8 @@ exports.ControllerSetup = void 0;
 // Add debug logging for tests
 const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = require("fs-extra");
-const net_1 = require("net");
-const path = __importStar(require("path"));
+const node_net_1 = require("node:net");
+const path = __importStar(require("node:path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
 const executeCommand_1 = require("../../../lib/executeCommand");
 const tools_1 = require("./tools");
@@ -125,7 +125,7 @@ class ControllerSetup {
     isJsControllerRunning() {
         debug('Testing if JS-Controller is running...');
         return new Promise(resolve => {
-            const client = new net_1.Socket();
+            const client = new node_net_1.Socket();
             const timeout = setTimeout(() => {
                 // Assume the connection failed after 1 s
                 client.destroy();
