@@ -30,6 +30,7 @@ export function executeCommand(
     command: string,
     options?: Partial<ExecuteCommandOptions>,
 ): Promise<ExecuteCommandResult>;
+
 /**
  * Executes a command and returns the exit code and (if requested) the stdout
  *
@@ -42,6 +43,14 @@ export function executeCommand(
     args: string[],
     options?: Partial<ExecuteCommandOptions>,
 ): Promise<ExecuteCommandResult>;
+
+/**
+ * Executes a command and returns the exit code and (if requested) the stdout
+ *
+ * @param command The command to execute
+ * @param argsOrOptions The command line arguments for the command
+ * @param options (optional) Some options for the command execution
+ */
 export function executeCommand(
     command: string,
     argsOrOptions?: string[] | Partial<ExecuteCommandOptions>,

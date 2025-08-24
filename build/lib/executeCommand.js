@@ -3,6 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.executeCommand = executeCommand;
 const child_process_1 = require("child_process");
 const isWindows = /^win/.test(process.platform);
+/**
+ * Executes a command and returns the exit code and (if requested) the stdout
+ *
+ * @param command The command to execute
+ * @param argsOrOptions The command line arguments for the command
+ * @param options (optional) Some options for the command execution
+ */
 function executeCommand(command, argsOrOptions, options) {
     return new Promise(resolve => {
         let args;
