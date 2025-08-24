@@ -4,6 +4,10 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
+## **WORK IN PROGRESS**
+* (mcm1957) type definitions for chai, mocha and signon have been moved to dependencies to deliver them to adapter repositories
+* (mcm1957) above change allows removal of chai / mocha / signon dependencies from adapter package.jsons
+
 ## 5.0.4 (2025-03-24)
 * Corrected the `delState` method in the adapter mock
 
