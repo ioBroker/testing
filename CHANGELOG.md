@@ -4,7 +4,7 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
-## __WORK IN PROGRESS__
+## 5.1.1 (2025-08-31)
 * (@Apollon77) Downgrades chai-as-promised type dependency to same major as main dependency
 
 ## 5.1.0 (2025-08-24)
