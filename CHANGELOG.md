@@ -4,6 +4,9 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
+## __WORK IN PROGRESS__
+* (@Apollon77) Downgrades chai-as-promised type dependency to same major as main dependency
+
 ## 5.1.0 (2025-08-24)
 * (mcm1957) type definitions for chai, mocha and sinon have been moved to dependencies to deliver them to adapter repositories
 * NOTE: above change allows removal of chai / mocha / sinon dependencies from adapter package.jsons
