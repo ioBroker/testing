@@ -4,6 +4,10 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
+
+## **WORK IN PROGRESS**
+* (copilot) **BREAKING CHANGE**: Test harness now automatically encrypts/decrypts adapter configuration fields listed in `encryptedNative` during `changeAdapterConfig()`. Added `encryptValue()` and `decryptValue()` methods for manual encryption/decryption. Potential manual code that encrypts data might break now.
+
 ## 5.1.1 (2025-08-31)
 * (@Apollon77) Downgrades chai-as-promised type dependency to same major as main dependency
 

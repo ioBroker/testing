@@ -59,9 +59,26 @@ export declare class TestHarness extends EventEmitter {
     /** Stops the adapter process */
     stopAdapter(): Promise<void> | undefined;
     /**
-     * Updates the adapter config. The changes can be a subset of the target object
+     * Updates the adapter config. The changes can be a subset of the target object.
+     * Fields listed in encryptedNative will be automatically encrypted.
      */
     changeAdapterConfig(adapterName: string, changes: Record<string, any>): Promise<void>;
+    /**
+     * Encrypts a value using the system secret
+     */
+    encryptValue(value: string): Promise<string>;
+    /**
+     * Decrypts a value using the system secret
+     */
+    decryptValue(encryptedValue: string): Promise<string>;
+    /**
+     * Performs XOR encryption/decryption (same operation for both due to XOR properties)
+     */
+    private performEncryption;
+    /**
+     * Performs XOR decryption (same operation as encryption due to XOR properties)
+     */
+    private performDecryption;
     getAdapterExecutionMode(): ioBroker.AdapterCommon['mode'];
     /** Enables the sendTo method */
     enableSendTo(): Promise<void>;

@@ -4,7 +4,13 @@ import { type ChildProcess, spawn } from 'node:child_process';
 import debugModule from 'debug';
 import { EventEmitter } from 'node:events';
 import * as path from 'node:path';
-import { getAdapterExecutionMode, getAdapterName, getAppName, locateAdapterMainFile } from '../../../lib/adapterTools';
+import {
+    getAdapterExecutionMode,
+    getAdapterName,
+    getAppName,
+    locateAdapterMainFile,
+    loadAdapterCommon,
+} from '../../../lib/adapterTools';
 import type { DBConnection } from './dbConnection';
 import { getTestAdapterDir, getTestControllerDir } from './tools';
 
@@ -243,15 +249,81 @@ export class TestHarness extends EventEmitter {
     }
 
     /**
-     * Updates the adapter config. The changes can be a subset of the target object
+     * Updates the adapter config. The changes can be a subset of the target object.
+     * Fields listed in encryptedNative will be automatically encrypted.
      */
     public async changeAdapterConfig(adapterName: string, changes: Record<string, any>): Promise<void> {
         const adapterInstanceId = `system.adapter.${adapterName}.0`;
         const obj = await this.dbConnection.getObject(adapterInstanceId);
         if (obj) {
+            // Get the adapter's common configuration to check for encryptedNative fields
+            const adapterCommon = loadAdapterCommon(this.testAdapterDir);
+            const encryptedNative = adapterCommon.encryptedNative || [];
+
+            // If we have native changes and encrypted fields are defined, encrypt them
+            if (changes.native && encryptedNative.length > 0) {
+                const encryptedFields: string[] = [];
+
+                for (const fieldName of encryptedNative) {
+                    if (changes.native[fieldName] !== undefined) {
+                        const originalValue = changes.native[fieldName];
+                        changes.native[fieldName] = await this.encryptValue(originalValue);
+                        encryptedFields.push(fieldName);
+                    }
+                }
+
+                if (encryptedFields.length > 0) {
+                    debug(`Encrypted fields during config change: ${encryptedFields.join(', ')}`);
+                }
+            }
+
             extend(obj, changes);
             await this.dbConnection.setObject(adapterInstanceId, obj);
         }
+    }
+
+    /**
+     * Encrypts a value using the system secret
+     */
+    public async encryptValue(value: string): Promise<string> {
+        const systemConfig = await this.dbConnection.getObject('system.config');
+        if (!systemConfig || !systemConfig.native || !systemConfig.native.secret) {
+            throw new Error('System configuration or secret not found');
+        }
+
+        const secret = systemConfig.native.secret;
+        return this.performEncryption(value, secret);
+    }
+
+    /**
+     * Decrypts a value using the system secret
+     */
+    public async decryptValue(encryptedValue: string): Promise<string> {
+        const systemConfig = await this.dbConnection.getObject('system.config');
+        if (!systemConfig || !systemConfig.native || !systemConfig.native.secret) {
+            throw new Error('System configuration or secret not found');
+        }
+
+        const secret = systemConfig.native.secret;
+        return this.performDecryption(encryptedValue, secret);
+    }
+
+    /**
+     * Performs XOR encryption/decryption (same operation for both due to XOR properties)
+     */
+    private performEncryption(value: string, secret: string): string {
+        let result = '';
+        for (let i = 0; i < value.length; ++i) {
+            result += String.fromCharCode(secret[i % secret.length].charCodeAt(0) ^ value.charCodeAt(i));
+        }
+        return result;
+    }
+
+    /**
+     * Performs XOR decryption (same operation as encryption due to XOR properties)
+     */
+    private performDecryption(encryptedValue: string, secret: string): string {
+        return this.performEncryption(encryptedValue, secret); // XOR is symmetric
     }
 
     public getAdapterExecutionMode(): ioBroker.AdapterCommon['mode'] {
