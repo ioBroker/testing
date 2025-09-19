@@ -251,7 +251,7 @@ export class TestHarness extends EventEmitter {
         const obj = await this.dbConnection.getObject(adapterInstanceId);
         if (obj) {
             // Get the encryptedNative fields from the adapter object
-            const encryptedNative = obj.common?.encryptedNative || [];
+            const encryptedNative = obj.encryptedNative || [];
 
             // If we have native changes and encrypted fields are defined, encrypt them
             if (changes.native && encryptedNative.length > 0) {
