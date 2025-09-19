@@ -4,13 +4,7 @@ import { type ChildProcess, spawn } from 'node:child_process';
 import debugModule from 'debug';
 import { EventEmitter } from 'node:events';
 import * as path from 'node:path';
-import {
-    getAdapterExecutionMode,
-    getAdapterName,
-    getAppName,
-    locateAdapterMainFile,
-    loadAdapterCommon,
-} from '../../../lib/adapterTools';
+import { getAdapterExecutionMode, getAdapterName, getAppName, locateAdapterMainFile } from '../../../lib/adapterTools';
 import type { DBConnection } from './dbConnection';
 import { getTestAdapterDir, getTestControllerDir } from './tools';
 
@@ -256,9 +250,8 @@ export class TestHarness extends EventEmitter {
         const adapterInstanceId = `system.adapter.${adapterName}.0`;
         const obj = await this.dbConnection.getObject(adapterInstanceId);
         if (obj) {
-            // Get the adapter's common configuration to check for encryptedNative fields
-            const adapterCommon = loadAdapterCommon(this.testAdapterDir);
-            const encryptedNative = adapterCommon.encryptedNative || [];
+            // Get the encryptedNative fields from the adapter object
+            const encryptedNative = obj.common?.encryptedNative || [];
 
             // If we have native changes and encrypted fields are defined, encrypt them
             if (changes.native && encryptedNative.length > 0) {
@@ -282,16 +275,31 @@ export class TestHarness extends EventEmitter {
         }
     }
 
+    private _cachedSecret: string | undefined;
+
     /**
-     * Encrypts a value using the system secret
+     * Gets the system secret, with caching to prevent duplicate reads
      */
-    public async encryptValue(value: string): Promise<string> {
+    private async getSystemSecret(): Promise<string> {
+        if (this._cachedSecret !== undefined) {
+            return this._cachedSecret;
+        }
+
         const systemConfig = await this.dbConnection.getObject('system.config');
         if (!systemConfig || !systemConfig.native || !systemConfig.native.secret) {
             throw new Error('System configuration or secret not found');
         }
 
-        const secret = systemConfig.native.secret;
+        const secret = systemConfig.native.secret as string;
+        this._cachedSecret = secret;
+        return secret;
+    }
+
+    /**
+     * Encrypts a value using the system secret
+     */
+    public async encryptValue(value: string): Promise<string> {
+        const secret = await this.getSystemSecret();
         return this.performEncryption(value, secret);
     }
 
@@ -299,12 +307,7 @@ export class TestHarness extends EventEmitter {
      * Decrypts a value using the system secret
      */
     public async decryptValue(encryptedValue: string): Promise<string> {
-        const systemConfig = await this.dbConnection.getObject('system.config');
-        if (!systemConfig || !systemConfig.native || !systemConfig.native.secret) {
-            throw new Error('System configuration or secret not found');
-        }
-
-        const secret = systemConfig.native.secret;
+        const secret = await this.getSystemSecret();
         return this.performDecryption(encryptedValue, secret);
     }
 

@@ -243,9 +243,8 @@ class TestHarness extends node_events_1.EventEmitter {
         const adapterInstanceId = `system.adapter.${adapterName}.0`;
         const obj = await this.dbConnection.getObject(adapterInstanceId);
         if (obj) {
-            // Get the adapter's common configuration to check for encryptedNative fields
-            const adapterCommon = (0, adapterTools_1.loadAdapterCommon)(this.testAdapterDir);
-            const encryptedNative = adapterCommon.encryptedNative || [];
+            // Get the encryptedNative fields from the adapter object
+            const encryptedNative = obj.common?.encryptedNative || [];
             // If we have native changes and encrypted fields are defined, encrypt them
             if (changes.native && encryptedNative.length > 0) {
                 const encryptedFields = [];
@@ -265,25 +264,32 @@ class TestHarness extends node_events_1.EventEmitter {
         }
     }
     /**
-     * Encrypts a value using the system secret
+     * Gets the system secret, with caching to prevent duplicate reads
      */
-    async encryptValue(value) {
+    async getSystemSecret() {
+        if (this._cachedSecret !== undefined) {
+            return this._cachedSecret;
+        }
         const systemConfig = await this.dbConnection.getObject('system.config');
         if (!systemConfig || !systemConfig.native || !systemConfig.native.secret) {
             throw new Error('System configuration or secret not found');
         }
         const secret = systemConfig.native.secret;
+        this._cachedSecret = secret;
+        return secret;
+    }
+    /**
+     * Encrypts a value using the system secret
+     */
+    async encryptValue(value) {
+        const secret = await this.getSystemSecret();
         return this.performEncryption(value, secret);
     }
     /**
      * Decrypts a value using the system secret
      */
     async decryptValue(encryptedValue) {
-        const systemConfig = await this.dbConnection.getObject('system.config');
-        if (!systemConfig || !systemConfig.native || !systemConfig.native.secret) {
-            throw new Error('System configuration or secret not found');
-        }
-        const secret = systemConfig.native.secret;
+        const secret = await this.getSystemSecret();
         return this.performDecryption(encryptedValue, secret);
     }
     /**

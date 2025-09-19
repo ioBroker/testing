@@ -63,6 +63,11 @@ export declare class TestHarness extends EventEmitter {
      * Fields listed in encryptedNative will be automatically encrypted.
      */
     changeAdapterConfig(adapterName: string, changes: Record<string, any>): Promise<void>;
+    private _cachedSecret;
+    /**
+     * Gets the system secret, with caching to prevent duplicate reads
+     */
+    private getSystemSecret;
     /**
      * Encrypts a value using the system secret
      */
