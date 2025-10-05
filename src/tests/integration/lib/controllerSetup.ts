@@ -80,6 +80,7 @@ export class ControllerSetup {
         debug('(Re-)installing JS Controller...');
         await executeCommand('npm', ['i', '--omit=dev'], {
             cwd: this.testDir,
+            stderr: 'pipe',
         });
         // Prepare/clean the databases and config
         if (wasJsControllerInstalled) {
@@ -167,14 +168,19 @@ export class ControllerSetup {
         await executeCommand('node', [`${this.appName}.js`, 'stop'], {
             cwd: this.testControllerDir,
             stdout: 'ignore',
+            stderr: 'pipe',
         });
 
         const setupResult = await executeCommand('node', [`${this.appName}.js`, 'setup', 'first', '--console'], {
             cwd: this.testControllerDir,
             stdout: 'ignore',
+            stderr: 'pipe',
         });
         if (setupResult.exitCode !== 0) {
-            throw new Error(`${this.appName} setup first failed!`);
+            const errorMessage = setupResult.stderr
+                ? `${this.appName} setup first failed!\nstderr: ${setupResult.stderr}`
+                : `${this.appName} setup first failed!`;
+            throw new Error(errorMessage);
         }
         debug('  => done!');
     }
