@@ -32,11 +32,15 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.validatePackageFiles = validatePackageFiles;
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const chai_1 = require("chai");
 const fs = __importStar(require("fs"));
+const json5_1 = __importDefault(require("json5"));
 const path = __importStar(require("path"));
 /**
  * Tests if the adapter files are valid.
@@ -71,6 +75,26 @@ function validatePackageFiles(adapterDir) {
                 prev = prev[part];
             }
         });
+    }
+    /**
+     * Recursively find all files matching a pattern in a directory
+     */
+    function findFiles(dir, pattern, results = []) {
+        if (!fs.existsSync(dir)) {
+            return results;
+        }
+        const files = fs.readdirSync(dir);
+        for (const file of files) {
+            const filePath = path.join(dir, file);
+            const stat = fs.statSync(filePath);
+            if (stat.isDirectory()) {
+                findFiles(filePath, pattern, results);
+            }
+            else if (pattern.test(file)) {
+                results.push(filePath);
+            }
+        }
+        return results;
     }
     describe(`Validate the package files`, () => {
         describe(`Ensure they are readable`, () => {
@@ -252,6 +276,52 @@ function validatePackageFiles(adapterDir) {
                     (0, chai_1.expect)(iopackContent.common.license).to.equal(packageContent.license);
                 }
             });
+        });
+        describe(`Validate JSON files`, () => {
+            // Find all JSON and JSON5 files in admin/ directory
+            const adminDir = path.join(adapterDir, 'admin');
+            const adminJsonFiles = findFiles(adminDir, /\.json$/);
+            const adminJson5Files = findFiles(adminDir, /\.json5$/);
+            const i18nDir = path.join(adapterDir, 'admin', 'i18n');
+            const i18nJsonFiles = findFiles(i18nDir, /\.json$/);
+            // Combine admin/*.json files (excluding i18n subdirectory)
+            const adminDirectJsonFiles = adminJsonFiles.filter(file => !file.includes(`${path.sep}i18n${path.sep}`));
+            if (adminDirectJsonFiles.length > 0) {
+                describe(`admin/*.json files`, () => {
+                    for (const filePath of adminDirectJsonFiles) {
+                        const relativePath = path.relative(adapterDir, filePath);
+                        it(`${relativePath} contains valid JSON`, () => {
+                            (0, chai_1.expect)(() => {
+                                JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                            }, `${relativePath} contains invalid JSON!`).not.to.throw();
+                        });
+                    }
+                });
+            }
+            if (adminJson5Files.length > 0) {
+                describe(`admin/*.json5 files`, () => {
+                    for (const filePath of adminJson5Files) {
+                        const relativePath = path.relative(adapterDir, filePath);
+                        it(`${relativePath} contains valid JSON5`, () => {
+                            (0, chai_1.expect)(() => {
+                                json5_1.default.parse(fs.readFileSync(filePath, 'utf8'));
+                            }, `${relativePath} contains invalid JSON5!`).not.to.throw();
+                        });
+                    }
+                });
+            }
+            if (i18nJsonFiles.length > 0) {
+                describe(`admin/i18n/**/*.json files`, () => {
+                    for (const filePath of i18nJsonFiles) {
+                        const relativePath = path.relative(adapterDir, filePath);
+                        it(`${relativePath} contains valid JSON`, () => {
+                            (0, chai_1.expect)(() => {
+                                JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                            }, `${relativePath} contains invalid JSON!`).not.to.throw();
+                        });
+                    }
+                });
+            }
         });
     });
     // describe(`Check additional files`, () => {
