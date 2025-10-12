@@ -278,14 +278,13 @@ function validatePackageFiles(adapterDir) {
             });
         });
         describe(`Validate JSON files`, () => {
-            // Find all JSON and JSON5 files in admin/ directory
+            // Find all JSON and JSON5 files in admin/ directory (recursively)
             const adminDir = path.join(adapterDir, 'admin');
-            const adminJsonFiles = findFiles(adminDir, /\.json$/);
-            const adminJson5Files = findFiles(adminDir, /\.json5$/);
-            const i18nDir = path.join(adapterDir, 'admin', 'i18n');
-            const i18nJsonFiles = findFiles(i18nDir, /\.json$/);
-            // Combine admin/*.json files (excluding i18n subdirectory)
-            const adminDirectJsonFiles = adminJsonFiles.filter(file => !file.includes(`${path.sep}i18n${path.sep}`));
+            const allAdminJsonFiles = findFiles(adminDir, /\.json$/);
+            const allAdminJson5Files = findFiles(adminDir, /\.json5$/);
+            // Split JSON files into admin/*.json and admin/i18n/**/*.json
+            const adminDirectJsonFiles = allAdminJsonFiles.filter(file => !file.includes(`${path.sep}i18n${path.sep}`));
+            const i18nJsonFiles = allAdminJsonFiles.filter(file => file.includes(`${path.sep}i18n${path.sep}`));
             if (adminDirectJsonFiles.length > 0) {
                 describe(`admin/*.json files`, () => {
                     for (const filePath of adminDirectJsonFiles) {
@@ -298,9 +297,9 @@ function validatePackageFiles(adapterDir) {
                     }
                 });
             }
-            if (adminJson5Files.length > 0) {
+            if (allAdminJson5Files.length > 0) {
                 describe(`admin/*.json5 files`, () => {
-                    for (const filePath of adminJson5Files) {
+                    for (const filePath of allAdminJson5Files) {
                         const relativePath = path.relative(adapterDir, filePath);
                         it(`${relativePath} contains valid JSON5`, () => {
                             (0, chai_1.expect)(() => {

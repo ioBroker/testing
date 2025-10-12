@@ -4,6 +4,9 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
+## **WORK IN PROGRESS**
+* (Apollon77) Add validation for JSON files in admin/ and admin/i18n/ directories
+
 ## 5.1.1 (2025-08-31)
 * (@Apollon77) Downgrades chai-as-promised type dependency to same major as main dependency
 
