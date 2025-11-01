@@ -44,7 +44,7 @@
     "@iobroker/adapter-core": "^3.3.2",
     "@iobroker/eslint-config": "^2.1.0",
     "@iobroker/types": "^7.0.7",
-    "@tsconfig/node16": "^16.1.4",
+    "@tsconfig/node16": "^16.1.6",
     "@types/debug": "^4.1.12",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^24.6.1",
