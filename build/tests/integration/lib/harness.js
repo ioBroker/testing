@@ -236,15 +236,77 @@ class TestHarness extends node_events_1.EventEmitter {
         });
     }
     /**
-     * Updates the adapter config. The changes can be a subset of the target object
+     * Updates the adapter config. The changes can be a subset of the target object.
+     * Fields listed in encryptedNative will be automatically encrypted.
      */
     async changeAdapterConfig(adapterName, changes) {
         const adapterInstanceId = `system.adapter.${adapterName}.0`;
         const obj = await this.dbConnection.getObject(adapterInstanceId);
         if (obj) {
+            // Get the encryptedNative fields from the adapter object
+            const encryptedNative = obj.common?.encryptedNative || [];
+            // If we have native changes and encrypted fields are defined, encrypt them
+            if (changes.native && encryptedNative.length > 0) {
+                const encryptedFields = [];
+                for (const fieldName of encryptedNative) {
+                    if (changes.native[fieldName] !== undefined) {
+                        const originalValue = changes.native[fieldName];
+                        changes.native[fieldName] = await this.encryptValue(originalValue);
+                        encryptedFields.push(fieldName);
+                    }
+                }
+                if (encryptedFields.length > 0) {
+                    debug(`Encrypted fields during config change: ${encryptedFields.join(', ')}`);
+                }
+            }
             (0, objects_1.extend)(obj, changes);
             await this.dbConnection.setObject(adapterInstanceId, obj);
         }
+    }
+    /**
+     * Gets the system secret, with caching to prevent duplicate reads
+     */
+    async getSystemSecret() {
+        if (this._cachedSecret !== undefined) {
+            return this._cachedSecret;
+        }
+        const systemConfig = await this.dbConnection.getObject('system.config');
+        if (!systemConfig || !systemConfig.native || !systemConfig.native.secret) {
+            throw new Error('System configuration or secret not found');
+        }
+        const secret = systemConfig.native.secret;
+        this._cachedSecret = secret;
+        return secret;
+    }
+    /**
+     * Encrypts a value using the system secret
+     */
+    async encryptValue(value) {
+        const secret = await this.getSystemSecret();
+        return this.performEncryption(value, secret);
+    }
+    /**
+     * Decrypts a value using the system secret
+     */
+    async decryptValue(encryptedValue) {
+        const secret = await this.getSystemSecret();
+        return this.performDecryption(encryptedValue, secret);
+    }
+    /**
+     * Performs XOR encryption/decryption (same operation for both due to XOR properties)
+     */
+    performEncryption(value, secret) {
+        let result = '';
+        for (let i = 0; i < value.length; ++i) {
+            result += String.fromCharCode(secret[i % secret.length].charCodeAt(0) ^ value.charCodeAt(i));
+        }
+        return result;
+    }
+    /**
+     * Performs XOR decryption (same operation as encryption due to XOR properties)
+     */
+    performDecryption(encryptedValue, secret) {
+        return this.performEncryption(encryptedValue, secret); // XOR is symmetric
     }
     getAdapterExecutionMode() {
         return (0, adapterTools_1.getAdapterExecutionMode)(this.testAdapterDir);
