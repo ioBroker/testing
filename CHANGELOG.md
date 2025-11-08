@@ -4,7 +4,7 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
-## **WORK IN PROGRESS**
+## 5.2.2 (2025-11-08)
 * (@Apollon77/@copilot) Exclude admin/tsconfig.json from strict JSON validation as it may contain JSON5 syntax
 * (@Apollon77/@copilot) Add JSON validation for package.json and io-package.json in base directory
 
