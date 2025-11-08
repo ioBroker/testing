@@ -8,6 +8,7 @@
 * (@Apollon77/@copilot) Add validation for JSON files in admin/ and admin/i18n/ directories
 * (@Apollon77/@copilot) Logs npm and installation errors to console for easier debugging
 * (@Apollon77/@copilot) Add support for TypeScript-only adapters that use .ts files as main entry point without transpilation
+* (@Apollon77/@copilot) Re-enabled validation checks for README.md and LICENSE files in packageFiles tests
 
 ## 5.1.1 (2025-08-31)
 * (@Apollon77) Downgrades chai-as-promised type dependency to same major as main dependency
