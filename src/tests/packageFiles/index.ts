@@ -1,6 +1,7 @@
 import { isArray, isObject } from 'alcalzone-shared/typeguards';
 import { AssertionError, expect } from 'chai';
 import * as fs from 'fs';
+import JSON5 from 'json5';
 import * as path from 'path';
 
 /**
@@ -38,6 +39,29 @@ export function validatePackageFiles(adapterDir: string): void {
                 prev = prev[part];
             }
         });
+    }
+
+    /**
+     * Recursively find all files matching a pattern in a directory
+     */
+    function findFiles(dir: string, pattern: RegExp, results: string[] = []): string[] {
+        if (!fs.existsSync(dir)) {
+            return results;
+        }
+
+        const files = fs.readdirSync(dir);
+        for (const file of files) {
+            const filePath = path.join(dir, file);
+            const stat = fs.statSync(filePath);
+
+            if (stat.isDirectory()) {
+                findFiles(filePath, pattern, results);
+            } else if (pattern.test(file)) {
+                results.push(filePath);
+            }
+        }
+
+        return results;
     }
 
     describe(`Validate the package files`, () => {
@@ -259,6 +283,56 @@ export function validatePackageFiles(adapterDir: string): void {
                     expect(iopackContent.common.license).to.equal(packageContent.license);
                 }
             });
+        });
+
+        describe(`Validate JSON files`, () => {
+            // Find all JSON and JSON5 files in admin/ directory (recursively)
+            const adminDir = path.join(adapterDir, 'admin');
+            const allAdminJsonFiles = findFiles(adminDir, /\.json$/);
+            const allAdminJson5Files = findFiles(adminDir, /\.json5$/);
+
+            // Split JSON files into admin/*.json and admin/i18n/**/*.json
+            const adminDirectJsonFiles = allAdminJsonFiles.filter(file => !file.includes(`${path.sep}i18n${path.sep}`));
+            const i18nJsonFiles = allAdminJsonFiles.filter(file => file.includes(`${path.sep}i18n${path.sep}`));
+
+            if (adminDirectJsonFiles.length > 0) {
+                describe(`admin/*.json files`, () => {
+                    for (const filePath of adminDirectJsonFiles) {
+                        const relativePath = path.relative(adapterDir, filePath);
+                        it(`${relativePath} contains valid JSON`, () => {
+                            expect(() => {
+                                JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                            }, `${relativePath} contains invalid JSON!`).not.to.throw();
+                        });
+                    }
+                });
+            }
+
+            if (allAdminJson5Files.length > 0) {
+                describe(`admin/*.json5 files`, () => {
+                    for (const filePath of allAdminJson5Files) {
+                        const relativePath = path.relative(adapterDir, filePath);
+                        it(`${relativePath} contains valid JSON5`, () => {
+                            expect(() => {
+                                JSON5.parse(fs.readFileSync(filePath, 'utf8'));
+                            }, `${relativePath} contains invalid JSON5!`).not.to.throw();
+                        });
+                    }
+                });
+            }
+
+            if (i18nJsonFiles.length > 0) {
+                describe(`admin/i18n/**/*.json files`, () => {
+                    for (const filePath of i18nJsonFiles) {
+                        const relativePath = path.relative(adapterDir, filePath);
+                        it(`${relativePath} contains valid JSON`, () => {
+                            expect(() => {
+                                JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                            }, `${relativePath} contains invalid JSON!`).not.to.throw();
+                        });
+                    }
+                });
+            }
         });
     });
 
