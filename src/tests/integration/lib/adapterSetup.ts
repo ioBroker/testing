@@ -50,9 +50,13 @@ export class AdapterSetup {
         // Therefore pack it into a tarball and put it in the test dir for installation
         const packResult = await executeCommand('npm', ['pack', '--loglevel', 'silent'], {
             stdout: 'pipe',
+            stderr: 'pipe',
         });
         if (packResult.exitCode !== 0 || typeof packResult.stdout !== 'string') {
-            throw new Error(`Packing the adapter tarball failed!`);
+            const errorMessage = packResult.stderr
+                ? `Packing the adapter tarball failed!\nstderr: ${packResult.stderr}`
+                : `Packing the adapter tarball failed!`;
+            throw new Error(errorMessage);
         }
 
         // The last non-empty line of `npm pack`s STDOUT contains the tarball path
@@ -69,6 +73,7 @@ export class AdapterSetup {
         debug('Removing the adapter from package-lock.json');
         await executeCommand('npm', ['uninstall', this.adapterFullName, '--package-lock-only', '--omit=dev'], {
             cwd: this.testDir,
+            stderr: 'pipe',
         });
 
         // Complete the package.json, so npm can do it's magic
@@ -94,6 +99,7 @@ export class AdapterSetup {
         // Defer to npm to install the controller (if it wasn't already)
         await executeCommand('npm', ['i', '--omit=dev'], {
             cwd: this.testDir,
+            stderr: 'pipe',
         });
 
         debug('  => done!');
@@ -112,10 +118,14 @@ export class AdapterSetup {
             {
                 cwd: this.testControllerDir,
                 stdout: 'ignore',
+                stderr: 'pipe',
             },
         );
         if (addResult.exitCode !== 0) {
-            throw new Error(`Adding the adapter instance failed!`);
+            const errorMessage = addResult.stderr
+                ? `Adding the adapter instance failed!\nstderr: ${addResult.stderr}`
+                : `Adding the adapter instance failed!`;
+            throw new Error(errorMessage);
         }
         debug('  => done!');
     }
