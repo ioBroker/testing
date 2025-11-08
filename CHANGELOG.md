@@ -4,7 +4,7 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
-## **WORK IN PROGRESS**
+## 5.2.0 (2025-11-08)
 * (@Apollon77/@copilot) Add validation for JSON files in admin/ and admin/i18n/ directories
 * (@Apollon77/@copilot) Logs npm and installation errors to console for easier debugging
 * (@Apollon77/@copilot) Add validation to fail if iobroker.js-controller is listed as a package.json dependency
