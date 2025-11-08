@@ -1,6 +1,14 @@
 import { type ChildProcess } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import type { DBConnection } from './dbConnection';
+export interface AdapterLog {
+    /** The log level (error, warn, info, debug, silly) */
+    level: ioBroker.LogLevel;
+    /** The timestamp when the log was created */
+    timestamp: Date;
+    /** The log message */
+    message: string;
+}
 export interface TestHarness {
     on(event: 'objectChange', handler: ioBroker.ObjectChangeHandler): this;
     on(event: 'stateChange', handler: ioBroker.StateChangeHandler): this;
@@ -23,6 +31,8 @@ export declare class TestHarness extends EventEmitter {
     private appName;
     private testControllerDir;
     private testAdapterDir;
+    /** Storage for captured adapter logs */
+    private _logs;
     /** Gives direct access to the Objects DB */
     get objects(): any;
     /** Gives direct access to the States DB */
@@ -68,4 +78,25 @@ export declare class TestHarness extends EventEmitter {
     private sendToID;
     /** Sends a message to an adapter instance */
     sendTo(target: string, command: string, message: any, callback: ioBroker.MessageCallback): void;
+    /**
+     * Parses a log line from the adapter output into a structured log object
+     * Expected format: "YYYY-MM-DD HH:MM:SS.mmm <level> <adapter>.<instance> <message>"
+     */
+    private parseLogLine;
+    /**
+     * Returns all captured adapter logs
+     */
+    getLogs(): AdapterLog[];
+    /**
+     * Clears all captured logs
+     */
+    clearLogs(): void;
+    /**
+     * Checks if a log message matching the given criteria exists
+     *
+     * @param pattern RegExp or string to match against log messages
+     * @param level Optional log level to filter by
+     * @returns true if a matching log entry was found
+     */
+    assertLog(pattern: string | RegExp, level?: ioBroker.LogLevel): boolean;
 }

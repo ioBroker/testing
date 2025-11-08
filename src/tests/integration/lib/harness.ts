@@ -12,6 +12,15 @@ const debug = debugModule('testing:integration:TestHarness');
 
 const isWindows = /^win/.test(process.platform);
 
+export interface AdapterLog {
+    /** The log level (error, warn, info, debug, silly) */
+    level: ioBroker.LogLevel;
+    /** The timestamp when the log was created */
+    timestamp: Date;
+    /** The log message */
+    message: string;
+}
+
 export interface TestHarness {
     on(event: 'objectChange', handler: ioBroker.ObjectChangeHandler): this;
     on(event: 'stateChange', handler: ioBroker.StateChangeHandler): this;
@@ -61,6 +70,9 @@ export class TestHarness extends EventEmitter {
     private appName: string;
     private testControllerDir: string;
     private testAdapterDir: string;
+
+    /** Storage for captured adapter logs */
+    private _logs: AdapterLog[] = [];
 
     /** Gives direct access to the Objects DB */
     public get objects(): any {
@@ -159,11 +171,44 @@ export class TestHarness extends EventEmitter {
 
         this._adapterProcess = spawn(isWindows ? 'node.exe' : 'node', [mainFileRelative, '--console'], {
             cwd: this.testAdapterDir,
-            stdio: ['inherit', 'inherit', 'inherit'],
+            stdio: ['inherit', 'pipe', 'pipe'],
             env: { ...process.env, ...env },
         })
             .on('close', onClose)
             .on('exit', onClose);
+
+        // Capture stdout and stderr
+        if (this._adapterProcess.stdout) {
+            this._adapterProcess.stdout.on('data', (data: Buffer) => {
+                const lines = data.toString().split('\n');
+                for (const line of lines) {
+                    if (line.trim()) {
+                        const logEntry = this.parseLogLine(line);
+                        if (logEntry) {
+                            this._logs.push(logEntry);
+                        }
+                        // Also output to console for visibility
+                        console.log(line);
+                    }
+                }
+            });
+        }
+
+        if (this._adapterProcess.stderr) {
+            this._adapterProcess.stderr.on('data', (data: Buffer) => {
+                const lines = data.toString().split('\n');
+                for (const line of lines) {
+                    if (line.trim()) {
+                        const logEntry = this.parseLogLine(line);
+                        if (logEntry) {
+                            this._logs.push(logEntry);
+                        }
+                        // Also output to console for visibility
+                        console.error(line);
+                    }
+                }
+            });
+        }
     }
 
     /**
@@ -298,5 +343,69 @@ export class TestHarness extends EventEmitter {
             },
             (err: any, id: any) => console.log(`published message ${id}`),
         );
+    }
+
+    /**
+     * Parses a log line from the adapter output into a structured log object
+     * Expected format: "YYYY-MM-DD HH:MM:SS.mmm <level> <adapter>.<instance> <message>"
+     */
+    private parseLogLine(line: string): AdapterLog | null {
+        // Match typical ioBroker log format
+        // Example: "2023-11-08 13:31:57.123  info    adapter.0 Adapter started"
+        const logRegex = /^(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(\w+)\s+\S+\s+(.*)$/;
+        const match = line.match(logRegex);
+
+        if (match) {
+            const [, timestamp, level, message] = match;
+            const logLevel = level.toLowerCase() as ioBroker.LogLevel;
+
+            // Validate log level
+            if (['silly', 'debug', 'info', 'warn', 'error'].includes(logLevel)) {
+                return {
+                    level: logLevel,
+                    timestamp: new Date(timestamp),
+                    message: message.trim(),
+                };
+            }
+        }
+
+        // If the line doesn't match the expected format or has an invalid log level,
+        // treat it as info level (fallback for plain console.log statements)
+        return {
+            level: 'info',
+            timestamp: new Date(),
+            message: line.trim(),
+        };
+    }
+
+    /**
+     * Returns all captured adapter logs
+     */
+    public getLogs(): AdapterLog[] {
+        return [...this._logs];
+    }
+
+    /**
+     * Clears all captured logs
+     */
+    public clearLogs(): void {
+        this._logs = [];
+    }
+
+    /**
+     * Checks if a log message matching the given criteria exists
+     *
+     * @param pattern RegExp or string to match against log messages
+     * @param level Optional log level to filter by
+     * @returns true if a matching log entry was found
+     */
+    public assertLog(pattern: string | RegExp, level?: ioBroker.LogLevel): boolean {
+        const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
+
+        return this._logs.some(log => {
+            const levelMatches = !level || log.level === level;
+            const messageMatches = regex.test(log.message);
+            return levelMatches && messageMatches;
+        });
     }
 }

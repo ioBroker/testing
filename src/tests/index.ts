@@ -4,7 +4,7 @@ import { testAdapterWithMocks } from './unit';
 import { createMocks } from './unit/harness/createMocks';
 import { createAsserts } from './unit/mocks/mockDatabase';
 
-export { TestHarness as IntegrationTestHarness } from './integration/lib/harness';
+export { TestHarness as IntegrationTestHarness, type AdapterLog } from './integration/lib/harness';
 export type { MockAdapter } from './unit/mocks/mockAdapter';
 export { MockDatabase } from './unit/mocks/mockDatabase';
 
