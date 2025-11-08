@@ -1,6 +1,6 @@
 // Add debug logging for tests
 import debugModule from 'debug';
-import { emptyDir, ensureDir, pathExists, unlink, writeFile, writeJSON } from 'fs-extra';
+import { emptyDir, ensureDir, pathExists, readFile, unlink, writeFile, writeJSON } from 'fs-extra';
 import { Socket } from 'node:net';
 import * as path from 'node:path';
 import { getAdapterName, getAppName } from '../../../lib/adapterTools';
@@ -37,10 +37,66 @@ export class ControllerSetup {
     private testControllerDir: string;
     private testDataDir: string;
 
+    /**
+     * Gets the path to the file that tracks the installed controller version
+     */
+    private getControllerVersionFilePath(): string {
+        return path.join(this.testDir, '.controller-version');
+    }
+
+    /**
+     * Reads the currently installed controller version from the tracking file
+     */
+    private async getInstalledControllerVersion(): Promise<string | null> {
+        const versionFilePath = this.getControllerVersionFilePath();
+        if (await pathExists(versionFilePath)) {
+            try {
+                const version = await readFile(versionFilePath, 'utf8');
+                return version.trim();
+            } catch (error) {
+                debug(`Failed to read controller version file: ${String(error)}`);
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Saves the controller version to the tracking file
+     */
+    private async saveControllerVersion(version: string): Promise<void> {
+        const versionFilePath = this.getControllerVersionFilePath();
+        await writeFile(versionFilePath, version, 'utf8');
+    }
+
+    /**
+     * Clears the tmp directory when switching controller versions
+     */
+    private async clearTmpDirectory(): Promise<void> {
+        debug('Clearing tmp directory for controller version switch...');
+        // Clear the node_modules directory
+        const nodeModulesPath = path.join(this.testDir, 'node_modules');
+        if (await pathExists(nodeModulesPath)) {
+            await emptyDir(nodeModulesPath);
+        }
+        // Clear the data directory
+        if (await pathExists(this.testDataDir)) {
+            await emptyDir(this.testDataDir);
+        }
+        debug('  => tmp directory cleared!');
+    }
+
     public async prepareTestDir(controllerVersion: string = 'dev'): Promise<void> {
         debug(`Preparing the test directory. JS-Controller version: "${controllerVersion}"...`);
         // Make sure the test dir exists
         await ensureDir(this.testDir);
+
+        // Check if the controller version has changed
+        const installedVersion = await this.getInstalledControllerVersion();
+        if (installedVersion && installedVersion !== controllerVersion) {
+            debug(`Controller version changed from "${installedVersion}" to "${controllerVersion}"`);
+            await this.clearTmpDirectory();
+        }
 
         // Write the package.json
         const packageJson = {
@@ -88,6 +144,9 @@ export class ControllerSetup {
         if (wasJsControllerInstalled) {
             await this.setupJsController();
         }
+
+        // Save the controller version for future reference
+        await this.saveControllerVersion(controllerVersion);
 
         debug('  => done!');
     }
