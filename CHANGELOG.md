@@ -7,6 +7,7 @@
 ## **WORK IN PROGRESS**
 * (@Apollon77/@copilot) Add validation for JSON files in admin/ and admin/i18n/ directories
 * (@Apollon77/@copilot) Logs npm and installation errors to console for easier debugging
+* (@copilot) Add log capture methods to TestHarness for integration tests (`getLogs()`, `assertLog()`, `clearLogs()`)
 
 ## 5.1.1 (2025-08-31)
 * (@Apollon77) Downgrades chai-as-promised type dependency to same major as main dependency
