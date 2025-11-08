@@ -27,7 +27,17 @@
 2. Run `npm run build` to compile to `build/` directory
 3. Run `npm test` to validate changes
 4. Run `npm run lint` to ensure code quality
-5. Built files in `build/` are what get published to npm
+5. **ALWAYS** add a changelog entry to `CHANGELOG.md` under the "**WORK IN PROGRESS**" section for any user-facing changes
+6. Built files in `build/` are what get published to npm
+
+### Changelog Guidelines
+- **REQUIRED**: Add an entry to `CHANGELOG.md` for all feature additions, bug fixes, or behavioral changes
+- Format: `* (@username/@copilot) Description of change`
+- Add entries under the `## **WORK IN PROGRESS**` section
+- Be concise and describe the change from a user's perspective
+- Examples:
+  - `* (@Apollon77/@copilot) Add validation for JSON files in admin/ and admin/i18n/ directories`
+  - `* (@Apollon77/@copilot) Re-enabled validation checks for README.md and LICENSE files in packageFiles tests`
 
 ## Project Structure
 
