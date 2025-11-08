@@ -302,13 +302,30 @@ export function validatePackageFiles(adapterDir: string): void {
         });
 
         describe(`Validate JSON files`, () => {
+            // Validate base directory JSON files
+            describe(`Base directory JSON files`, () => {
+                for (const filename of ['package.json', 'io-package.json']) {
+                    const filePath = path.join(adapterDir, filename);
+                    if (fs.existsSync(filePath)) {
+                        it(`${filename} contains valid JSON`, () => {
+                            expect(() => {
+                                JSON.parse(fs.readFileSync(filePath, 'utf8'));
+                            }, `${filename} contains invalid JSON!`).not.to.throw();
+                        });
+                    }
+                }
+            });
+
             // Find all JSON and JSON5 files in admin/ directory (recursively)
             const adminDir = path.join(adapterDir, 'admin');
             const allAdminJsonFiles = findFiles(adminDir, /\.json$/);
             const allAdminJson5Files = findFiles(adminDir, /\.json5$/);
 
             // Split JSON files into admin/*.json and admin/i18n/**/*.json
-            const adminDirectJsonFiles = allAdminJsonFiles.filter(file => !file.includes(`${path.sep}i18n${path.sep}`));
+            // Exclude tsconfig.json as it may contain JSON5 syntax (comments, trailing commas)
+            const adminDirectJsonFiles = allAdminJsonFiles.filter(
+                file => !file.includes(`${path.sep}i18n${path.sep}`) && !file.endsWith(`${path.sep}tsconfig.json`),
+            );
             const i18nJsonFiles = allAdminJsonFiles.filter(file => file.includes(`${path.sep}i18n${path.sep}`));
 
             if (adminDirectJsonFiles.length > 0) {
