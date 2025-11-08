@@ -157,7 +157,14 @@ export class TestHarness extends EventEmitter {
             this.emit('failed', this._adapterExit);
         };
 
-        this._adapterProcess = spawn(isWindows ? 'node.exe' : 'node', [mainFileRelative, '--console'], {
+        // Determine if we need to use esbuild-register for TypeScript files
+        const isTypeScript = mainFileAbsolute.endsWith('.ts');
+        const command = isWindows ? 'node.exe' : 'node';
+        const args = isTypeScript
+            ? ['-r', '@alcalzone/esbuild-register', mainFileRelative, '--console']
+            : [mainFileRelative, '--console'];
+
+        this._adapterProcess = spawn(command, args, {
             cwd: this.testAdapterDir,
             stdio: ['inherit', 'inherit', 'inherit'],
             env: { ...process.env, ...env },
