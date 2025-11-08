@@ -75,6 +75,35 @@ tests.integration(path.join(__dirname, ".."), {
 			});
 		});
 
+		// Checking adapter logs
+		suite("Check adapter logs", (getHarness) => {
+			let harness;
+			before(() => {
+				harness = getHarness();
+			});
+
+			it("Should check for specific log messages", async () => {
+				// Start the adapter and wait until it has started
+				await harness.startAdapterAndWait();
+
+				// Check if a specific log message exists (using regex)
+				const hasErrorLog = harness.assertLog(/error during startup/, "error");
+				expect(hasErrorLog).to.be.false; // No error should occur
+
+				// Check if an info message exists
+				const hasStartupLog = harness.assertLog(/Adapter.*started/);
+				expect(hasStartupLog).to.be.true;
+
+				// Get all logs for more detailed inspection
+				const logs = harness.getLogs();
+				const errorLogs = logs.filter((log) => log.level === "error");
+				expect(errorLogs).to.have.lengthOf(0); // Should have no errors
+
+				// You can also clear logs if needed
+				harness.clearLogs();
+			});
+		});
+
 		// While developing the tests, you can run only a single suite using `suite.only`...
 		suite.only("Only this will run", (getHarness) => {
 			// ...
@@ -145,6 +174,58 @@ These methods take a mock database and adapter and create a set of asserts for y
 -   `assertStateProperty(id: string | string[], property: string, value: any)` asserts that one of the state's properties (e.g. `from`) has the given value
 -   `assertObjectCommon(id: string | string[], common: ioBroker.ObjectCommon)` asserts that an object's common part includes the given `common` object.
 -   `assertObjectNative(id: string | string[], native: object)` asserts that an object's native part includes the given `native` object.
+
+### TestHarness log methods (Integration tests)
+
+The `TestHarness` class (available in integration tests via `getHarness()`) provides methods to capture and inspect adapter logs:
+
+#### getLogs()
+
+```ts
+const logs = harness.getLogs();
+```
+
+Returns an array of all captured adapter logs. Each log entry is an object with the following structure:
+
+```ts
+interface AdapterLog {
+	level: "silly" | "debug" | "info" | "warn" | "error";
+	timestamp: Date;
+	message: string;
+}
+```
+
+#### clearLogs()
+
+```ts
+harness.clearLogs();
+```
+
+Clears all captured logs. Useful when you want to check only logs generated after a specific point in your test.
+
+#### assertLog()
+
+```ts
+const found = harness.assertLog(pattern, level?);
+```
+
+Checks if a log message matching the given criteria exists. Returns `true` if a matching log entry was found, `false` otherwise.
+
+-   `pattern`: A string or RegExp to match against log messages
+-   `level` (optional): Filter by specific log level (e.g., `"error"`, `"warn"`, `"info"`)
+
+**Examples:**
+
+```ts
+// Check if any log contains "started"
+harness.assertLog(/started/);
+
+// Check if there's an error containing "connection failed"
+harness.assertLog(/connection failed/, "error");
+
+// Check if there's a specific info message
+harness.assertLog("Adapter initialized successfully", "info");
+```
 
 #### MockDatabase
 

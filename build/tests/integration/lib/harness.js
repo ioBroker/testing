@@ -62,6 +62,8 @@ class TestHarness extends node_events_1.EventEmitter {
         this.adapterDir = adapterDir;
         this.testDir = testDir;
         this.dbConnection = dbConnection;
+        /** Storage for captured adapter logs */
+        this._logs = [];
         this.sendToID = 1;
         debug('Creating instance');
         this.adapterName = (0, adapterTools_1.getAdapterName)(this.adapterDir);
@@ -166,11 +168,42 @@ class TestHarness extends node_events_1.EventEmitter {
         };
         this._adapterProcess = (0, node_child_process_1.spawn)(isWindows ? 'node.exe' : 'node', [mainFileRelative, '--console'], {
             cwd: this.testAdapterDir,
-            stdio: ['inherit', 'inherit', 'inherit'],
+            stdio: ['inherit', 'pipe', 'pipe'],
             env: { ...process.env, ...env },
         })
             .on('close', onClose)
             .on('exit', onClose);
+        // Capture stdout and stderr
+        if (this._adapterProcess.stdout) {
+            this._adapterProcess.stdout.on('data', (data) => {
+                const lines = data.toString().split('\n');
+                for (const line of lines) {
+                    if (line.trim()) {
+                        const logEntry = this.parseLogLine(line);
+                        if (logEntry) {
+                            this._logs.push(logEntry);
+                        }
+                        // Also output to console for visibility
+                        console.log(line);
+                    }
+                }
+            });
+        }
+        if (this._adapterProcess.stderr) {
+            this._adapterProcess.stderr.on('data', (data) => {
+                const lines = data.toString().split('\n');
+                for (const line of lines) {
+                    if (line.trim()) {
+                        const logEntry = this.parseLogLine(line);
+                        if (logEntry) {
+                            this._logs.push(logEntry);
+                        }
+                        // Also output to console for visibility
+                        console.error(line);
+                    }
+                }
+            });
+        }
     }
     /**
      * Starts the adapter in a separate process and resolves after it has started
@@ -280,6 +313,62 @@ class TestHarness extends node_events_1.EventEmitter {
                 time: Date.now(),
             },
         }, (err, id) => console.log(`published message ${id}`));
+    }
+    /**
+     * Parses a log line from the adapter output into a structured log object
+     * Expected format: "YYYY-MM-DD HH:MM:SS.mmm <level> <adapter>.<instance> <message>"
+     */
+    parseLogLine(line) {
+        // Match typical ioBroker log format
+        // Example: "2023-11-08 13:31:57.123  info    adapter.0 Adapter started"
+        const logRegex = /^(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(\w+)\s+\S+\s+(.*)$/;
+        const match = line.match(logRegex);
+        if (match) {
+            const [, timestamp, level, message] = match;
+            const logLevel = level.toLowerCase();
+            // Validate log level
+            if (['silly', 'debug', 'info', 'warn', 'error'].includes(logLevel)) {
+                return {
+                    level: logLevel,
+                    timestamp: new Date(timestamp),
+                    message: message.trim(),
+                };
+            }
+        }
+        // If the line doesn't match the expected format or has an invalid log level,
+        // treat it as info level (fallback for plain console.log statements)
+        return {
+            level: 'info',
+            timestamp: new Date(),
+            message: line.trim(),
+        };
+    }
+    /**
+     * Returns all captured adapter logs
+     */
+    getLogs() {
+        return [...this._logs];
+    }
+    /**
+     * Clears all captured logs
+     */
+    clearLogs() {
+        this._logs = [];
+    }
+    /**
+     * Checks if a log message matching the given criteria exists
+     *
+     * @param pattern RegExp or string to match against log messages
+     * @param level Optional log level to filter by
+     * @returns true if a matching log entry was found
+     */
+    assertLog(pattern, level) {
+        const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
+        return this._logs.some(log => {
+            const levelMatches = !level || log.level === level;
+            const messageMatches = regex.test(log.message);
+            return levelMatches && messageMatches;
+        });
     }
 }
 exports.TestHarness = TestHarness;
