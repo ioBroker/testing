@@ -54,6 +54,7 @@
     "typescript": "~5.9.3"
   },
   "dependencies": {
+    "@alcalzone/esbuild-register": "^2.5.1-1",
     "@types/chai": "^4.3.20",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.10",
@@ -67,7 +68,6 @@
     "json5": "^2.2.3",
     "mocha": "^11.7.3",
     "sinon": "^21.0.0",
-    "sinon-chai": "^3.7.0",
-    "tsx": "^4.20.6"
+    "sinon-chai": "^3.7.0"
   }
 }

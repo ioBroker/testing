@@ -157,11 +157,11 @@ export class TestHarness extends EventEmitter {
             this.emit('failed', this._adapterExit);
         };
 
-        // Determine if we need to use tsx for TypeScript files
+        // Determine if we need to use esbuild-register for TypeScript files
         const isTypeScript = mainFileAbsolute.endsWith('.ts');
         const command = isWindows ? 'node.exe' : 'node';
         const args = isTypeScript
-            ? ['--import', 'tsx/esm', mainFileRelative, '--console']
+            ? ['-r', '@alcalzone/esbuild-register', mainFileRelative, '--console']
             : [mainFileRelative, '--console'];
 
         this._adapterProcess = spawn(command, args, {
