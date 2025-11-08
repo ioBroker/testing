@@ -8,6 +8,22 @@ export declare class ControllerSetup {
     private testAdapterDir;
     private testControllerDir;
     private testDataDir;
+    /**
+     * Gets the path to the file that tracks the installed controller version
+     */
+    private getControllerVersionFilePath;
+    /**
+     * Reads the currently installed controller version from the tracking file
+     */
+    private getInstalledControllerVersion;
+    /**
+     * Saves the controller version to the tracking file
+     */
+    private saveControllerVersion;
+    /**
+     * Clears the tmp directory when switching controller versions
+     */
+    private clearTmpDirectory;
     prepareTestDir(controllerVersion?: string): Promise<void>;
     /**
      * Tests if JS-Controller is already installed

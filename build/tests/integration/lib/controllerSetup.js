@@ -63,10 +63,62 @@ class ControllerSetup {
         debug(`  appName:      ${this.appName}`);
         debug(`  adapterName:  ${this.adapterName}`);
     }
+    /**
+     * Gets the path to the file that tracks the installed controller version
+     */
+    getControllerVersionFilePath() {
+        return path.join(this.testDir, '.controller-version');
+    }
+    /**
+     * Reads the currently installed controller version from the tracking file
+     */
+    async getInstalledControllerVersion() {
+        const versionFilePath = this.getControllerVersionFilePath();
+        if (await (0, fs_extra_1.pathExists)(versionFilePath)) {
+            try {
+                const version = await (0, fs_extra_1.readFile)(versionFilePath, 'utf8');
+                return version.trim();
+            }
+            catch (error) {
+                debug(`Failed to read controller version file: ${String(error)}`);
+                return null;
+            }
+        }
+        return null;
+    }
+    /**
+     * Saves the controller version to the tracking file
+     */
+    async saveControllerVersion(version) {
+        const versionFilePath = this.getControllerVersionFilePath();
+        await (0, fs_extra_1.writeFile)(versionFilePath, version, 'utf8');
+    }
+    /**
+     * Clears the tmp directory when switching controller versions
+     */
+    async clearTmpDirectory() {
+        debug('Clearing tmp directory for controller version switch...');
+        // Clear the node_modules directory
+        const nodeModulesPath = path.join(this.testDir, 'node_modules');
+        if (await (0, fs_extra_1.pathExists)(nodeModulesPath)) {
+            await (0, fs_extra_1.emptyDir)(nodeModulesPath);
+        }
+        // Clear the data directory
+        if (await (0, fs_extra_1.pathExists)(this.testDataDir)) {
+            await (0, fs_extra_1.emptyDir)(this.testDataDir);
+        }
+        debug('  => tmp directory cleared!');
+    }
     async prepareTestDir(controllerVersion = 'dev') {
         debug(`Preparing the test directory. JS-Controller version: "${controllerVersion}"...`);
         // Make sure the test dir exists
         await (0, fs_extra_1.ensureDir)(this.testDir);
+        // Check if the controller version has changed
+        const installedVersion = await this.getInstalledControllerVersion();
+        if (installedVersion && installedVersion !== controllerVersion) {
+            debug(`Controller version changed from "${installedVersion}" to "${controllerVersion}"`);
+            await this.clearTmpDirectory();
+        }
         // Write the package.json
         const packageJson = {
             name: path.basename(this.testDir),
@@ -108,6 +160,8 @@ class ControllerSetup {
         if (wasJsControllerInstalled) {
             await this.setupJsController();
         }
+        // Save the controller version for future reference
+        await this.saveControllerVersion(controllerVersion);
         debug('  => done!');
     }
     /**
