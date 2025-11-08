@@ -1,74 +1,105 @@
-import { isArray, isObject } from 'alcalzone-shared/typeguards';
-import { AssertionError, expect } from 'chai';
-import * as fs from 'fs';
-import JSON5 from 'json5';
-import * as path from 'path';
-
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.validatePackageFiles = validatePackageFiles;
+const typeguards_1 = require("alcalzone-shared/typeguards");
+const chai_1 = require("chai");
+const fs = __importStar(require("fs"));
+const json5_1 = __importDefault(require("json5"));
+const path = __importStar(require("path"));
 /**
  * Tests if the adapter files are valid.
  * This is meant to be executed in a mocha context.
  */
-export function validatePackageFiles(adapterDir: string): void {
+function validatePackageFiles(adapterDir) {
     const packageJsonPath = path.join(adapterDir, 'package.json');
     const ioPackageJsonPath = path.join(adapterDir, 'io-package.json');
-
     // This allows us to skip tests that require valid JSON files
-    const invalidFiles: Record<string, boolean> = {
+    const invalidFiles = {
         'package.json': false,
         'io-package.json': false,
     };
-    function skipIfInvalid(this: Mocha.Context, ...filenames: string[]): void | never {
+    function skipIfInvalid(...filenames) {
         if (filenames.some(f => invalidFiles[f])) {
             return this.skip();
         }
     }
-    function markAsInvalid(this: Mocha.Context, filename: string): void {
-        if (this.currentTest!.state === 'failed' && invalidFiles[filename] === false) {
+    function markAsInvalid(filename) {
+        if (this.currentTest.state === 'failed' && invalidFiles[filename] === false) {
             invalidFiles[filename] = true;
             console.error(`Skipping subsequent tests including "${filename}" because they require valid JSON files!`);
         }
     }
-
     /** Ensures that a given property exists on the target object */
-    function ensurePropertyExists(propertyPath: string, targetObj: any): void {
+    function ensurePropertyExists(propertyPath, targetObj) {
         const propertyParts = propertyPath.split('.');
         it(`The property "${propertyPath}" exists`, () => {
             let prev = targetObj;
             for (const part of propertyParts) {
-                expect(prev[part]).to.not.be.undefined;
+                (0, chai_1.expect)(prev[part]).to.not.be.undefined;
                 prev = prev[part];
             }
         });
     }
-
     /**
      * Recursively find all files matching a pattern in a directory
      */
-    function findFiles(dir: string, pattern: RegExp, results: string[] = []): string[] {
+    function findFiles(dir, pattern, results = []) {
         if (!fs.existsSync(dir)) {
             return results;
         }
-
         const files = fs.readdirSync(dir);
         for (const file of files) {
             const filePath = path.join(dir, file);
             const stat = fs.statSync(filePath);
-
             if (stat.isDirectory()) {
                 findFiles(filePath, pattern, results);
-            } else if (pattern.test(file)) {
+            }
+            else if (pattern.test(file)) {
                 results.push(filePath);
             }
         }
-
         return results;
     }
-
     describe(`Validate the package files`, () => {
         describe(`Ensure they are readable`, () => {
             for (const filename of ['package.json', 'io-package.json']) {
                 const packagePath = path.join(adapterDir, filename);
-
                 describe(`${filename}`, () => {
                     afterEach(function () {
                         markAsInvalid.call(this, filename);
@@ -76,35 +107,26 @@ export function validatePackageFiles(adapterDir: string): void {
                     beforeEach(function () {
                         skipIfInvalid.call(this, filename);
                     });
-
                     it('exists', () => {
-                        expect(
-                            fs.existsSync(packagePath),
-                            `${filename} is missing in the adapter dir. Please create it!`,
-                        ).to.be.true;
+                        (0, chai_1.expect)(fs.existsSync(packagePath), `${filename} is missing in the adapter dir. Please create it!`).to.be.true;
                     });
-
                     it('contains valid JSON', () => {
-                        expect(() => {
+                        (0, chai_1.expect)(() => {
                             JSON.parse(fs.readFileSync(packagePath, 'utf8'));
                         }, `${filename} contains invalid JSON!`).not.to.throw();
                     });
-
                     it('is an object', () => {
-                        expect(require(packagePath), `${filename} must contain an object!`).to.be.an('object');
+                        (0, chai_1.expect)(require(packagePath), `${filename} must contain an object!`).to.be.an('object');
                     });
                 });
             }
         });
-
         describe(`Check contents of package.json`, () => {
             beforeEach(function () {
                 skipIfInvalid.call(this, 'package.json');
             });
-
             const packageContent = require(packageJsonPath);
             const iopackContent = require(ioPackageJsonPath);
-
             const requiredProperties = [
                 'name',
                 'version',
@@ -115,70 +137,54 @@ export function validatePackageFiles(adapterDir: string): void {
                 'repository.type',
             ];
             requiredProperties.forEach(prop => ensurePropertyExists(prop, packageContent));
-
             it('The package name is correct', () => {
-                let name: string = packageContent.name;
-                expect(name).to.match(/^iobroker\./, `The npm package name must start with lowercase "iobroker."!`);
+                let name = packageContent.name;
+                (0, chai_1.expect)(name).to.match(/^iobroker\./, `The npm package name must start with lowercase "iobroker."!`);
                 name = name.replace(/^iobroker\./, '');
-
-                expect(name).to.match(
-                    /[-a-z0-9_]+/,
-                    `The adapter name must only contain lowercase letters, numbers, "-" and "_"!`,
-                );
-                expect(name).to.match(/^[a-z]/, `The adapter name must start with a letter!`);
-                expect(name).to.match(/[a-z0-9]$/, `The adapter name must end with a letter or number!`);
+                (0, chai_1.expect)(name).to.match(/[-a-z0-9_]+/, `The adapter name must only contain lowercase letters, numbers, "-" and "_"!`);
+                (0, chai_1.expect)(name).to.match(/^[a-z]/, `The adapter name must start with a letter!`);
+                (0, chai_1.expect)(name).to.match(/[a-z0-9]$/, `The adapter name must end with a letter or number!`);
             });
-
             if (!iopackContent.common.onlyWWW) {
                 it(`property main is defined for non onlyWWW adapters`, () => {
-                    expect(packageContent.main).to.not.be.undefined;
+                    (0, chai_1.expect)(packageContent.main).to.not.be.undefined;
                 });
             }
-
             it(`The repository type is "git"`, () => {
-                expect(packageContent.repository.type).to.equal('git');
+                (0, chai_1.expect)(packageContent.repository.type).to.equal('git');
             });
-
             it('npm is not listed as a dependency', () => {
                 for (const depType of [
                     'dependencies',
                     'devDependencies',
                     'optionalDependencies',
                     'peerDependencies',
-                ] as const) {
-                    if (isObject(packageContent[depType]) && 'npm' in packageContent[depType]) {
+                ]) {
+                    if ((0, typeguards_1.isObject)(packageContent[depType]) && 'npm' in packageContent[depType]) {
                         // eslint-disable-next-line @typescript-eslint/only-throw-error
-                        throw new AssertionError(
-                            `npm must not be listed in ${depType}, found "${packageContent[depType].npm}"!`,
-                        );
+                        throw new chai_1.AssertionError(`npm must not be listed in ${depType}, found "${packageContent[depType].npm}"!`);
                     }
                 }
             });
-
             it('iobroker.js-controller is not listed as a dependency', () => {
                 for (const depType of [
                     'dependencies',
                     'devDependencies',
                     'optionalDependencies',
                     'peerDependencies',
-                ] as const) {
-                    if (isObject(packageContent[depType]) && 'iobroker.js-controller' in packageContent[depType]) {
+                ]) {
+                    if ((0, typeguards_1.isObject)(packageContent[depType]) && 'iobroker.js-controller' in packageContent[depType]) {
                         // eslint-disable-next-line @typescript-eslint/only-throw-error
-                        throw new AssertionError(
-                            `iobroker.js-controller must not be listed in ${depType}, found "${packageContent[depType]['iobroker.js-controller']}"!`,
-                        );
+                        throw new chai_1.AssertionError(`iobroker.js-controller must not be listed in ${depType}, found "${packageContent[depType]['iobroker.js-controller']}"!`);
                     }
                 }
             });
         });
-
         describe(`Check contents of io-package.json`, () => {
             beforeEach(function () {
                 skipIfInvalid.call(this, 'io-package.json');
             });
-
             const iopackContent = require(ioPackageJsonPath);
-
             const requiredProperties = [
                 'common.name',
                 'common.titleLang',
@@ -192,115 +198,98 @@ export function validatePackageFiles(adapterDir: string): void {
                 'native',
             ];
             requiredProperties.forEach(prop => ensurePropertyExists(prop, iopackContent));
-
             it(`The title does not contain "adapter" or "iobroker"`, () => {
                 if (!iopackContent.title) {
                     return;
                 }
-                expect(iopackContent.common.title).not.to.match(/iobroker|adapter/i);
+                (0, chai_1.expect)(iopackContent.common.title).not.to.match(/iobroker|adapter/i);
             });
             it(`titleLang is an object to support multiple languages`, () => {
-                expect(iopackContent.common.titleLang).to.be.an('object');
+                (0, chai_1.expect)(iopackContent.common.titleLang).to.be.an('object');
             });
             it(`titleLang does not contain "adapter" or "iobroker"`, () => {
                 for (const title of Object.values(iopackContent.common.titleLang)) {
-                    expect(title).not.to.match(/iobroker|adapter/i);
+                    (0, chai_1.expect)(title).not.to.match(/iobroker|adapter/i);
                 }
             });
             it(`The description is an object to support multiple languages`, () => {
-                expect(iopackContent.common.desc).to.be.an('object');
+                (0, chai_1.expect)(iopackContent.common.desc).to.be.an('object');
             });
             it(`common.authors is an array that is not empty`, () => {
                 const authors = iopackContent.common.authors;
-                expect(isArray(authors)).to.be.true;
-                expect(authors.length).to.be.at.least(1);
+                (0, chai_1.expect)((0, typeguards_1.isArray)(authors)).to.be.true;
+                (0, chai_1.expect)(authors.length).to.be.at.least(1);
             });
-
             it(`common.news is an object that contains maximum 20 entries`, () => {
                 const news = iopackContent.common.news;
-                expect(isObject(news)).to.be.true;
-                expect(Object.keys(news).length).to.be.at.most(20);
+                (0, chai_1.expect)((0, typeguards_1.isObject)(news)).to.be.true;
+                (0, chai_1.expect)(Object.keys(news).length).to.be.at.most(20);
             });
-
             if (iopackContent.common.licenseInformation) {
                 it(`if common.licenseInformation exists, it is an object with required properties`, () => {
-                    expect(iopackContent.common.licenseInformation).to.be.an('object');
-                    expect(iopackContent.common.licenseInformation.type).to.be.oneOf([
+                    (0, chai_1.expect)(iopackContent.common.licenseInformation).to.be.an('object');
+                    (0, chai_1.expect)(iopackContent.common.licenseInformation.type).to.be.oneOf([
                         'free',
                         'commercial',
                         'paid',
                         'limited',
                     ]);
-
                     if (iopackContent.common.licenseInformation.type !== 'free') {
-                        expect(iopackContent.common.licenseInformation.link, 'License link is missing').to.not.be
+                        (0, chai_1.expect)(iopackContent.common.licenseInformation.link, 'License link is missing').to.not.be
                             .undefined;
                     }
                 });
-
                 it(`common.license should not exist together with common.licenseInformation`, () => {
-                    expect(iopackContent.common.license, 'common.license must be removed').to.be.undefined;
-                });
-            } else {
-                it(`common.license must exist without common.licenseInformation`, () => {
-                    expect(
-                        iopackContent.common.license,
-                        'common.licenseInformation (preferred) or common.license (deprecated) must exist',
-                    ).to.not.be.undefined;
+                    (0, chai_1.expect)(iopackContent.common.license, 'common.license must be removed').to.be.undefined;
                 });
             }
-
+            else {
+                it(`common.license must exist without common.licenseInformation`, () => {
+                    (0, chai_1.expect)(iopackContent.common.license, 'common.licenseInformation (preferred) or common.license (deprecated) must exist').to.not.be.undefined;
+                });
+            }
             if (iopackContent.common.tier != undefined) {
                 it(`common.tier must be 1, 2 or 3`, () => {
-                    expect(iopackContent.common.tier).to.be.at.least(1);
-                    expect(iopackContent.common.tier).to.be.at.most(3);
+                    (0, chai_1.expect)(iopackContent.common.tier).to.be.at.least(1);
+                    (0, chai_1.expect)(iopackContent.common.tier).to.be.at.most(3);
                 });
             }
-
             // If the adapter has a configuration page, check that a supported admin UI is used
-            const hasNoConfigPage =
-                iopackContent.common.noConfig === true ||
+            const hasNoConfigPage = iopackContent.common.noConfig === true ||
                 iopackContent.common.noConfig === 'true' ||
                 iopackContent.common.adminUI?.config === 'none';
             if (!hasNoConfigPage) {
                 it('The adapter uses a supported admin UI', () => {
-                    const hasSupportedUI =
-                        !!iopackContent.common.materialize ||
+                    const hasSupportedUI = !!iopackContent.common.materialize ||
                         iopackContent.common.adminUI?.config === 'html' ||
                         iopackContent.common.adminUI?.config === 'json' ||
                         iopackContent.common.adminUI?.config === 'materialize';
-
-                    expect(hasSupportedUI, 'Unsupported Admin UI, must be html, materialize or JSON config!').to.be
+                    (0, chai_1.expect)(hasSupportedUI, 'Unsupported Admin UI, must be html, materialize or JSON config!').to.be
                         .true;
                 });
             }
         });
-
         describe(`Compare contents of package.json and io-package.json`, () => {
             beforeEach(function () {
                 skipIfInvalid.call(this, 'package.json', 'io-package.json');
             });
-
             const packageContent = require(packageJsonPath);
             const iopackContent = require(ioPackageJsonPath);
-
             it('The name matches', () => {
-                expect(`iobroker.${iopackContent.common.name}`).to.equal(packageContent.name);
+                (0, chai_1.expect)(`iobroker.${iopackContent.common.name}`).to.equal(packageContent.name);
             });
-
             it('The version matches', () => {
-                expect(iopackContent.common.version).to.equal(packageContent.version);
+                (0, chai_1.expect)(iopackContent.common.version).to.equal(packageContent.version);
             });
-
             it('The license matches', () => {
                 if (iopackContent.common.licenseInformation) {
-                    expect(iopackContent.common.licenseInformation.license).to.equal(packageContent.license);
-                } else {
-                    expect(iopackContent.common.license).to.equal(packageContent.license);
+                    (0, chai_1.expect)(iopackContent.common.licenseInformation.license).to.equal(packageContent.license);
+                }
+                else {
+                    (0, chai_1.expect)(iopackContent.common.license).to.equal(packageContent.license);
                 }
             });
         });
-
         describe(`Validate JSON files`, () => {
             // Validate base directory JSON files
             describe(`Base directory JSON files`, () => {
@@ -308,58 +297,51 @@ export function validatePackageFiles(adapterDir: string): void {
                     const filePath = path.join(adapterDir, filename);
                     if (fs.existsSync(filePath)) {
                         it(`${filename} contains valid JSON`, () => {
-                            expect(() => {
+                            (0, chai_1.expect)(() => {
                                 JSON.parse(fs.readFileSync(filePath, 'utf8'));
                             }, `${filename} contains invalid JSON!`).not.to.throw();
                         });
                     }
                 }
             });
-
             // Find all JSON and JSON5 files in admin/ directory (recursively)
             const adminDir = path.join(adapterDir, 'admin');
             const allAdminJsonFiles = findFiles(adminDir, /\.json$/);
             const allAdminJson5Files = findFiles(adminDir, /\.json5$/);
-
             // Split JSON files into admin/*.json and admin/i18n/**/*.json
             // Exclude tsconfig.json as it may contain JSON5 syntax (comments, trailing commas)
-            const adminDirectJsonFiles = allAdminJsonFiles.filter(
-                file => !file.includes(`${path.sep}i18n${path.sep}`) && !file.endsWith(`${path.sep}tsconfig.json`),
-            );
+            const adminDirectJsonFiles = allAdminJsonFiles.filter(file => !file.includes(`${path.sep}i18n${path.sep}`) && !file.endsWith(`${path.sep}tsconfig.json`));
             const i18nJsonFiles = allAdminJsonFiles.filter(file => file.includes(`${path.sep}i18n${path.sep}`));
-
             if (adminDirectJsonFiles.length > 0) {
                 describe(`admin/*.json files`, () => {
                     for (const filePath of adminDirectJsonFiles) {
                         const relativePath = path.relative(adapterDir, filePath);
                         it(`${relativePath} contains valid JSON`, () => {
-                            expect(() => {
+                            (0, chai_1.expect)(() => {
                                 JSON.parse(fs.readFileSync(filePath, 'utf8'));
                             }, `${relativePath} contains invalid JSON!`).not.to.throw();
                         });
                     }
                 });
             }
-
             if (allAdminJson5Files.length > 0) {
                 describe(`admin/*.json5 files`, () => {
                     for (const filePath of allAdminJson5Files) {
                         const relativePath = path.relative(adapterDir, filePath);
                         it(`${relativePath} contains valid JSON5`, () => {
-                            expect(() => {
-                                JSON5.parse(fs.readFileSync(filePath, 'utf8'));
+                            (0, chai_1.expect)(() => {
+                                json5_1.default.parse(fs.readFileSync(filePath, 'utf8'));
                             }, `${relativePath} contains invalid JSON5!`).not.to.throw();
                         });
                     }
                 });
             }
-
             if (i18nJsonFiles.length > 0) {
                 describe(`admin/i18n/**/*.json files`, () => {
                     for (const filePath of i18nJsonFiles) {
                         const relativePath = path.relative(adapterDir, filePath);
                         it(`${relativePath} contains valid JSON`, () => {
-                            expect(() => {
+                            (0, chai_1.expect)(() => {
                                 JSON.parse(fs.readFileSync(filePath, 'utf8'));
                             }, `${relativePath} contains invalid JSON!`).not.to.throw();
                         });
@@ -368,26 +350,17 @@ export function validatePackageFiles(adapterDir: string): void {
             }
         });
     });
-
     describe(`Check additional files`, () => {
         it('README.md exists', () => {
-            expect(
-                fs.existsSync(path.join(adapterDir, 'README.md')),
-                `README.md is missing in the adapter dir. Please create it!`,
-            ).to.be.true;
+            (0, chai_1.expect)(fs.existsSync(path.join(adapterDir, 'README.md')), `README.md is missing in the adapter dir. Please create it!`).to.be.true;
         });
-
         it('LICENSE exists or is present in the README.md', () => {
             const licenseExists = fs.existsSync(path.join(adapterDir, 'LICENSE'));
             if (licenseExists) {
                 return;
             }
-
             const readmeContent = fs.readFileSync(path.join(adapterDir, 'README.md'), 'utf8');
-            expect(readmeContent).to.match(
-                /## LICENSE/i,
-                `The license should be in a file "LICENSE" or be included in "README.md" as a 2nd level headline!`,
-            );
+            (0, chai_1.expect)(readmeContent).to.match(/## LICENSE/i, `The license should be in a file "LICENSE" or be included in "README.md" as a 2nd level headline!`);
         });
     });
 }
