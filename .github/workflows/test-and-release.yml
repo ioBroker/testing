@@ -21,7 +21,7 @@ concurrency:
 permissions:
     id-token: write  # Required for OIDC
     contents: read
-  
+
 jobs:
     # Performs quick checks before the expensive test runs
     check-and-lint:
@@ -133,7 +133,7 @@ jobs:
 
             - name: Publish package to npm
               run: |
-                  pm install -g npm@latest
+                  npm install -g npm@latest
                   npm publish
 
             - name: Create Github Release
