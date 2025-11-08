@@ -308,7 +308,10 @@ export function validatePackageFiles(adapterDir: string): void {
             const allAdminJson5Files = findFiles(adminDir, /\.json5$/);
 
             // Split JSON files into admin/*.json and admin/i18n/**/*.json
-            const adminDirectJsonFiles = allAdminJsonFiles.filter(file => !file.includes(`${path.sep}i18n${path.sep}`));
+            // Exclude tsconfig.json as it may contain JSON5 syntax (comments, trailing commas)
+            const adminDirectJsonFiles = allAdminJsonFiles.filter(
+                file => !file.includes(`${path.sep}i18n${path.sep}`) && !file.endsWith(`${path.sep}tsconfig.json`),
+            );
             const i18nJsonFiles = allAdminJsonFiles.filter(file => file.includes(`${path.sep}i18n${path.sep}`));
 
             if (adminDirectJsonFiles.length > 0) {

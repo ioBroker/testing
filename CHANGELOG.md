@@ -4,6 +4,9 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
+## **WORK IN PROGRESS**
+* (@Apollon77/@copilot) Exclude admin/tsconfig.json from strict JSON validation as it may contain JSON5 syntax
+
 ## 5.2.1 (2025-11-08)
 * (@Apollon77/@copilot) Add validation for JSON files in admin/ and admin/i18n/ directories
 * (@Apollon77/@copilot) Logs npm and installation errors to console for easier debugging
