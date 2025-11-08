@@ -154,6 +154,22 @@ export function validatePackageFiles(adapterDir: string): void {
                     }
                 }
             });
+
+            it('iobroker.js-controller is not listed as a dependency', () => {
+                for (const depType of [
+                    'dependencies',
+                    'devDependencies',
+                    'optionalDependencies',
+                    'peerDependencies',
+                ] as const) {
+                    if (isObject(packageContent[depType]) && 'iobroker.js-controller' in packageContent[depType]) {
+                        // eslint-disable-next-line @typescript-eslint/only-throw-error
+                        throw new AssertionError(
+                            `iobroker.js-controller must not be listed in ${depType}, found "${packageContent[depType]['iobroker.js-controller']}"!`,
+                        );
+                    }
+                }
+            });
         });
 
         describe(`Check contents of io-package.json`, () => {
