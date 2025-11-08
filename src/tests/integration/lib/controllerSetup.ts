@@ -55,6 +55,8 @@ export class ControllerSetup {
             license: 'ISC',
             dependencies: {
                 [`${this.appName}.js-controller`]: controllerVersion,
+                // tsx is needed to run TypeScript adapters
+                tsx: '^4.20.6',
             },
             description: '',
         };
