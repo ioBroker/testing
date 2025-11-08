@@ -94,11 +94,28 @@ async function locateAdapterMainFile(adapterDir) {
         debug(`  => found ${mainFile}`);
         return ret;
     }
+    // If the specified file doesn't exist and ends with .js, try the .ts equivalent
+    if (mainFile.endsWith('.js')) {
+        const tsFile = mainFile.replace(/\.js$/, '.ts');
+        ret = path.join(adapterDir, tsFile);
+        debug(`  => trying ${ret}`);
+        if (await (0, fs_extra_1.pathExists)(ret)) {
+            debug(`  => found ${tsFile}`);
+            return ret;
+        }
+    }
     // If both don't exist, JS-Controller uses <adapter name>.js as another fallback
     ret = path.join(adapterDir, `${ioPackage.common.name}.js`);
     debug(`  => trying ${ret}`);
     if (await (0, fs_extra_1.pathExists)(ret)) {
-        debug(`  => found ${mainFile}`);
+        debug(`  => found ${ioPackage.common.name}.js`);
+        return ret;
+    }
+    // Also try <adapter name>.ts as a fallback
+    ret = path.join(adapterDir, `${ioPackage.common.name}.ts`);
+    debug(`  => trying ${ret}`);
+    if (await (0, fs_extra_1.pathExists)(ret)) {
+        debug(`  => found ${ioPackage.common.name}.ts`);
         return ret;
     }
     throw new Error(`The adapter main file was not found in ${adapterDir}`);

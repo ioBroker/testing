@@ -352,23 +352,25 @@ export function validatePackageFiles(adapterDir: string): void {
         });
     });
 
-    // describe(`Check additional files`, () => {
-    // 	it("README.md exists", () => {
-    // 		expect(
-    // 			fs.existsSync(path.join(adapterDir, "README.md")),
-    // 			`README.md is missing in the adapter dir. Please create it!`,
-    // 		).to.be.true;
-    // 	});
+    describe(`Check additional files`, () => {
+        it('README.md exists', () => {
+            expect(
+                fs.existsSync(path.join(adapterDir, 'README.md')),
+                `README.md is missing in the adapter dir. Please create it!`,
+            ).to.be.true;
+        });
 
-    // 	it("LICENSE exists or is present in the README.md", () => {
-    // 		const licenseExists = fs.existsSync(path.join(adapterDir, "LICENSE"));
-    // 		if (licenseExists) return;
+        it('LICENSE exists or is present in the README.md', () => {
+            const licenseExists = fs.existsSync(path.join(adapterDir, 'LICENSE'));
+            if (licenseExists) {
+                return;
+            }
 
-    // 		const readmeContent = fs.readFileSync(path.join(adapterDir, "README.md"), "utf8");
-    // 		expect(readmeContent).to.match(
-    // 			/## LICENSE/i,
-    // 			`The license should be in a file "LICENSE" or be included in "README.md" as a 2nd level headline!`,
-    // 		);
-    // 	});
-    // });
+            const readmeContent = fs.readFileSync(path.join(adapterDir, 'README.md'), 'utf8');
+            expect(readmeContent).to.match(
+                /## LICENSE/i,
+                `The license should be in a file "LICENSE" or be included in "README.md" as a 2nd level headline!`,
+            );
+        });
+    });
 }

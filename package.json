@@ -8,8 +8,8 @@
     "build/"
   ],
   "scripts": {
-    "test": "mocha src/**/*.test.ts",
-    "test:watch": "mocha src/**/*.test.ts --watch",
+    "test": "mocha \"src/**/*.test.ts\"",
+    "test:watch": "mocha \"src/**/*.test.ts\" --watch",
     "prebuild": "rimraf ./build",
     "build": "tsc -p tsconfig.build.json",
     "prewatch": "rimraf ./build",
@@ -54,6 +54,7 @@
     "typescript": "~5.9.3"
   },
   "dependencies": {
+    "@alcalzone/esbuild-register": "^2.5.1-1",
     "@types/chai": "^4.3.20",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.10",

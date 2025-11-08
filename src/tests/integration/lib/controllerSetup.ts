@@ -55,6 +55,8 @@ export class ControllerSetup {
             license: 'ISC',
             dependencies: {
                 [`${this.appName}.js-controller`]: controllerVersion,
+                // @alcalzone/esbuild-register is needed to run TypeScript adapters
+                '@alcalzone/esbuild-register': '^2.5.1-1',
             },
             description: '',
         };
