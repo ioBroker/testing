@@ -8,8 +8,8 @@
     "build/"
   ],
   "scripts": {
-    "test": "mocha src/**/*.test.ts",
-    "test:watch": "mocha src/**/*.test.ts --watch",
+    "test": "mocha \"src/**/*.test.ts\"",
+    "test:watch": "mocha \"src/**/*.test.ts\" --watch",
     "prebuild": "rimraf ./build",
     "build": "tsc -p tsconfig.build.json",
     "prewatch": "rimraf ./build",
@@ -67,6 +67,7 @@
     "json5": "^2.2.3",
     "mocha": "^11.7.3",
     "sinon": "^21.0.0",
-    "sinon-chai": "^3.7.0"
+    "sinon-chai": "^3.7.0",
+    "tsx": "^4.20.6"
   }
 }
