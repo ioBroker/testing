@@ -13,6 +13,15 @@ on:
             - 'v[0-9]+.[0-9]+.[0-9]+-**'
     pull_request: {}
 
+# Cancel previous PR/branch runs when a new commit is pushed
+concurrency:
+    group: ${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    id-token: write  # Required for OIDC
+    contents: read
+  
 jobs:
     # Performs quick checks before the expensive test runs
     check-and-lint:
@@ -103,6 +112,19 @@ jobs:
                   node-version: ${{ matrix.node-version }}
                   cache: 'npm'
 
+            - name: Extract the version and commit body from the tag
+              id: extract_release
+              # The body may be multiline, therefore we need to escape some characters
+              run: |
+                VERSION="${{ github.ref }}"
+                VERSION=${VERSION##*/v}
+                echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+                EOF=$(od -An -N6 -x /dev/urandom | tr -d ' ')
+                BODY=$(git show -s --format=%b)
+                echo "BODY<<$EOF" >> $GITHUB_OUTPUT
+                echo "$BODY" >> $GITHUB_OUTPUT
+                echo "$EOF" >> $GITHUB_OUTPUT
+
             - name: Install dependencies
               run: npm ci
 
@@ -111,6 +133,17 @@ jobs:
 
             - name: Publish package to npm
               run: |
-                  npm config set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
-                  npm whoami
+                  pm install -g npm@latest
                   npm publish
+
+            - name: Create Github Release
+              uses: softprops/action-gh-release@v2
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                tag_name: ${{ github.ref }}
+                name: Release v${{ steps.extract_release.outputs.VERSION }}
+                draft: false
+                # Prerelease versions create prereleases on Github
+                prerelease: ${{ contains(steps.extract_release.outputs.VERSION, '-') }}
+                body: ${{ steps.extract_release.outputs.BODY }}
