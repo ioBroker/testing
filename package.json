@@ -58,7 +58,7 @@
     "@types/chai": "^4.3.20",
     "@types/chai-as-promised": "^7.1.8",
     "@types/mocha": "^10.0.10",
-    "@types/sinon": "^17.0.4",
+    "@types/sinon": "^21.0.0",
     "@types/sinon-chai": "^3.2.12",
     "alcalzone-shared": "~5.0.0",
     "chai": "^4.5.0",
@@ -67,7 +67,7 @@
     "fs-extra": "^11.3.3",
     "json5": "^2.2.3",
     "mocha": "^11.7.5",
-    "sinon": "^21.0.0",
+    "sinon": "^21.0.1",
     "sinon-chai": "^3.7.0"
   }
 }
