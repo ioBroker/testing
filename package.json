@@ -61,7 +61,7 @@
     "@types/sinon": "^17.0.4",
     "@types/sinon-chai": "^3.2.12",
     "alcalzone-shared": "~5.0.0",
-    "chai": "^4.5.0",
+    "chai": "^6.2.2",
     "chai-as-promised": "^7.1.2",
     "debug": "^4.4.3",
     "fs-extra": "^11.3.3",
