@@ -4,7 +4,7 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
-## **WORK IN PROGRESS**
+## 5.3.0 (2026-07-11)
 * (@GermanBluefox) Pin js-controller to 7.2.2 on Node.js <= 20, as 7.2.3 dropped support for Node.js 18 and 20 (only applies when no explicit `controllerVersion` is set)
 * (@GermanBluefox) Migrated to TypeScript 6: removed the unused `paths` mapping that is no longer allowed without `baseUrl` under TS6
 
