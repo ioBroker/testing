@@ -1,9 +1,9 @@
 enum LoglevelOrder {
-    'error',
-    'warn',
-    'info',
-    'debug',
-    'silly',
+    error,
+    warn,
+    info,
+    debug,
+    silly,
 }
 
 export function createLogger(loglevel: ioBroker.LogLevel): ioBroker.Logger {

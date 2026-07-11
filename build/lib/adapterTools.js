@@ -51,7 +51,7 @@ exports.getAdapterDependencies = getAdapterDependencies;
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const debug_1 = __importDefault(require("debug"));
 const fs_extra_1 = require("fs-extra");
-const path = __importStar(require("path"));
+const path = __importStar(require("node:path"));
 const debug = (0, debug_1.default)('testing:unit:adapterTools');
 /**
  * Loads an adapter's package.json

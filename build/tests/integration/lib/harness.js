@@ -53,6 +53,9 @@ const fromAdapterID = 'system.adapter.test.0';
  * Use it in every test to start a fresh adapter instance
  */
 class TestHarness extends node_events_1.EventEmitter {
+    adapterDir;
+    testDir;
+    dbConnection;
     /**
      * @param adapterDir The root directory of the adapter
      * @param testDir The directory the integration tests are executed in
@@ -62,7 +65,6 @@ class TestHarness extends node_events_1.EventEmitter {
         this.adapterDir = adapterDir;
         this.testDir = testDir;
         this.dbConnection = dbConnection;
-        this.sendToID = 1;
         debug('Creating instance');
         this.adapterName = (0, adapterTools_1.getAdapterName)(this.adapterDir);
         this.appName = (0, adapterTools_1.getAppName)(adapterDir);
@@ -80,6 +82,10 @@ class TestHarness extends node_events_1.EventEmitter {
             this.emit('stateChange', id, state);
         });
     }
+    adapterName;
+    appName;
+    testControllerDir;
+    testAdapterDir;
     /** Gives direct access to the Objects DB */
     get objects() {
         if (!this.dbConnection.objectsClient) {
@@ -94,10 +100,12 @@ class TestHarness extends node_events_1.EventEmitter {
         }
         return this.dbConnection.statesClient;
     }
+    _adapterProcess;
     /** The process the adapter is running in */
     get adapterProcess() {
         return this._adapterProcess;
     }
+    _adapterExit;
     /** Contains the adapter exit code or signal if it was terminated unexpectedly */
     get adapterExit() {
         return this._adapterExit;
@@ -266,6 +274,7 @@ class TestHarness extends node_events_1.EventEmitter {
         });
         this.dbConnection.subscribeMessage(fromAdapterID);
     }
+    sendToID = 1;
     /** Sends a message to an adapter instance */
     sendTo(target, command, message, callback) {
         const stateChangedHandler = (id, state) => {

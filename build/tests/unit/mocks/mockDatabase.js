@@ -17,10 +17,8 @@ const stateTemplate = Object.freeze({
  * A minimalistic version of ioBroker's Objects and States DB that just operates on a Map
  */
 class MockDatabase {
-    constructor() {
-        this.objects = new Map();
-        this.states = new Map();
-    }
+    objects = new Map();
+    states = new Map();
     clearObjects() {
         this.objects.clear();
     }

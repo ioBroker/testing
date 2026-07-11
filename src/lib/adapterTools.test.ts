@@ -1,8 +1,8 @@
 import { expect, use } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs-extra';
-import * as path from 'path';
-import * as os from 'os';
+import * as path from 'node:path';
+import * as os from 'node:os';
 import { locateAdapterMainFile } from './adapterTools';
 
 use(chaiAsPromised);

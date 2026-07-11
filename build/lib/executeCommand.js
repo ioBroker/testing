@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.executeCommand = executeCommand;
-const child_process_1 = require("child_process");
+const node_child_process_1 = require("node:child_process");
 const isWindows = /^win/.test(process.platform);
 /**
  * Executes a command and returns the exit code and (if requested) the stdout
@@ -55,7 +55,7 @@ function executeCommand(command, argsOrOptions, options) {
         try {
             let bufferedStdout;
             let bufferedStderr;
-            const cmd = (0, child_process_1.spawn)(command, args, spawnOptions).on('close', (code, signal) => {
+            const cmd = (0, node_child_process_1.spawn)(command, args, spawnOptions).on('close', (code, signal) => {
                 resolve({
                     exitCode: code ?? undefined,
                     signal: signal ?? undefined,

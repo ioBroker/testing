@@ -2,7 +2,7 @@
 import { isArray, isObject } from 'alcalzone-shared/typeguards';
 import debugModule from 'debug';
 import { pathExists } from 'fs-extra';
-import * as path from 'path';
+import * as path from 'node:path';
 const debug = debugModule('testing:unit:adapterTools');
 
 /**

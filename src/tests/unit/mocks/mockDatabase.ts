@@ -144,10 +144,7 @@ export class MockDatabase {
     public getStates(pattern: string): Record<string, ioBroker.State> {
         // combines getStates and getForeignStates into one
         const idRegExp = str2regex(pattern);
-        return Object.fromEntries([...this.states.entries()].filter(([id]) => idRegExp.test(id))) as Record<
-            string,
-            ioBroker.State
-        >;
+        return Object.fromEntries([...this.states.entries()].filter(([id]) => idRegExp.test(id)));
     }
 }
 

@@ -148,11 +148,72 @@ These methods take a mock database and adapter and create a set of asserts for y
 
 #### MockDatabase
 
-TODO
+`MockDatabase` is a minimalistic reimplementation of ioBroker's Objects and States DB that operates purely on in-memory `Map`s. It is created for you by `createMocks()`, but you can also instantiate it directly:
+
+```ts
+const { MockDatabase } = require("@iobroker/testing");
+const database = new MockDatabase();
+```
+
+Objects and states are stored under their fully qualified ID (e.g. `"adapter.0.some.state"`). Wherever a method comes in two overloads, you can either pass the full ID as a single string or pass the namespace and the rest of the ID separately (they are joined with `"."`). Pattern-based getters accept `ioBroker`-style wildcards (`*`).
+
+Populating the database:
+
+-   `publishObject(obj: ioBroker.PartialObject)` adds or replaces an object. The object **must** have an `_id` and a `type`; missing `common`/`native` are filled from a default template.
+-   `publishObjects(...objects)` publishes multiple objects at once.
+-   `publishStateObjects(...objects)` / `publishChannelObjects(...objects)` / `publishDeviceObjects(...objects)` publish objects while forcing their `type` to `state` / `channel` / `device`.
+-   `publishState(id: string, state: Partial<ioBroker.State> | null | undefined)` sets a state (missing properties are filled from a default template). Passing `null`/`undefined` deletes it.
+-   `publishStates(states: Record<string, Partial<ioBroker.State> | null | undefined>)` sets multiple states at once.
+
+Reading and querying:
+
+-   `hasObject(id)` / `hasObject(namespace, id)` returns whether an object exists.
+-   `getObject(id)` / `getObject(namespace, id)` returns an object or `undefined`.
+-   `getObjects(pattern, type?)` / `getObjects(namespace, pattern, type?)` returns all matching objects as a `Record<string, ioBroker.Object>`, optionally filtered by `type`.
+-   `hasState(id)` / `hasState(namespace, id)` returns whether a state exists.
+-   `getState(id)` / `getState(namespace, id)` returns a state or `undefined`.
+-   `getStates(pattern)` returns all matching states as a `Record<string, ioBroker.State>`.
+
+Deleting and resetting:
+
+-   `deleteObject(objOrID)` removes an object (accepts the object or its ID).
+-   `deleteState(id)` removes a state.
+-   `clearObjects()` / `clearStates()` empty the respective store, `clear()` empties both. Call this between tests to start with a fresh database.
 
 #### MockAdapter
 
-TODO
+`MockAdapter` is a mock of ioBroker's `Adapter` class in which every method is replaced by a [Sinon stub](https://sinonjs.org/releases/latest/stubs/). It is created by `createMocks()` and is backed by a `MockDatabase`, so the DB-related methods actually read from and write to that database instead of a real DB.
+
+```ts
+const { database, adapter } = utils.unit.createMocks();
+// or with custom adapter options (name, instance, config, ...)
+const { database, adapter } = utils.unit.createMocks({ name: "my-adapter" });
+```
+
+Because the methods are Sinon stubs, you can assert on how your adapter code called them and override their behavior in individual tests:
+
+```ts
+// Assert that a state was set
+adapter.setState.callCount.should.equal(1);
+adapter.setState.getCall(0).args[0].should.equal("info.connection");
+
+// Override the return value / behavior for a single test
+adapter.getForeignObjectAsync.resolves({ common: { name: "test" } });
+```
+
+Key features:
+
+-   **Connected to the database:** methods like `getObject`, `setObject`, `setObjectNotExists`, `extendObject`, `getState`, `setState`, `setStateChanged`, `delState`, their `Foreign` variants and `getObjectView` / `getObjectList` are implemented to operate on the backing `MockDatabase`. IDs that are not fully qualified are automatically prefixed with the adapter namespace. The remaining methods are plain stubs that do nothing until you give them a behavior.
+-   **Promisified methods:** for every callback-style method, the corresponding `...Async` version (e.g. `getStateAsync`) is available, just like on a real adapter.
+-   **Event handlers:** the handlers your adapter registers (via `adapter.on(...)` or the adapter options) are captured and exposed so you can invoke them from your tests: `readyHandler`, `stateChangeHandler`, `objectChangeHandler`, `messageHandler` and `unloadHandler`. For example, call `await adapter.readyHandler()` to simulate the adapter's startup.
+-   **Logger:** `adapter.log` is a `MockLogger` whose `debug` / `info` / `warn` / `error` methods are stubs you can assert on.
+-   **`terminate()`** throws an error (carrying the exit reason) instead of exiting the process, so you can assert that your adapter tried to terminate.
+
+Resetting the mock between tests:
+
+-   `resetMockHistory()` clears the recorded call history (call counts, arguments, ...) of all stubs and the logger, but keeps any custom behavior you configured.
+-   `resetMockBehavior()` restores the default behavior of all stubs, discarding your overrides.
+-   `resetMock()` does both.
 
 ### Example
 

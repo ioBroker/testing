@@ -47,6 +47,8 @@ const executeCommand_1 = require("../../../lib/executeCommand");
 const tools_1 = require("./tools");
 const debug = (0, debug_1.default)('testing:integration:ControllerSetup');
 class ControllerSetup {
+    adapterDir;
+    testDir;
     constructor(adapterDir, testDir) {
         this.adapterDir = adapterDir;
         this.testDir = testDir;
@@ -63,7 +65,19 @@ class ControllerSetup {
         debug(`  appName:      ${this.appName}`);
         debug(`  adapterName:  ${this.adapterName}`);
     }
-    async prepareTestDir(controllerVersion = 'dev') {
+    appName;
+    adapterName;
+    testAdapterDir;
+    testControllerDir;
+    testDataDir;
+    async prepareTestDir(controllerVersion) {
+        const nodeMajorVersion = parseInt(process.versions.node.split('.')[0], 10);
+        // js-controller 7.2.3 dropped support for Node.js 18 and 20. If no specific
+        // version was requested, and we are running on such a Node.js version, pin
+        // js-controller to the last version that still supports it.
+        if (!controllerVersion) {
+            controllerVersion = nodeMajorVersion <= 20 ? '7.2.2' : 'dev';
+        }
         debug(`Preparing the test directory. JS-Controller version: "${controllerVersion}"...`);
         // Make sure the test dir exists
         await (0, fs_extra_1.ensureDir)(this.testDir);
@@ -94,7 +108,6 @@ class ControllerSetup {
             await (0, fs_extra_1.unlink)(pckLockPath);
         }
         // Set the engineStrict flag on new Node.js versions to be in line with newer ioBroker installations
-        const nodeMajorVersion = parseInt(process.versions.node.split('.')[0], 10);
         if (nodeMajorVersion >= 10) {
             await (0, fs_extra_1.writeFile)(path.join(this.testDir, '.npmrc'), 'engine-strict=true', 'utf8');
         }

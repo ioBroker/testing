@@ -45,6 +45,9 @@ const tools_1 = require("./tools");
 const debug = (0, debug_1.default)('testing:integration:DBConnection');
 /** The DB connection capsules access to the states and objects DB */
 class DBConnection extends node_events_1.default {
+    appName;
+    testDir;
+    logger;
     /**
      * @param appName The branded name of "iobroker"
      * @param testDir The directory the integration tests are executed in
@@ -55,63 +58,20 @@ class DBConnection extends node_events_1.default {
         this.appName = appName;
         this.testDir = testDir;
         this.logger = logger;
-        this._isRunning = false;
-        this.getObject = id => {
-            if (!this._objectsClient) {
-                throw new Error('Objects DB is not running');
-            }
-            return this._objectsClient.getObjectAsync(id);
-        };
-        this.setObject = (...args) => {
-            if (!this._objectsClient) {
-                throw new Error('Objects DB is not running');
-            }
-            return this._objectsClient.setObjectAsync(...args);
-        };
-        this.delObject = (...args) => {
-            if (!this._objectsClient) {
-                throw new Error('Objects DB is not running');
-            }
-            return this._objectsClient.delObjectAsync(...args);
-        };
-        this.getState = (id) => {
-            if (!this._statesClient) {
-                throw new Error('States DB is not running');
-            }
-            return this._statesClient.getStateAsync(id);
-        };
-        this.setState = ((...args) => {
-            if (!this._statesClient) {
-                throw new Error('States DB is not running');
-            }
-            return this._statesClient.setStateAsync(...args);
-        });
-        this.delState = async (...args) => {
-            if (!this._statesClient) {
-                throw new Error('States DB is not running');
-            }
-            await new Promise((resolve, reject) => this._statesClient.delState(args[0], (err) => {
-                if (err) {
-                    reject(err);
-                }
-                else {
-                    resolve();
-                }
-            }));
-        };
-        this.getObjectViewAsync = (...args) => {
-            if (!this._objectsClient) {
-                throw new Error('Objects DB is not running');
-            }
-            return this._objectsClient.getObjectViewAsync(...args);
-        };
         this.testControllerDir = (0, tools_1.getTestControllerDir)(this.appName, testDir);
         this.testDataDir = (0, tools_1.getTestDataDir)(appName, testDir);
     }
+    testDataDir;
+    testControllerDir;
+    // TODO: These could use some better type definitions
+    _objectsServer;
+    _statesServer;
+    _objectsClient;
     /** The underlying objects client instance that can be used to access the objects DB */
     get objectsClient() {
         return this._objectsClient;
     }
+    _statesClient;
     /** The underlying states client instance that can be used to access the states DB */
     get statesClient() {
         return this._statesClient;
@@ -157,6 +117,7 @@ class DBConnection extends node_events_1.default {
         const systemFilename = path.join(this.testDataDir, `${this.appName}.json`);
         (0, fs_extra_1.writeJSONSync)(systemFilename, systemConfig, { spaces: 2 });
     }
+    _isRunning = false;
     get isRunning() {
         return this._isRunning;
     }
@@ -277,6 +238,49 @@ class DBConnection extends node_events_1.default {
         });
         debug('  => done!');
     }
+    getObject = id => {
+        if (!this._objectsClient) {
+            throw new Error('Objects DB is not running');
+        }
+        return this._objectsClient.getObjectAsync(id);
+    };
+    setObject = (...args) => {
+        if (!this._objectsClient) {
+            throw new Error('Objects DB is not running');
+        }
+        return this._objectsClient.setObjectAsync(...args);
+    };
+    delObject = (...args) => {
+        if (!this._objectsClient) {
+            throw new Error('Objects DB is not running');
+        }
+        return this._objectsClient.delObjectAsync(...args);
+    };
+    getState = (id) => {
+        if (!this._statesClient) {
+            throw new Error('States DB is not running');
+        }
+        return this._statesClient.getStateAsync(id);
+    };
+    setState = ((...args) => {
+        if (!this._statesClient) {
+            throw new Error('States DB is not running');
+        }
+        return this._statesClient.setStateAsync(...args);
+    });
+    delState = async (...args) => {
+        if (!this._statesClient) {
+            throw new Error('States DB is not running');
+        }
+        await new Promise((resolve, reject) => this._statesClient.delState(args[0], (err) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                resolve();
+            }
+        }));
+    };
     subscribeMessage(id) {
         if (!this._statesClient) {
             throw new Error('States DB is not running');
@@ -289,6 +293,12 @@ class DBConnection extends node_events_1.default {
         }
         this._statesClient.pushMessage(instanceId, msg, callback);
     }
+    getObjectViewAsync = (...args) => {
+        if (!this._objectsClient) {
+            throw new Error('Objects DB is not running');
+        }
+        return this._objectsClient.getObjectViewAsync(...args);
+    };
     getStateIDs(pattern = '*') {
         if (!this._statesClient) {
             throw new Error('States DB is not running');

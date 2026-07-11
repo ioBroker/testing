@@ -37,7 +37,16 @@ export class ControllerSetup {
     private testControllerDir: string;
     private testDataDir: string;
 
-    public async prepareTestDir(controllerVersion: string = 'dev'): Promise<void> {
+    public async prepareTestDir(controllerVersion?: string): Promise<void> {
+        const nodeMajorVersion = parseInt(process.versions.node.split('.')[0], 10);
+
+        // js-controller 7.2.3 dropped support for Node.js 18 and 20. If no specific
+        // version was requested, and we are running on such a Node.js version, pin
+        // js-controller to the last version that still supports it.
+        if (!controllerVersion) {
+            controllerVersion = nodeMajorVersion <= 20 ? '7.2.2' : 'dev';
+        }
+
         debug(`Preparing the test directory. JS-Controller version: "${controllerVersion}"...`);
         // Make sure the test dir exists
         await ensureDir(this.testDir);
@@ -71,7 +80,6 @@ export class ControllerSetup {
         }
 
         // Set the engineStrict flag on new Node.js versions to be in line with newer ioBroker installations
-        const nodeMajorVersion = parseInt(process.versions.node.split('.')[0], 10);
         if (nodeMajorVersion >= 10) {
             await writeFile(path.join(this.testDir, '.npmrc'), 'engine-strict=true', 'utf8');
         }

@@ -6,7 +6,9 @@ export interface TestAdapterOptions {
     /** How long to wait before the adapter startup is considered successful */
     waitBeforeStartupSuccess?: number;
     /**
-     * Which JS-Controller version or dist-tag should be used for the tests. Default: dev
+     * Which JS-Controller version or dist-tag should be used for the tests.
+     * Default: `dev`, except on Node.js <= 20 where it defaults to `7.2.2`, the last
+     * js-controller version that still supports Node.js 18 and 20.
      * This should only be changed during active development.
      */
     controllerVersion?: string;

@@ -1,4 +1,4 @@
-import { type SpawnOptions, spawn } from 'child_process';
+import { type SpawnOptions, spawn } from 'node:child_process';
 
 const isWindows = /^win/.test(process.platform);
 

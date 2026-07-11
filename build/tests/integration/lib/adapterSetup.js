@@ -46,6 +46,8 @@ const executeCommand_1 = require("../../../lib/executeCommand");
 const tools_1 = require("./tools");
 const debug = (0, debug_1.default)('testing:integration:AdapterSetup');
 class AdapterSetup {
+    adapterDir;
+    testDir;
     constructor(adapterDir, testDir) {
         this.adapterDir = adapterDir;
         this.testDir = testDir;
@@ -61,6 +63,11 @@ class AdapterSetup {
         debug(`  appName:           ${this.appName}`);
         debug(`  adapterName:       ${this.adapterName}`);
     }
+    testAdapterDir;
+    adapterName;
+    adapterFullName;
+    appName;
+    testControllerDir;
     /**
      * Tests if the adapter is already installed in the test directory
      */
