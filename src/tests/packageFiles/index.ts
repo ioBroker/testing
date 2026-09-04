@@ -155,6 +155,15 @@ export function validatePackageFiles(adapterDir: string): void {
                 }
             });
 
+            it('No "prepare" script is defined in package.json', () => {
+                if (isObject(packageContent.scripts) && 'prepare' in packageContent.scripts) {
+                    // eslint-disable-next-line @typescript-eslint/only-throw-error
+                    throw new AssertionError(
+                        `The "prepare" script must not be defined in the "scripts" section of package.json, found "${packageContent.scripts.prepare}"! It runs on every "npm install" of the adapter (including for end users) and can break installations.`,
+                    );
+                }
+            });
+
             it('iobroker.js-controller is not listed as a dependency', () => {
                 for (const depType of [
                     'dependencies',
