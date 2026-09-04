@@ -4,6 +4,9 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
+## **WORK IN PROGRESS**
+* (@krobipd) Fixed: a command that cannot be spawned (missing executable, missing cwd) no longer terminates the whole test process with an unhandled 'error' event - `executeCommand` now resolves with the error instead
+
 ## 5.3.0 (2026-07-11)
 * (@GermanBluefox) Pin js-controller to 7.2.2 on Node.js <= 20, as 7.2.3 dropped support for Node.js 18 and 20 (only applies when no explicit `controllerVersion` is set)
 * (@GermanBluefox) Migrated to TypeScript 6: removed the unused `paths` mapping that is no longer allowed without `baseUrl` under TS6

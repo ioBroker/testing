@@ -19,6 +19,8 @@ export interface ExecuteCommandResult {
     stdout?: string;
     /** If options.stderr was set to "buffer", this contains the stderr of the spawned process */
     stderr?: string;
+    /** The error that prevented the process from being spawned, if it could not be started at all */
+    error?: Error;
 }
 export declare function executeCommand(command: string, options?: Partial<ExecuteCommandOptions>): Promise<ExecuteCommandResult>;
 /**

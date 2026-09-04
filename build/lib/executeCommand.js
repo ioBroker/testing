@@ -55,7 +55,22 @@ function executeCommand(command, argsOrOptions, options) {
         try {
             let bufferedStdout;
             let bufferedStderr;
-            const cmd = (0, node_child_process_1.spawn)(command, args, spawnOptions).on('close', (code, signal) => {
+            const cmd = (0, node_child_process_1.spawn)(command, args, spawnOptions)
+                .on('error', error => {
+                // The process could not be spawned at all - e.g. the command does not
+                // exist or the cwd is missing. Without a listener, Node treats this as
+                // an unhandled 'error' event and tears down the entire test process
+                // with a stack trace from node:internal, which tells the adapter
+                // developer nothing about the actual cause.
+                // Node emits 'close' after 'error' in this case; that second resolve
+                // is a no-op because the promise is already settled.
+                resolve({
+                    error,
+                    stdout: bufferedStdout,
+                    stderr: bufferedStderr,
+                });
+            })
+                .on('close', (code, signal) => {
                 resolve({
                     exitCode: code ?? undefined,
                     signal: signal ?? undefined,
@@ -83,8 +98,11 @@ function executeCommand(command, argsOrOptions, options) {
                 });
             }
         }
-        catch {
-            // doesn't matter, we return the exit code in the "close" handler
+        catch (error) {
+            // `spawn` can also throw synchronously, e.g. on invalid arguments. There is no
+            // child process in that case, so neither 'close' nor 'error' will ever fire and
+            // the promise would stay pending forever.
+            resolve({ error: error });
         }
     });
 }

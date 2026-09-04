@@ -24,6 +24,8 @@ export interface ExecuteCommandResult {
     stdout?: string;
     /** If options.stderr was set to "buffer", this contains the stderr of the spawned process */
     stderr?: string;
+    /** The error that prevented the process from being spawned, if it could not be started at all */
+    error?: Error;
 }
 
 export function executeCommand(
@@ -102,14 +104,29 @@ export function executeCommand(
         try {
             let bufferedStdout: string | undefined;
             let bufferedStderr: string | undefined;
-            const cmd = spawn(command, args, spawnOptions).on('close', (code, signal) => {
-                resolve({
-                    exitCode: code ?? undefined,
-                    signal: signal ?? undefined,
-                    stdout: bufferedStdout,
-                    stderr: bufferedStderr,
+            const cmd = spawn(command, args, spawnOptions)
+                .on('error', error => {
+                    // The process could not be spawned at all - e.g. the command does not
+                    // exist or the cwd is missing. Without a listener, Node treats this as
+                    // an unhandled 'error' event and tears down the entire test process
+                    // with a stack trace from node:internal, which tells the adapter
+                    // developer nothing about the actual cause.
+                    // Node emits 'close' after 'error' in this case; that second resolve
+                    // is a no-op because the promise is already settled.
+                    resolve({
+                        error,
+                        stdout: bufferedStdout,
+                        stderr: bufferedStderr,
+                    });
+                })
+                .on('close', (code, signal) => {
+                    resolve({
+                        exitCode: code ?? undefined,
+                        signal: signal ?? undefined,
+                        stdout: bufferedStdout,
+                        stderr: bufferedStderr,
+                    });
                 });
-            });
             // Capture stdout/stderr if requested
             if (options.stdout === 'pipe') {
                 bufferedStdout = '';
@@ -129,8 +146,11 @@ export function executeCommand(
                     bufferedStderr! += chunk;
                 });
             }
-        } catch {
-            // doesn't matter, we return the exit code in the "close" handler
+        } catch (error) {
+            // `spawn` can also throw synchronously, e.g. on invalid arguments. There is no
+            // child process in that case, so neither 'close' nor 'error' will ever fire and
+            // the promise would stay pending forever.
+            resolve({ error: error as Error });
         }
     });
 }
