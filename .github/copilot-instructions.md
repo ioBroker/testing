@@ -9,7 +9,7 @@
 ### Bootstrap and Build
 - Install dependencies: `npm install` -- takes ~1 second when up to date, may show audit warnings
 - Build the project: `npm run build` -- takes ~2.1 seconds. NEVER CANCEL. Set timeout to 10+ minutes.
-- Run type check without emit: `npm run check` -- takes ~2.1 seconds  
+- Run type check without emitting: `npm run check` -- takes ~2.1 seconds  
 - Start watch mode for development: `npm run watch` -- starts TypeScript compiler in watch mode
 
 ### Testing
@@ -69,7 +69,7 @@
 ### Manual Validation Scenarios
 After making changes, **ALWAYS** validate that the library works correctly:
 
-1. **Test Library Exports**: Create a test script to verify exports work:
+1. **Test Library Exports**: Create a test script to verify export work:
    ```js
    const { tests, utils } = require('./build/index.js');
    console.log('Tests:', Object.keys(tests)); // Should show: unit, integration, packageFiles
@@ -98,7 +98,7 @@ After making changes, **ALWAYS** validate that the library works correctly:
 4. Validate with example usage if possible
 
 ### Adding New Test Utilities
-1. Add TypeScript files to appropriate subdirectory in `src/`
+1. Add TypeScript files to the appropriate subdirectory in `src/`
 2. Export new functionality from `src/tests/index.ts`
 3. Add unit tests for new functionality
 4. Update exports in main index files as needed
@@ -115,7 +115,7 @@ After making changes, **ALWAYS** validate that the library works correctly:
 - Publishes to NPM when version tags are pushed
 
 ## Dependencies Management
-- Core dependencies: mocha, chai, sinon for testing framework
+- Core dependencies: mocha, chai, sinon for a testing framework
 - Dev dependencies: TypeScript, ESLint, build tools
 - Exports type definitions for chai, mocha, sinon to consuming projects
 - Uses @iobroker/types for ioBroker-specific type definitions
