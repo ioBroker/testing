@@ -5,9 +5,9 @@ export interface ExecuteCommandOptions {
     cwd: string;
     /** Where to redirect the stdin. Default: process.stdin */
     stdin: NodeJS.ReadStream;
-    /** A write stream to redirect the stdout, "ignore" to ignore it or "pipe" to return it as a string. Default: process.stdout */
+    /** A writing stream to redirect the stdout, "ignore" to ignore it or "pipe" to return it as a string. Default: process.stdout */
     stdout: NodeJS.WriteStream | 'pipe' | 'ignore';
-    /** A write stream to redirect the stderr, "ignore" to ignore it or "pipe" to return it as a string. Default: process.stderr */
+    /** A writing stream to redirect the stderr, "ignore" to ignore it or "pipe" to return it as a string. Default: process.stderr */
     stderr: NodeJS.WriteStream | 'pipe' | 'ignore';
 }
 export interface ExecuteCommandResult {

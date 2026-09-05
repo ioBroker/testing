@@ -14,21 +14,21 @@
 
 ## 5.2.2 (2025-11-08)
 * (@Apollon77/@copilot) Exclude admin/tsconfig.json from strict JSON validation as it may contain JSON5 syntax
-* (@Apollon77/@copilot) Add JSON validation for package.json and io-package.json in base directory
+* (@Apollon77/@copilot) Add JSON validation for package.json and io-package.json in the base directory
 
 ## 5.2.1 (2025-11-08)
 * (@Apollon77/@copilot) Add validation for JSON files in admin/ and admin/i18n/ directories
-* (@Apollon77/@copilot) Logs npm and installation errors to console for easier debugging
+* (@Apollon77/@copilot) Logs npm and installation errors to the console for easier debugging
 * (@Apollon77/@copilot) Add validation to fail if iobroker.js-controller is listed as a package.json dependency
-* (@Apollon77/@copilot) Add support for TypeScript-only adapters that use .ts files as main entry point without transpilation
+* (@Apollon77/@copilot) Add support for TypeScript-only adapters that use .ts files as the main entry point without transpilation
 * (@Apollon77/@copilot) Re-enabled validation checks for README.md and LICENSE files in packageFiles tests
 
 ## 5.1.1 (2025-08-31)
-* (@Apollon77) Downgrades chai-as-promised type dependency to same major as main dependency
+* (@Apollon77) Downgrades chai-as-promised type dependency to the same major as the main dependency
 
 ## 5.1.0 (2025-08-24)
 * (mcm1957) type definitions for chai, mocha and sinon have been moved to dependencies to deliver them to adapter repositories
-* NOTE: above change allows removal of chai / mocha / sinon dependencies from adapter package.jsons
+* NOTE: the above change allows removal of chai / mocha / sinon dependencies from adapter package.jsons
 
 ## 5.0.4 (2025-03-24)
 * Corrected the `delState` method in the adapter mock
