@@ -7,6 +7,9 @@
   "files": [
     "build/"
   ],
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "test": "mocha \"src/**/*.test.ts\"",
     "test:watch": "mocha \"src/**/*.test.ts\" --watch",
