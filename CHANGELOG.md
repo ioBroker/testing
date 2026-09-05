@@ -5,6 +5,7 @@
 	## **WORK IN PROGRESS**
 -->
 ## **WORK IN PROGRESS**
+* (@krobipd) Fixed: a command that cannot be spawned (missing executable, missing cwd) no longer terminates the whole test process with an unhandled 'error' event - `executeCommand` now resolves with the error instead
 * (@mcm1957) Add validation to fail if a "prepare" script is defined in the "scripts" section of package.json
 
 ## 5.3.0 (2026-07-11)
