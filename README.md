@@ -7,7 +7,7 @@ This repo provides utilities for testing of ioBroker adapters and other ioBroker
 
 The unit tests are realized using the following tools that are provided by this module:
 
--   A mock database which implements the most basic functionality of `ioBroker`'s Objects and States DB by operating on `Map` objects.
+-   A mock database that implements the most basic functionality of `ioBroker`'s Objects and States DB by operating on `Map` objects.
 -   A mock `Adapter` that is connected to the mock database. It implements basic functionality of the real `Adapter` class, but only operates on the mock database.
 
 Predefined methods for both unit and integration tests are exported.
@@ -136,7 +136,7 @@ This method creates a mock database and a mock adapter. See below for a more det
 const asserts = utils.unit.createAsserts(database, adapter);
 ```
 
-These methods take a mock database and adapter and create a set of asserts for your tests. All IDs may either be a string, which is taken literally, or an array of strings which are concatenated with `"."`. If an ID is not fully qualified, the adapter namespace is prepended automatically.
+These methods take a mock database and adapter and create a set of assertions for your tests. All IDs may either be a string, which is taken literally, or an array of strings which are concatenated with `"."`. If an ID is not fully qualified, the adapter namespace is prepended automatically.
 
 -   `assertObjectExists(id: string | string[])` asserts that an object with the given ID exists in the database.
 -   `assertStateExists(id: string | string[])` asserts that a state with the given ID exists in the database.
@@ -217,7 +217,7 @@ Resetting the mock between tests:
 
 ### Example
 
-Here's an example how this can be used in a unit test:
+Here's an example of how this can be used in a unit test:
 
 ```ts
 import { tests, utils } from "@iobroker/testing";
