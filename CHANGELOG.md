@@ -4,7 +4,7 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
-## **WORK IN PROGRESS**
+## 5.3.1 (2026-09-05)
 * (@krobipd) Fixed: a command that cannot be spawned (missing executable, missing cwd) no longer terminates the whole test process with an unhandled 'error' event - `executeCommand` now resolves with the error instead
 * (@mcm1957) Add validation to fail if a "prepare" script is defined in the "scripts" section of package.json
 
