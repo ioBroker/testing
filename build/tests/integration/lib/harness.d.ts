@@ -59,9 +59,40 @@ export declare class TestHarness extends EventEmitter {
     /** Stops the adapter process */
     stopAdapter(): Promise<void> | undefined;
     /**
-     * Updates the adapter config. The changes can be a subset of the target object
+     * Updates the adapter config. The changes can be a subset of the target object.
+     * The `native` properties that are listed in the instance object's `encryptedNative`
+     * are encrypted automatically, so they can be passed in plain text.
      */
     changeAdapterConfig(adapterName: string, changes: Record<string, any>): Promise<void>;
+    /**
+     * Reads the config of an adapter instance. The `native` properties that are listed in the
+     * instance object's `encryptedNative` are decrypted automatically, so they are returned in plain text.
+     *
+     * @param adapterName The name of the adapter. Defaults to the adapter under test.
+     */
+    getAdapterConfig(adapterName?: string): Promise<ioBroker.InstanceObject | null>;
+    /**
+     * Returns the names of all `native` properties in the given config that must be en-/decrypted
+     */
+    private getEncryptedFields;
+    /**
+     * Encrypts all `native` properties of the given changes that are listed in the instance
+     * object's `encryptedNative`. Returns the changes to apply - the passed object is not modified.
+     */
+    private encryptNativeChanges;
+    private _systemSecret;
+    /**
+     * Reads the secret from the `system.config` object. The secret is cached after the first read.
+     */
+    private getSystemSecret;
+    /**
+     * Encrypts a value the same way the JS-Controller does for `encryptedNative` properties
+     */
+    encryptValue(value: string): Promise<string>;
+    /**
+     * Decrypts a value that was encrypted for an `encryptedNative` property
+     */
+    decryptValue(value: string): Promise<string>;
     getAdapterExecutionMode(): ioBroker.AdapterCommon['mode'];
     /** Enables the sendTo method */
     enableSendTo(): Promise<void>;

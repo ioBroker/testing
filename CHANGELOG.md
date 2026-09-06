@@ -5,6 +5,9 @@
 	## **WORK IN PROGRESS**
 -->
 ## **WORK IN PROGRESS**
+* (@GermanBluefox) **BREAKING**: `harness.changeAdapterConfig()` now automatically encrypts the `native` properties that are listed in the instance object's `encryptedNative`. Tests that encrypted such values themselves must pass them in plain text now
+* (@GermanBluefox) Added `harness.getAdapterConfig()`, which reads the instance object and decrypts the `encryptedNative` properties
+* (@GermanBluefox) Added `harness.encryptValue()` and `harness.decryptValue()` for manual encryption/decryption
 * (@copilot) The integration test directory is now cleaned up automatically when the requested js-controller version differs from the one installed by the previous run
 
 ## 6.0.0 (2026-09-05)

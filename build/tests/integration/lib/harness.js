@@ -49,6 +49,21 @@ const debug = (0, debug_1.default)('testing:integration:TestHarness');
 const isWindows = /^win/.test(process.platform);
 const fromAdapterID = 'system.adapter.test.0';
 /**
+ * Encrypts or decrypts a value with the given secret. This is the same symmetric algorithm
+ * the JS-Controller uses for the `native` properties listed in `encryptedNative`,
+ * so applying it twice returns the original value.
+ *
+ * @param secret The secret from the `system.config` object
+ * @param value The value to encrypt or decrypt
+ */
+function encryptDecrypt(secret, value) {
+    let result = '';
+    for (let i = 0; i < value.length; ++i) {
+        result += String.fromCharCode(secret[i % secret.length].charCodeAt(0) ^ value.charCodeAt(i));
+    }
+    return result;
+}
+/**
  * The test harness capsules the execution of the JS-Controller and the adapter instance and monitors their status.
  * Use it in every test to start a fresh adapter instance
  */
@@ -250,15 +265,94 @@ class TestHarness extends node_events_1.EventEmitter {
         });
     }
     /**
-     * Updates the adapter config. The changes can be a subset of the target object
+     * Updates the adapter config. The changes can be a subset of the target object.
+     * The `native` properties that are listed in the instance object's `encryptedNative`
+     * are encrypted automatically, so they can be passed in plain text.
      */
     async changeAdapterConfig(adapterName, changes) {
         const adapterInstanceId = `system.adapter.${adapterName}.0`;
         const obj = await this.dbConnection.getObject(adapterInstanceId);
         if (obj) {
-            (0, objects_1.extend)(obj, changes);
+            (0, objects_1.extend)(obj, await this.encryptNativeChanges(obj, changes));
             await this.dbConnection.setObject(adapterInstanceId, obj);
         }
+    }
+    /**
+     * Reads the config of an adapter instance. The `native` properties that are listed in the
+     * instance object's `encryptedNative` are decrypted automatically, so they are returned in plain text.
+     *
+     * @param adapterName The name of the adapter. Defaults to the adapter under test.
+     */
+    async getAdapterConfig(adapterName = this.adapterName) {
+        const obj = await this.dbConnection.getObject(`system.adapter.${adapterName}.0`);
+        if (!obj) {
+            return null;
+        }
+        const fields = this.getEncryptedFields(obj, obj.native);
+        if (fields.length) {
+            const secret = await this.getSystemSecret();
+            const native = { ...obj.native };
+            for (const field of fields) {
+                native[field] = encryptDecrypt(secret, native[field]);
+            }
+            debug(`Decrypted the following config fields: ${fields.join(', ')}`);
+            return { ...obj, native };
+        }
+        return obj;
+    }
+    /**
+     * Returns the names of all `native` properties in the given config that must be en-/decrypted
+     */
+    getEncryptedFields(obj, native) {
+        if (!native || !obj.encryptedNative?.length) {
+            return [];
+        }
+        // Only strings can be en-/decrypted, everything else is left untouched
+        return obj.encryptedNative.filter(field => typeof native[field] === 'string');
+    }
+    /**
+     * Encrypts all `native` properties of the given changes that are listed in the instance
+     * object's `encryptedNative`. Returns the changes to apply - the passed object is not modified.
+     */
+    async encryptNativeChanges(obj, changes) {
+        const fields = this.getEncryptedFields(obj, changes.native);
+        if (!fields.length) {
+            return changes;
+        }
+        const secret = await this.getSystemSecret();
+        const native = { ...changes.native };
+        for (const field of fields) {
+            native[field] = encryptDecrypt(secret, native[field]);
+        }
+        debug(`Encrypted the following config fields: ${fields.join(', ')}`);
+        return { ...changes, native };
+    }
+    _systemSecret;
+    /**
+     * Reads the secret from the `system.config` object. The secret is cached after the first read.
+     */
+    async getSystemSecret() {
+        if (this._systemSecret === undefined) {
+            const systemConfig = await this.dbConnection.getObject('system.config');
+            const secret = systemConfig?.native?.secret;
+            if (typeof secret !== 'string' || !secret) {
+                throw new Error('Could not read the secret from the object "system.config"!');
+            }
+            this._systemSecret = secret;
+        }
+        return this._systemSecret;
+    }
+    /**
+     * Encrypts a value the same way the JS-Controller does for `encryptedNative` properties
+     */
+    async encryptValue(value) {
+        return encryptDecrypt(await this.getSystemSecret(), value);
+    }
+    /**
+     * Decrypts a value that was encrypted for an `encryptedNative` property
+     */
+    async decryptValue(value) {
+        return encryptDecrypt(await this.getSystemSecret(), value);
     }
     getAdapterExecutionMode() {
         return (0, adapterTools_1.getAdapterExecutionMode)(this.testAdapterDir);
