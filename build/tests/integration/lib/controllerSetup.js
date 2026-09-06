@@ -70,6 +70,52 @@ class ControllerSetup {
     testAdapterDir;
     testControllerDir;
     testDataDir;
+    /**
+     * Returns the path of the file that stores which JS-Controller version is installed in the test directory
+     */
+    getControllerVersionFilePath() {
+        return path.join(this.testDir, '.controller-version');
+    }
+    /**
+     * Reads which JS-Controller version was installed in the test directory during the previous run.
+     * Returns `null` if this is unknown.
+     */
+    async getInstalledControllerVersion() {
+        const versionFilePath = this.getControllerVersionFilePath();
+        try {
+            if (!(await (0, fs_extra_1.pathExists)(versionFilePath))) {
+                return null;
+            }
+            const version = await (0, fs_extra_1.readFile)(versionFilePath, 'utf8');
+            return version.trim() || null;
+        }
+        catch (e) {
+            debug(`Could not read the installed JS-Controller version: ${e}`);
+            return null;
+        }
+    }
+    /**
+     * Remembers which JS-Controller version is installed in the test directory
+     */
+    async saveInstalledControllerVersion(controllerVersion) {
+        try {
+            await (0, fs_extra_1.writeFile)(this.getControllerVersionFilePath(), controllerVersion, 'utf8');
+        }
+        catch (e) {
+            debug(`Could not save the installed JS-Controller version: ${e}`);
+        }
+    }
+    /**
+     * Removes the installed dependencies and the data directory from the test directory.
+     * This is necessary when switching JS-Controller versions, so no stale files and states are left behind.
+     */
+    async clearTestDir() {
+        debug('Clearing the test directory...');
+        await (0, fs_extra_1.emptyDir)(path.join(this.testDir, 'node_modules'));
+        await (0, fs_extra_1.emptyDir)(this.testDataDir);
+        await this.clearLogDir();
+        debug('  => done!');
+    }
     async prepareTestDir(controllerVersion) {
         const nodeMajorVersion = parseInt(process.versions.node.split('.')[0], 10);
         // js-controller 7.2.3 dropped support for Node.js 18 and 20. If no specific
@@ -81,6 +127,13 @@ class ControllerSetup {
         debug(`Preparing the test directory. JS-Controller version: "${controllerVersion}"...`);
         // Make sure the test dir exists
         await (0, fs_extra_1.ensureDir)(this.testDir);
+        // If the test directory was previously used with a different JS-Controller version,
+        // remove the installed files and the data directory, so no stale state is left behind
+        const installedControllerVersion = await this.getInstalledControllerVersion();
+        if (installedControllerVersion && installedControllerVersion !== controllerVersion) {
+            debug(`JS-Controller version changed from "${installedControllerVersion}" to "${controllerVersion}", cleaning up...`);
+            await this.clearTestDir();
+        }
         // Write the package.json
         const packageJson = {
             name: path.basename(this.testDir),
@@ -123,6 +176,8 @@ class ControllerSetup {
         if (wasJsControllerInstalled) {
             await this.setupJsController();
         }
+        // Remember which version is installed now, so we can detect a version change on the next run
+        await this.saveInstalledControllerVersion(controllerVersion);
         debug('  => done!');
     }
     /**

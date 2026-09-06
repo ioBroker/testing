@@ -1,6 +1,6 @@
 // Add debug logging for tests
 import debugModule from 'debug';
-import { emptyDir, ensureDir, pathExists, unlink, writeFile, writeJSON } from 'fs-extra';
+import { emptyDir, ensureDir, pathExists, readFile, unlink, writeFile, writeJSON } from 'fs-extra';
 import { Socket } from 'node:net';
 import * as path from 'node:path';
 import { getAdapterName, getAppName } from '../../../lib/adapterTools';
@@ -37,6 +37,54 @@ export class ControllerSetup {
     private testControllerDir: string;
     private testDataDir: string;
 
+    /**
+     * Returns the path of the file that stores which JS-Controller version is installed in the test directory
+     */
+    private getControllerVersionFilePath(): string {
+        return path.join(this.testDir, '.controller-version');
+    }
+
+    /**
+     * Reads which JS-Controller version was installed in the test directory during the previous run.
+     * Returns `null` if this is unknown.
+     */
+    private async getInstalledControllerVersion(): Promise<string | null> {
+        const versionFilePath = this.getControllerVersionFilePath();
+        try {
+            if (!(await pathExists(versionFilePath))) {
+                return null;
+            }
+            const version = await readFile(versionFilePath, 'utf8');
+            return version.trim() || null;
+        } catch (e) {
+            debug(`Could not read the installed JS-Controller version: ${e as Error}`);
+            return null;
+        }
+    }
+
+    /**
+     * Remembers which JS-Controller version is installed in the test directory
+     */
+    private async saveInstalledControllerVersion(controllerVersion: string): Promise<void> {
+        try {
+            await writeFile(this.getControllerVersionFilePath(), controllerVersion, 'utf8');
+        } catch (e) {
+            debug(`Could not save the installed JS-Controller version: ${e as Error}`);
+        }
+    }
+
+    /**
+     * Removes the installed dependencies and the data directory from the test directory.
+     * This is necessary when switching JS-Controller versions, so no stale files and states are left behind.
+     */
+    private async clearTestDir(): Promise<void> {
+        debug('Clearing the test directory...');
+        await emptyDir(path.join(this.testDir, 'node_modules'));
+        await emptyDir(this.testDataDir);
+        await this.clearLogDir();
+        debug('  => done!');
+    }
+
     public async prepareTestDir(controllerVersion?: string): Promise<void> {
         const nodeMajorVersion = parseInt(process.versions.node.split('.')[0], 10);
 
@@ -50,6 +98,16 @@ export class ControllerSetup {
         debug(`Preparing the test directory. JS-Controller version: "${controllerVersion}"...`);
         // Make sure the test dir exists
         await ensureDir(this.testDir);
+
+        // If the test directory was previously used with a different JS-Controller version,
+        // remove the installed files and the data directory, so no stale state is left behind
+        const installedControllerVersion = await this.getInstalledControllerVersion();
+        if (installedControllerVersion && installedControllerVersion !== controllerVersion) {
+            debug(
+                `JS-Controller version changed from "${installedControllerVersion}" to "${controllerVersion}", cleaning up...`,
+            );
+            await this.clearTestDir();
+        }
 
         // Write the package.json
         const packageJson = {
@@ -96,6 +154,9 @@ export class ControllerSetup {
         if (wasJsControllerInstalled) {
             await this.setupJsController();
         }
+
+        // Remember which version is installed now, so we can detect a version change on the next run
+        await this.saveInstalledControllerVersion(controllerVersion);
 
         debug('  => done!');
     }

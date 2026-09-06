@@ -8,6 +8,24 @@ export declare class ControllerSetup {
     private testAdapterDir;
     private testControllerDir;
     private testDataDir;
+    /**
+     * Returns the path of the file that stores which JS-Controller version is installed in the test directory
+     */
+    private getControllerVersionFilePath;
+    /**
+     * Reads which JS-Controller version was installed in the test directory during the previous run.
+     * Returns `null` if this is unknown.
+     */
+    private getInstalledControllerVersion;
+    /**
+     * Remembers which JS-Controller version is installed in the test directory
+     */
+    private saveInstalledControllerVersion;
+    /**
+     * Removes the installed dependencies and the data directory from the test directory.
+     * This is necessary when switching JS-Controller versions, so no stale files and states are left behind.
+     */
+    private clearTestDir;
     prepareTestDir(controllerVersion?: string): Promise<void>;
     /**
      * Tests if JS-Controller is already installed
