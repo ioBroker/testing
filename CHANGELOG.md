@@ -5,6 +5,7 @@
 	## **WORK IN PROGRESS**
 -->
 ## **WORK IN PROGRESS**
+* (@GermanBluefox) The test harness now captures the log output of the adapter under test. It can be checked with the new methods `harness.getLogs()`, `harness.hasLog()` and `harness.clearLogs()`
 * (@GermanBluefox) **BREAKING**: `harness.changeAdapterConfig()` now automatically encrypts the `native` properties that are listed in the instance object's `encryptedNative`. Tests that encrypted such values themselves must pass them in plain text now
 * (@GermanBluefox) Added `harness.getAdapterConfig()`, which reads the instance object and decrypts the `encryptedNative` properties
 * (@GermanBluefox) Added `harness.encryptValue()` and `harness.decryptValue()` for manual encryption/decryption

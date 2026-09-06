@@ -75,6 +75,20 @@ tests.integration(path.join(__dirname, ".."), {
 			});
 		});
 
+		// Checking the adapter log
+		suite("Check the log", (getHarness) => {
+			let harness;
+			before(() => {
+				harness = getHarness();
+			});
+
+			it("Should not log the follow-up error", async () => {
+				await harness.startAdapterAndWait();
+
+				expect(harness.hasLog(/follow-up-bug detected/, "error")).to.be.false;
+			});
+		});
+
 		// While developing the tests, you can run only a single suite using `suite.only`...
 		suite.only("Only this will run", (getHarness) => {
 			// ...
@@ -86,6 +100,43 @@ tests.integration(path.join(__dirname, ".."), {
 	},
 });
 ```
+
+### Checking the adapter log (Integration test)
+
+The test harness captures everything the adapter under test prints while it is running, so tests can check
+that a specific message was (or was not) logged:
+
+-   `getLogs(level?)` returns the captured log messages, optionally filtered by log level. Each entry looks like this:
+
+```ts
+interface AdapterLog {
+	/** The log level the message was logged with */
+	level: "silly" | "debug" | "info" | "warn" | "error";
+	/** The time the message was logged at */
+	timestamp: Date;
+	/** The source of the message, e.g. `my-adapter.0`. Undefined if it could not be determined */
+	from: string | undefined;
+	/** The logged message without timestamp, level and source */
+	message: string;
+	/** The unparsed log line as it was printed by the adapter */
+	raw: string;
+}
+```
+
+-   `hasLog(pattern, level?)` returns whether a message matching `pattern` was logged. `pattern` is either a `RegExp`
+    or a string that must be contained in the message. If `level` is given, only messages with that log level are checked.
+-   `clearLogs()` forgets all messages that were captured so far, e.g. to check only the messages of the next step.
+
+```ts
+await harness.startAdapterAndWait();
+
+expect(harness.hasLog(/connection failed/, "error")).to.be.false;
+expect(harness.getLogs("error")).to.be.empty;
+
+harness.clearLogs();
+```
+
+Lines that are not in the ioBroker log format - e.g. output of a plain `console.log()` - are captured as `info` messages.
 
 ### Adapter startup (Unit test)
 

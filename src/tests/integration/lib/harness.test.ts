@@ -4,8 +4,9 @@ import * as fs from 'fs-extra';
 import { EventEmitter } from 'node:events';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import * as sinon from 'sinon';
 import type { DBConnection } from './dbConnection';
-import { TestHarness } from './harness';
+import { parseAdapterLogLine, TestHarness } from './harness';
 
 use(chaiAsPromised);
 
@@ -156,6 +157,139 @@ describe('TestHarness', () => {
 
         it('returns null for a non-existing instance', async () => {
             expect(await harness.getAdapterConfig('does-not-exist')).to.be.null;
+        });
+    });
+
+    describe('log capture', () => {
+        let forwarded: string;
+
+        /**
+         * Feeds the given output to the harness as if the adapter had printed it.
+         * While doing so, the output stream is stubbed, so the test report stays readable.
+         */
+        function output(chunk: string, stream: 'stdout' | 'stderr' = 'stdout'): void {
+            const write = sinon.stub(process[stream], 'write').callsFake((data: any) => {
+                forwarded += data;
+                return true;
+            });
+            try {
+                (harness as any).handleAdapterOutput(chunk, stream);
+            } finally {
+                write.restore();
+            }
+        }
+
+        const infoLine =
+            '2026-07-02 22:27:52.116  - \u001b[32minfo\u001b[39m: test-adapter.0 (33692) starting. Version 1.2.3';
+        const errorLine =
+            '2026-07-02 22:27:52.136  - \u001b[31merror\u001b[39m: test-adapter.0 (33692) Connection refused 127.0.0.1:502';
+
+        beforeEach(() => {
+            forwarded = '';
+        });
+
+        describe('parseAdapterLogLine()', () => {
+            it('parses level, timestamp, source and message', () => {
+                const log = parseAdapterLogLine(errorLine);
+                expect(log.level).to.equal('error');
+                expect(log.timestamp).to.deep.equal(new Date('2026-07-02 22:27:52.136'));
+                expect(log.from).to.equal('test-adapter.0');
+                expect(log.message).to.equal('Connection refused 127.0.0.1:502');
+            });
+
+            it('strips the color codes from the raw line', () => {
+                expect(parseAdapterLogLine(infoLine).raw).to.equal(
+                    '2026-07-02 22:27:52.116  - info: test-adapter.0 (33692) starting. Version 1.2.3',
+                );
+            });
+
+            it('understands all log levels', () => {
+                for (const level of ['silly', 'debug', 'info', 'warn', 'error'] as const) {
+                    const log = parseAdapterLogLine(`2026-07-02 22:27:52.116  - ${level}: test-adapter.0 (1) msg`);
+                    expect(log.level).to.equal(level);
+                    expect(log.message).to.equal('msg');
+                }
+            });
+
+            it('treats lines that are no log messages as info', () => {
+                const log = parseAdapterLogLine('    at Object.<anonymous> (main.js:1:1)');
+                expect(log.level).to.equal('info');
+                expect(log.from).to.be.undefined;
+                expect(log.message).to.equal('    at Object.<anonymous> (main.js:1:1)');
+            });
+
+            it('does not choke on an unknown log level', () => {
+                const line = '2026-07-02 22:27:52.116  - whatever: test-adapter.0 (1) msg';
+                expect(parseAdapterLogLine(line).level).to.equal('info');
+                expect(parseAdapterLogLine(line).message).to.equal(line);
+            });
+        });
+
+        it('collects the log messages of the adapter', () => {
+            output(`${infoLine}\n${errorLine}\n`);
+
+            const logs = harness.getLogs();
+            expect(logs).to.have.lengthOf(2);
+            expect(logs[0].message).to.equal('starting. Version 1.2.3');
+            expect(logs[1].level).to.equal('error');
+        });
+
+        it('forwards the output, so it stays visible during the test run', () => {
+            output(`${infoLine}\n`);
+            expect(forwarded).to.include('starting. Version 1.2.3');
+        });
+
+        it('reassembles lines that arrive in multiple chunks', () => {
+            output(infoLine.slice(0, 40));
+            expect(harness.getLogs()).to.be.empty;
+
+            output(`${infoLine.slice(40)}\n`);
+            expect(harness.getLogs()).to.have.lengthOf(1);
+            expect(harness.getLogs()[0].message).to.equal('starting. Version 1.2.3');
+        });
+
+        it('handles Windows line endings and ignores empty lines', () => {
+            output(`${infoLine}\r\n\r\n${errorLine}\r\n`);
+
+            const logs = harness.getLogs();
+            expect(logs).to.have.lengthOf(2);
+            expect(logs[0].message).to.equal('starting. Version 1.2.3');
+            expect(logs[1].message).to.equal('Connection refused 127.0.0.1:502');
+        });
+
+        it('captures stderr as well', () => {
+            output(`${errorLine}\n`, 'stderr');
+            expect(harness.getLogs()).to.have.lengthOf(1);
+        });
+
+        it('getLogs() can filter by log level', () => {
+            output(`${infoLine}\n${errorLine}\n`);
+
+            expect(harness.getLogs('error')).to.have.lengthOf(1);
+            expect(harness.getLogs('warn')).to.be.empty;
+        });
+
+        it('getLogs() returns a copy', () => {
+            output(`${infoLine}\n`);
+            harness.getLogs().push({} as any);
+            expect(harness.getLogs()).to.have.lengthOf(1);
+        });
+
+        it('hasLog() finds messages by RegExp, string and level', () => {
+            output(`${infoLine}\n${errorLine}\n`);
+
+            expect(harness.hasLog(/Version \d+\.\d+\.\d+/)).to.be.true;
+            expect(harness.hasLog('Connection refused 127.0.0.1:502')).to.be.true;
+            expect(harness.hasLog(/Connection refused/, 'error')).to.be.true;
+            expect(harness.hasLog(/Connection refused/, 'warn')).to.be.false;
+            expect(harness.hasLog(/not logged/)).to.be.false;
+        });
+
+        it('clearLogs() forgets the captured messages', () => {
+            output(`${infoLine}\n`);
+            harness.clearLogs();
+            expect(harness.getLogs()).to.be.empty;
+            expect(harness.hasLog(/starting/)).to.be.false;
         });
     });
 });

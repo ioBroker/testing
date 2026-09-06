@@ -1,6 +1,27 @@
 import { type ChildProcess } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import type { DBConnection } from './dbConnection';
+/** A single log message of the adapter under test */
+export interface AdapterLog {
+    /** The log level the message was logged with */
+    level: ioBroker.LogLevel;
+    /** The time the message was logged at */
+    timestamp: Date;
+    /** The source of the message, e.g. `my-adapter.0`. Undefined if it could not be determined */
+    from: string | undefined;
+    /** The logged message without timestamp, level and source */
+    message: string;
+    /** The unparsed log line as it was printed by the adapter */
+    raw: string;
+}
+/**
+ * Parses a line of the adapter output into a structured log message.
+ * Lines that are not in the ioBroker log format (e.g. plain `console.log` output)
+ * are returned as `info` messages.
+ *
+ * @param line A single line of the adapter's stdout/stderr
+ */
+export declare function parseAdapterLogLine(line: string): AdapterLog;
 export interface TestHarness {
     on(event: 'objectChange', handler: ioBroker.ObjectChangeHandler): this;
     on(event: 'stateChange', handler: ioBroker.StateChangeHandler): this;
@@ -99,4 +120,35 @@ export declare class TestHarness extends EventEmitter {
     private sendToID;
     /** Sends a message to an adapter instance */
     sendTo(target: string, command: string, message: any, callback: ioBroker.MessageCallback): void;
+    /** The log messages of the adapter under test */
+    private _logs;
+    /** The incomplete last line of each output stream, waiting for the rest to arrive */
+    private _outputBuffer;
+    /**
+     * Handles a chunk of the adapter's output. Because a chunk may end in the middle of a line,
+     * the incomplete rest is buffered until the remainder arrives.
+     *
+     * @param chunk The received chunk
+     * @param stream Which of the adapter's output streams the chunk was received on
+     */
+    private handleAdapterOutput;
+    /** Prints a line of the adapter's output and remembers it as a log message */
+    private handleAdapterOutputLine;
+    /** Handles the incomplete lines that were left over when the adapter exited */
+    private flushAdapterOutput;
+    /**
+     * Returns the log messages the adapter has printed so far
+     *
+     * @param level If given, only the messages with this log level are returned
+     */
+    getLogs(level?: ioBroker.LogLevel): AdapterLog[];
+    /** Forgets all log messages that were captured so far */
+    clearLogs(): void;
+    /**
+     * Tests if the adapter has logged a message matching the given pattern
+     *
+     * @param pattern A RegExp or a string that must be contained in the message
+     * @param level If given, only the messages with this log level are checked
+     */
+    hasLog(pattern: string | RegExp, level?: ioBroker.LogLevel): boolean;
 }

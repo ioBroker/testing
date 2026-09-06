@@ -12,6 +12,57 @@ const debug = debugModule('testing:integration:TestHarness');
 
 const isWindows = /^win/.test(process.platform);
 
+/** A single log message of the adapter under test */
+export interface AdapterLog {
+    /** The log level the message was logged with */
+    level: ioBroker.LogLevel;
+    /** The time the message was logged at */
+    timestamp: Date;
+    /** The source of the message, e.g. `my-adapter.0`. Undefined if it could not be determined */
+    from: string | undefined;
+    /** The logged message without timestamp, level and source */
+    message: string;
+    /** The unparsed log line as it was printed by the adapter */
+    raw: string;
+}
+
+const logLevels: ioBroker.LogLevel[] = ['silly', 'debug', 'info', 'warn', 'error'];
+
+/** Matches the color codes the adapter logger adds to the console output */
+// eslint-disable-next-line no-control-regex
+const ansiRegex = /\x1B\[\d+m/g;
+/** Matches `2023-11-08 13:31:57.123  - info: my-adapter.0 (1234) The message` */
+const logLineRegex = /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s+-\s+(\w+):\s+([\s\S]*)$/;
+/** Matches the `my-adapter.0 (1234) ` prefix the adapter logger prepends to each message */
+const logSourceRegex = /^(\S+\.\d+)(?: \(\d+\))? (.*)$/;
+
+/**
+ * Parses a line of the adapter output into a structured log message.
+ * Lines that are not in the ioBroker log format (e.g. plain `console.log` output)
+ * are returned as `info` messages.
+ *
+ * @param line A single line of the adapter's stdout/stderr
+ */
+export function parseAdapterLogLine(line: string): AdapterLog {
+    const raw = line.replace(ansiRegex, '').trimEnd();
+    const match = logLineRegex.exec(raw);
+    const level = match?.[2].toLowerCase() as ioBroker.LogLevel | undefined;
+
+    if (!match || !level || !logLevels.includes(level)) {
+        // Not an ioBroker log line, e.g. plain console output or a stack trace
+        return { level: 'info', timestamp: new Date(), from: undefined, message: raw, raw };
+    }
+
+    const sourceMatch = logSourceRegex.exec(match[3]);
+    return {
+        level,
+        timestamp: new Date(match[1]),
+        from: sourceMatch?.[1],
+        message: sourceMatch ? sourceMatch[2] : match[3],
+        raw,
+    };
+}
+
 export interface TestHarness {
     on(event: 'objectChange', handler: ioBroker.ObjectChangeHandler): this;
     on(event: 'stateChange', handler: ioBroker.StateChangeHandler): this;
@@ -169,6 +220,7 @@ export class TestHarness extends EventEmitter {
 
         const onClose = (code: number | undefined, signal: string): void => {
             this._adapterProcess!.removeAllListeners();
+            this.flushAdapterOutput();
             this._adapterExit = code != undefined ? code : signal;
             this.emit('failed', this._adapterExit);
         };
@@ -182,11 +234,15 @@ export class TestHarness extends EventEmitter {
 
         this._adapterProcess = spawn(command, args, {
             cwd: this.testAdapterDir,
-            stdio: ['inherit', 'inherit', 'inherit'],
+            // stdout and stderr are piped, so the log messages can be captured
+            stdio: ['inherit', 'pipe', 'pipe'],
             env: { ...process.env, ...env },
         })
             .on('close', onClose)
             .on('exit', onClose);
+
+        this._adapterProcess.stdout?.on('data', (chunk: Buffer) => this.handleAdapterOutput(chunk, 'stdout'));
+        this._adapterProcess.stderr?.on('data', (chunk: Buffer) => this.handleAdapterOutput(chunk, 'stderr'));
     }
 
     /**
@@ -241,6 +297,7 @@ export class TestHarness extends EventEmitter {
                     return;
                 }
                 this._adapterProcess.removeAllListeners();
+                this.flushAdapterOutput();
 
                 this._adapterExit = code != undefined ? code : signal;
                 this._adapterProcess = undefined;
@@ -411,6 +468,73 @@ export class TestHarness extends EventEmitter {
                 },
             },
             (err: any, id: any) => console.log(`published message ${id}`),
+        );
+    }
+
+    /** The log messages of the adapter under test */
+    private _logs: AdapterLog[] = [];
+    /** The incomplete last line of each output stream, waiting for the rest to arrive */
+    private _outputBuffer: Record<'stdout' | 'stderr', string> = { stdout: '', stderr: '' };
+
+    /**
+     * Handles a chunk of the adapter's output. Because a chunk may end in the middle of a line,
+     * the incomplete rest is buffered until the remainder arrives.
+     *
+     * @param chunk The received chunk
+     * @param stream Which of the adapter's output streams the chunk was received on
+     */
+    private handleAdapterOutput(chunk: Buffer | string, stream: 'stdout' | 'stderr'): void {
+        const lines = (this._outputBuffer[stream] + chunk.toString()).split('\n');
+        // The last entry is either an incomplete line or empty - keep it for the next chunk
+        this._outputBuffer[stream] = lines.pop() ?? '';
+        for (const line of lines) {
+            this.handleAdapterOutputLine(line, stream);
+        }
+    }
+
+    /** Prints a line of the adapter's output and remembers it as a log message */
+    private handleAdapterOutputLine(line: string, stream: 'stdout' | 'stderr'): void {
+        // Forward the output, so it stays visible while the tests are running
+        process[stream].write(`${line}\n`);
+        if (line.trim()) {
+            this._logs.push(parseAdapterLogLine(line));
+        }
+    }
+
+    /** Handles the incomplete lines that were left over when the adapter exited */
+    private flushAdapterOutput(): void {
+        for (const stream of ['stdout', 'stderr'] as const) {
+            const rest = this._outputBuffer[stream];
+            this._outputBuffer[stream] = '';
+            if (rest) {
+                this.handleAdapterOutputLine(rest, stream);
+            }
+        }
+    }
+
+    /**
+     * Returns the log messages the adapter has printed so far
+     *
+     * @param level If given, only the messages with this log level are returned
+     */
+    public getLogs(level?: ioBroker.LogLevel): AdapterLog[] {
+        return level ? this._logs.filter(log => log.level === level) : [...this._logs];
+    }
+
+    /** Forgets all log messages that were captured so far */
+    public clearLogs(): void {
+        this._logs = [];
+    }
+
+    /**
+     * Tests if the adapter has logged a message matching the given pattern
+     *
+     * @param pattern A RegExp or a string that must be contained in the message
+     * @param level If given, only the messages with this log level are checked
+     */
+    public hasLog(pattern: string | RegExp, level?: ioBroker.LogLevel): boolean {
+        return this.getLogs(level).some(log =>
+            typeof pattern === 'string' ? log.message.includes(pattern) : pattern.test(log.message),
         );
     }
 }
