@@ -264,7 +264,9 @@ export class ControllerSetup {
      * @param ports The ports to move the DBs to (default: 19001 / 19000)
      */
     public setupSystemConfig(dbConnection: DBConnection, ports: Readonly<TestPorts> = DEFAULT_TEST_PORTS): void {
-        debug(`Moving databases to ports ${ports.objects} (objects) and ${ports.states} (states)...`);
+        // Keep this line verbatim: the ioBroker repochecker expects it in the adapter-tests job log (W3053).
+        debug(`Moving databases to different ports...`);
+        debug(`  => objects ${ports.objects}, states ${ports.states}`);
 
         const systemConfig = dbConnection.getSystemConfig();
         systemConfig.objects.port = ports.objects;
