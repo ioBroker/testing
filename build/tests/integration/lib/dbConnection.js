@@ -41,6 +41,7 @@ const debug_1 = __importDefault(require("debug"));
 const node_events_1 = __importDefault(require("node:events"));
 const fs_extra_1 = require("fs-extra");
 const path = __importStar(require("node:path"));
+const ports_1 = require("./ports");
 const tools_1 = require("./tools");
 const debug = (0, debug_1.default)('testing:integration:DBConnection');
 /** The DB connection capsules access to the states and objects DB */
@@ -48,16 +49,19 @@ class DBConnection extends node_events_1.default {
     appName;
     testDir;
     logger;
+    ports;
     /**
      * @param appName The branded name of "iobroker"
      * @param testDir The directory the integration tests are executed in
      * @param logger Logger object
+     * @param ports The ports the objects and states DBs listen on (default: 19001 / 19000)
      */
-    constructor(appName, testDir, logger) {
+    constructor(appName, testDir, logger, ports = ports_1.DEFAULT_TEST_PORTS) {
         super();
         this.appName = appName;
         this.testDir = testDir;
         this.logger = logger;
+        this.ports = ports;
         this.testControllerDir = (0, tools_1.getTestControllerDir)(this.appName, testDir);
         this.testDataDir = (0, tools_1.getTestDataDir)(appName, testDir);
     }
@@ -159,7 +163,7 @@ class DBConnection extends node_events_1.default {
             connection: {
                 type: objectsType,
                 host: '127.0.0.1',
-                port: 19001,
+                port: this.ports.objects,
                 user: '',
                 pass: '',
                 noFileCache: false,
@@ -203,7 +207,7 @@ class DBConnection extends node_events_1.default {
             connection: {
                 type: statesType,
                 host: '127.0.0.1',
-                port: 19000,
+                port: this.ports.states,
                 options: {
                     auth_pass: null,
                     retry_max_delay: 15000,

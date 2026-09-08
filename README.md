@@ -47,6 +47,11 @@ tests.integration(path.join(__dirname, ".."), {
 	// Make sure to remove this setting when you're done testing.
 	controllerVersion: "latest", // or a specific version like "4.0.1"
 
+	// Two adapter test runs on one machine must not share the ports of the objects and states DBs.
+	// Default: objects 19001, states 19000. The environment variables IOBROKER_TESTING_OBJECTS_PORT and
+	// IOBROKER_TESTING_STATES_PORT set them as well (this option wins over the environment).
+	ports: { objects: 29001, states: 29000 },
+
 	// Define your own tests inside defineAdditionalTests
 	defineAdditionalTests({ suite }) {
 		// All tests (it, describe) must be grouped in one or more suites. Each suite sets up a fresh environment for the adapter tests.

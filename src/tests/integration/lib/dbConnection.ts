@@ -2,6 +2,7 @@ import debugModule from 'debug';
 import EventEmitter from 'node:events';
 import { readFile, readJSONSync, writeFile, writeJSONSync } from 'fs-extra';
 import * as path from 'node:path';
+import { DEFAULT_TEST_PORTS, type TestPorts } from './ports';
 import { getTestControllerDir, getTestDataDir } from './tools';
 
 const debug = debugModule('testing:integration:DBConnection');
@@ -20,11 +21,13 @@ export class DBConnection extends EventEmitter {
      * @param appName The branded name of "iobroker"
      * @param testDir The directory the integration tests are executed in
      * @param logger Logger object
+     * @param ports The ports the objects and states DBs listen on (default: 19001 / 19000)
      */
     public constructor(
         private appName: string,
         private testDir: string,
         private logger: ioBroker.Logger,
+        public readonly ports: Readonly<TestPorts> = DEFAULT_TEST_PORTS,
     ) {
         super();
         this.testControllerDir = getTestControllerDir(this.appName, testDir);
@@ -152,7 +155,7 @@ export class DBConnection extends EventEmitter {
             connection: {
                 type: objectsType,
                 host: '127.0.0.1',
-                port: 19001,
+                port: this.ports.objects,
                 user: '',
                 pass: '',
                 noFileCache: false,
@@ -203,7 +206,7 @@ export class DBConnection extends EventEmitter {
             connection: {
                 type: statesType,
                 host: '127.0.0.1',
-                port: 19000,
+                port: this.ports.states,
                 options: {
                     auth_pass: null,
                     retry_max_delay: 15000,

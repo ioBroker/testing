@@ -6,6 +6,7 @@ import { ControllerSetup } from './lib/controllerSetup';
 import { DBConnection } from './lib/dbConnection';
 import { TestHarness } from './lib/harness';
 import { createLogger } from './lib/logger';
+import { resolveTestPorts, type TestPorts } from './lib/ports';
 
 export interface TestAdapterOptions {
     allowedExitCodes?: (number | string)[];
@@ -22,6 +23,13 @@ export interface TestAdapterOptions {
     controllerVersion?: string;
     /** Allows you to define additional tests */
     defineAdditionalTests?: (args: TestContext) => void;
+    /**
+     * The TCP ports the objects and states DBs of the test controller listen on.
+     * Default: objects 19001, states 19000. Two adapter test runs on the same machine must not share
+     * these ports — give each run its own pair, either here or through the environment variables
+     * `IOBROKER_TESTING_OBJECTS_PORT` and `IOBROKER_TESTING_STATES_PORT` (this option wins).
+     */
+    ports?: Partial<TestPorts>;
 }
 
 export interface TestSuiteFn {
@@ -52,6 +60,7 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
     const appName = getAppName(adapterDir);
     const adapterName = getAdapterName(adapterDir);
     const testDir = path.join(os.tmpdir(), `test-${appName}.${adapterName}`);
+    const ports = resolveTestPorts(options.ports);
 
     /** This db connection is only used for the lifetime of a test and then re-created */
     let dbConnection: DBConnection;
@@ -87,9 +96,9 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
         // the databases if JS Controller is installed
         await adapterSetup.installAdapterInTestDir();
 
-        const dbConnection = new DBConnection(appName, testDir, createLogger(options.loglevel ?? 'debug'));
+        const dbConnection = new DBConnection(appName, testDir, createLogger(options.loglevel ?? 'debug'), ports);
         await dbConnection.start();
-        controllerSetup.setupSystemConfig(dbConnection);
+        controllerSetup.setupSystemConfig(dbConnection, ports);
         await controllerSetup.disableAdminInstances(dbConnection);
 
         await adapterSetup.deleteOldInstances(dbConnection);
@@ -112,7 +121,7 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
     async function resetDbAndStartHarness(this: Mocha.Context): Promise<void> {
         this.timeout(30000);
 
-        dbConnection = new DBConnection(appName, testDir, createLogger(options.loglevel ?? 'debug'));
+        dbConnection = new DBConnection(appName, testDir, createLogger(options.loglevel ?? 'debug'), ports);
 
         // Clean up before every single test
         await Promise.all([
