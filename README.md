@@ -144,8 +144,8 @@ Lines that are not in the ioBroker log format - e.g. output of a plain `console.
 If you defined your own tests, they should still work.
 
 ```ts
-const path = require("path");
-const { tests } = require("@iobroker/testing");
+const path = require('node:path');
+const { tests } = require('@iobroker/testing');
 
 tests.unit(path.join(__dirname, ".."), {
 	//     ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -154,7 +154,7 @@ tests.unit(path.join(__dirname, ".."), {
 	// Define your own tests inside defineAdditionalTests.
 	// If you need predefined objects etc. here, you need to take care of it yourself
 	defineAdditionalTests() {
-		it("works", () => {
+		it('works', () => {
 			// see below how these could look like
 		});
 	},
