@@ -42,11 +42,110 @@ const chai_1 = require("chai");
 const fs = __importStar(require("fs"));
 const json5_1 = __importDefault(require("json5"));
 const path = __importStar(require("path"));
+const ajv_1 = require("ajv");
+const axios_1 = __importDefault(require("axios"));
+const jsonValidators = {};
+/** URL to the JSON config schema */
+const JSON_CONFIG_SCHEMA_URL = 'https://raw.githubusercontent.com/ioBroker/json-config/main/schemas/jsonConfig.json';
+/** Timeout for downloading the JSON config schema, so a hanging request cannot block the test run */
+const JSON_CONFIG_SCHEMA_TIMEOUT_MS = 10000;
+/**
+ * A JSON tab (`common.adminTab.link`) has the same format as `jsonConfig.json`, with two differences:
+ * its root may have a `command` (message that is sent to the instance when the tab is opened),
+ * and its root `type` may be omitted, because it defaults to `panel`.
+ *
+ * @param schema the jsonConfig schema. It will be modified in place
+ */
+function adaptSchemaForTab(schema) {
+    // The root of the schema is an "if type === 'tabs' then ... else ..." construction
+    const roots = [schema.then, schema.else].filter(root => !!root);
+    if (!roots.length) {
+        roots.push(schema);
+    }
+    for (const root of roots) {
+        root.properties ||= {};
+        root.properties.command = {
+            description: 'Message that is sent to the instance as the tab is opened',
+            type: 'string',
+        };
+        if (Array.isArray(root.required)) {
+            root.required = root.required.filter((name) => name !== 'type');
+        }
+    }
+}
+/**
+ * Compile the JSON schema for `jsonConfig.json` or for a JSON tab and cache the result,
+ * as the schema is quite big and it is used with every opened config page or tab
+ *
+ * @param type `config` for `admin/jsonConfig.json(5)`, `tab` for the JSON file of an admin tab
+ */
+async function getJsonValidator(type) {
+    const subType = type === 'custom' ? 'config' : type;
+    if (jsonValidators[subType]) {
+        return jsonValidators[subType];
+    }
+    let schema;
+    try {
+        console.debug(`retrieving json schema from ${JSON_CONFIG_SCHEMA_URL}`);
+        const schemaRes = await axios_1.default.get(JSON_CONFIG_SCHEMA_URL, { timeout: JSON_CONFIG_SCHEMA_TIMEOUT_MS });
+        schema = schemaRes.data;
+    }
+    catch (e) {
+        console.error(`Could not get jsonConfig schema: ${e.message}`);
+        throw new Error(`Could not get jsonConfig schema`);
+    }
+    if (type === 'tab') {
+        adaptSchemaForTab(schema);
+    }
+    try {
+        const ajv = new ajv_1.Ajv({
+            allErrors: false,
+            strict: 'log',
+        });
+        jsonValidators[subType] = ajv.compile(schema);
+        return jsonValidators[subType];
+    }
+    catch (e) {
+        console.debug(`Could not compile jsonConfig schema: ${e.message}`);
+        throw new Error(`Could not compile jsonConfig schema`);
+    }
+}
+/** Checks that the given path exists and is a file, not a directory */
+function isFile(filePath) {
+    return fs.existsSync(filePath) && fs.statSync(filePath).isFile();
+}
+async function validateJsonConfig(adapterDir, type = 'config', tabFile) {
+    let config;
+    if (type === 'config' && fs.existsSync(path.join(adapterDir, 'admin/jsonConfig.json'))) {
+        config = JSON.parse(fs.readFileSync(path.join(adapterDir, 'admin/jsonConfig.json'), 'utf-8'));
+    }
+    else if (type === 'config' && fs.existsSync(path.join(adapterDir, 'admin/jsonConfig.json5'))) {
+        config = json5_1.default.parse(fs.readFileSync(path.join(adapterDir, 'admin/jsonConfig.json5'), 'utf-8'));
+    }
+    else if (type === 'tab' && tabFile && isFile(path.join(adapterDir, `admin/${tabFile}`))) {
+        const tabPath = path.join(adapterDir, `admin/${tabFile}`);
+        const tabContent = fs.readFileSync(tabPath, 'utf-8');
+        config = tabFile.endsWith('5') ? json5_1.default.parse(tabContent) : JSON.parse(tabContent);
+    }
+    else if (type === 'custom' && fs.existsSync(path.join(adapterDir, `admin/jsonCustom.json`))) {
+        config = JSON.parse(fs.readFileSync(path.join(adapterDir, 'admin/jsonCustom.json'), 'utf-8'));
+    }
+    else if (type === 'custom' && fs.existsSync(path.join(adapterDir, `admin/jsonCustom.json5`))) {
+        config = json5_1.default.parse(fs.readFileSync(path.join(adapterDir, 'admin/jsonCustom.json5'), 'utf-8'));
+    }
+    else {
+        return;
+    }
+    const validate = await getJsonValidator(type);
+    if (!validate(config)) {
+        throw new Error(`Invalid ${type} schema for ${adapterDir}: ${JSON.stringify(validate.errors, null, 2)}`);
+    }
+}
 /**
  * Tests if the adapter files are valid.
  * This is meant to be executed in a mocha context.
  */
-function validatePackageFiles(adapterDir) {
+function validatePackageFiles(adapterDir, options) {
     const packageJsonPath = path.join(adapterDir, 'package.json');
     const ioPackageJsonPath = path.join(adapterDir, 'io-package.json');
     // This allows us to skip tests that require valid JSON files
@@ -273,6 +372,34 @@ function validatePackageFiles(adapterDir) {
                     (0, chai_1.expect)(hasSupportedUI, 'Unsupported Admin UI, must be html, materialize or JSON config!').to.be
                         .true;
                 });
+            }
+            if (iopackContent.common.adminUI?.config === 'json') {
+                it('The JSON config file exists', () => {
+                    (0, chai_1.expect)(fs.existsSync(path.join(adapterDir, 'admin/jsonConfig.json')) ||
+                        fs.existsSync(path.join(adapterDir, 'admin/jsonConfig.json5')), 'common.adminUI.config is "json", so admin/jsonConfig.json or admin/jsonConfig.json5 must exist!').to.be.true;
+                });
+                if (!options?.ignoreJsonConfigValidation) {
+                    it('Check JSON config file', () => validateJsonConfig(adapterDir, 'config'));
+                }
+            }
+            if (iopackContent.common.adminUI?.custom === 'json') {
+                it('The JSON custom config file exists', () => {
+                    (0, chai_1.expect)(fs.existsSync(path.join(adapterDir, 'admin/jsonCustom.json')) ||
+                        fs.existsSync(path.join(adapterDir, 'admin/jsonCustom.json5')), 'common.adminUI.custom is "json", so admin/jsonCustom.json or admin/jsonCustom.json5 must exist!').to.be.true;
+                });
+                if (!options?.ignoreJsonConfigValidation) {
+                    it('Check JSON custom config file', () => validateJsonConfig(adapterDir, 'custom'));
+                }
+            }
+            if (iopackContent.common.adminUI?.tab === 'json') {
+                const link = (iopackContent.common.adminTab?.link || '').split('?')[0];
+                it('The JSON tab file is referenced correctly', () => {
+                    (0, chai_1.expect)(link.endsWith('.json') || link.endsWith('.json5'), 'common.adminUI.tab is "json", so common.adminTab.link must point to a .json or .json5 file!').to.be.true;
+                    (0, chai_1.expect)(!link.includes('..') && !link.includes('://') && !link.includes('%'), 'common.adminTab.link must be a file name relative to the admin directory!').to.be.true;
+                });
+                if (!options?.ignoreJsonConfigValidation) {
+                    it('Check JSON tab file', () => validateJsonConfig(adapterDir, 'tab', link));
+                }
             }
         });
         describe(`Compare contents of package.json and io-package.json`, () => {
