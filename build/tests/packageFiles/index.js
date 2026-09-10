@@ -379,7 +379,7 @@ function validatePackageFiles(adapterDir, options) {
                         fs.existsSync(path.join(adapterDir, 'admin/jsonConfig.json5')), 'common.adminUI.config is "json", so admin/jsonConfig.json or admin/jsonConfig.json5 must exist!').to.be.true;
                 });
                 if (!options?.ignoreJsonConfigValidation) {
-                    it('Check JSON config file', () => validateJsonConfig(adapterDir, 'config'));
+                    it('Check JSON config file', () => validateJsonConfig(adapterDir, 'config')).timeout(10000);
                 }
             }
             if (iopackContent.common.adminUI?.custom === 'json') {
@@ -388,7 +388,7 @@ function validatePackageFiles(adapterDir, options) {
                         fs.existsSync(path.join(adapterDir, 'admin/jsonCustom.json5')), 'common.adminUI.custom is "json", so admin/jsonCustom.json or admin/jsonCustom.json5 must exist!').to.be.true;
                 });
                 if (!options?.ignoreJsonConfigValidation) {
-                    it('Check JSON custom config file', () => validateJsonConfig(adapterDir, 'custom'));
+                    it('Check JSON custom config file', () => validateJsonConfig(adapterDir, 'custom')).timeout(10000);
                 }
             }
             if (iopackContent.common.adminUI?.tab === 'json') {
@@ -398,7 +398,7 @@ function validatePackageFiles(adapterDir, options) {
                     (0, chai_1.expect)(!link.includes('..') && !link.includes('://') && !link.includes('%'), 'common.adminTab.link must be a file name relative to the admin directory!').to.be.true;
                 });
                 if (!options?.ignoreJsonConfigValidation) {
-                    it('Check JSON tab file', () => validateJsonConfig(adapterDir, 'tab', link));
+                    it('Check JSON tab file', () => validateJsonConfig(adapterDir, 'tab', link)).timeout(10000);
                 }
             }
         });

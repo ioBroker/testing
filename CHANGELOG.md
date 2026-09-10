@@ -4,7 +4,7 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
-## **WORK IN PROGRESS**
+## 6.2.1 (2026-09-10)
 * (@GermanBluefox) Added the check of JSON config files
 
 ## 6.1.0 (2026-09-06)
