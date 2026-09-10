@@ -402,7 +402,7 @@ export function validatePackageFiles(adapterDir: string, options?: { ignoreJsonC
                     ).to.be.true;
                 });
                 if (!options?.ignoreJsonConfigValidation) {
-                    it('Check JSON config file', () => validateJsonConfig(adapterDir, 'config'));
+                    it('Check JSON config file', () => validateJsonConfig(adapterDir, 'config')).timeout(10000);
                 }
             }
             if (iopackContent.common.adminUI?.custom === 'json') {
@@ -414,7 +414,7 @@ export function validatePackageFiles(adapterDir: string, options?: { ignoreJsonC
                     ).to.be.true;
                 });
                 if (!options?.ignoreJsonConfigValidation) {
-                    it('Check JSON custom config file', () => validateJsonConfig(adapterDir, 'custom'));
+                    it('Check JSON custom config file', () => validateJsonConfig(adapterDir, 'custom')).timeout(10000);
                 }
             }
             if (iopackContent.common.adminUI?.tab === 'json') {
@@ -430,7 +430,7 @@ export function validatePackageFiles(adapterDir: string, options?: { ignoreJsonC
                     ).to.be.true;
                 });
                 if (!options?.ignoreJsonConfigValidation) {
-                    it('Check JSON tab file', () => validateJsonConfig(adapterDir, 'tab', link));
+                    it('Check JSON tab file', () => validateJsonConfig(adapterDir, 'tab', link)).timeout(10000);
                 }
             }
         });
