@@ -1,4 +1,5 @@
 import type { DBConnection } from './dbConnection';
+import { type TestPorts } from './ports';
 export declare class ControllerSetup {
     private adapterDir;
     private testDir;
@@ -41,8 +42,11 @@ export declare class ControllerSetup {
     setupJsController(): Promise<void>;
     /**
      * Changes the objects and states db to use alternative ports
+     *
+     * @param dbConnection The DB connection whose system config is changed
+     * @param ports The ports to move the DBs to (default: 19001 / 19000)
      */
-    setupSystemConfig(dbConnection: DBConnection): void;
+    setupSystemConfig(dbConnection: DBConnection, ports?: Readonly<TestPorts>): void;
     /**
      * Clears the log dir for integration tests (and creates it if it doesn't exist)
      */

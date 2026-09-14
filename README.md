@@ -101,6 +101,12 @@ tests.integration(path.join(__dirname, ".."), {
 });
 ```
 
+### Running the tests of two adapters on one machine
+
+Two integration test runs on the same machine collide, because both start their objects and states databases on the fixed ports 19001/19000. For parallel runs on one machine (two terminals, a self-hosted runner) give each run its own pair of ports through the environment variables `IOBROKER_TESTING_OBJECTS_PORT` and `IOBROKER_TESTING_STATES_PORT`, or through the option `ports: { objects, states }` (the option wins over the environment). Both databases need different ports.
+
+Leave this unset in workflow-based tests on GitHub: each job runs on its own machine, so there is nothing to separate, and the repochecker expects the default output of `npm run test:integration` in the job log.
+
 ### Checking the adapter log (Integration test)
 
 The test harness captures everything the adapter under test prints while it is running, so tests can check

@@ -42,10 +42,12 @@ const controllerSetup_1 = require("./lib/controllerSetup");
 const dbConnection_1 = require("./lib/dbConnection");
 const harness_1 = require("./lib/harness");
 const logger_1 = require("./lib/logger");
+const ports_1 = require("./lib/ports");
 function testAdapter(adapterDir, options = {}) {
     const appName = (0, adapterTools_1.getAppName)(adapterDir);
     const adapterName = (0, adapterTools_1.getAdapterName)(adapterDir);
     const testDir = path.join(os.tmpdir(), `test-${appName}.${adapterName}`);
+    const ports = (0, ports_1.resolveTestPorts)(options.ports);
     /** This db connection is only used for the lifetime of a test and then re-created */
     let dbConnection;
     let harness;
@@ -71,9 +73,9 @@ function testAdapter(adapterDir, options = {}) {
         // Only then we can install the adapter, because some (including VIS) try to access
         // the databases if JS Controller is installed
         await adapterSetup.installAdapterInTestDir();
-        const dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)(options.loglevel ?? 'debug'));
+        const dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)(options.loglevel ?? 'debug'), ports);
         await dbConnection.start();
-        controllerSetup.setupSystemConfig(dbConnection);
+        controllerSetup.setupSystemConfig(dbConnection, ports);
         await controllerSetup.disableAdminInstances(dbConnection);
         await adapterSetup.deleteOldInstances(dbConnection);
         await adapterSetup.addAdapterInstance();
@@ -90,7 +92,7 @@ function testAdapter(adapterDir, options = {}) {
     }
     async function resetDbAndStartHarness() {
         this.timeout(30000);
-        dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)(options.loglevel ?? 'debug'));
+        dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)(options.loglevel ?? 'debug'), ports);
         // Clean up before every single test
         await Promise.all([
             controllerSetup.clearDBDir(),

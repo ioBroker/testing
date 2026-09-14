@@ -1,4 +1,5 @@
 import EventEmitter from 'node:events';
+import { type TestPorts } from './ports';
 export type ObjectsDB = Record<string, ioBroker.Object>;
 export type StatesDB = Record<string, ioBroker.State>;
 export interface DBConnection {
@@ -10,12 +11,14 @@ export declare class DBConnection extends EventEmitter {
     private appName;
     private testDir;
     private logger;
+    readonly ports: Readonly<TestPorts>;
     /**
      * @param appName The branded name of "iobroker"
      * @param testDir The directory the integration tests are executed in
      * @param logger Logger object
+     * @param ports The ports the objects and states DBs listen on (default: 19001 / 19000)
      */
-    constructor(appName: string, testDir: string, logger: ioBroker.Logger);
+    constructor(appName: string, testDir: string, logger: ioBroker.Logger, ports?: Readonly<TestPorts>);
     private readonly testDataDir;
     private readonly testControllerDir;
     private _objectsServer;

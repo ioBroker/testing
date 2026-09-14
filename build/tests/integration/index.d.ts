@@ -1,4 +1,5 @@
 import { TestHarness } from './lib/harness';
+import { type TestPorts } from './lib/ports';
 export interface TestAdapterOptions {
     allowedExitCodes?: (number | string)[];
     /** The loglevel to use for DB and adapter related logs */
@@ -14,6 +15,13 @@ export interface TestAdapterOptions {
     controllerVersion?: string;
     /** Allows you to define additional tests */
     defineAdditionalTests?: (args: TestContext) => void;
+    /**
+     * The TCP ports the objects and states DBs of the test controller listen on.
+     * Default: objects 19001, states 19000. Two adapter test runs on the same machine must not share
+     * these ports — give each run its own pair, either here or through the environment variables
+     * `IOBROKER_TESTING_OBJECTS_PORT` and `IOBROKER_TESTING_STATES_PORT` (this option wins).
+     */
+    ports?: Partial<TestPorts>;
 }
 export interface TestSuiteFn {
     (name: string, fn: (getHarness: () => TestHarness) => void): void;

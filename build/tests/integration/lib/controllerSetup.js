@@ -45,6 +45,7 @@ const path = __importStar(require("node:path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
 const executeCommand_1 = require("../../../lib/executeCommand");
 const tools_1 = require("./tools");
+const ports_1 = require("./ports");
 const debug = (0, debug_1.default)('testing:integration:ControllerSetup');
 class ControllerSetup {
     adapterDir;
@@ -270,12 +271,17 @@ class ControllerSetup {
     }
     /**
      * Changes the objects and states db to use alternative ports
+     *
+     * @param dbConnection The DB connection whose system config is changed
+     * @param ports The ports to move the DBs to (default: 19001 / 19000)
      */
-    setupSystemConfig(dbConnection) {
+    setupSystemConfig(dbConnection, ports = ports_1.DEFAULT_TEST_PORTS) {
+        // Keep this line verbatim: the ioBroker repochecker expects it in the adapter-tests job log (W3053).
         debug(`Moving databases to different ports...`);
+        debug(`  => objects ${ports.objects}, states ${ports.states}`);
         const systemConfig = dbConnection.getSystemConfig();
-        systemConfig.objects.port = 19001;
-        systemConfig.states.port = 19000;
+        systemConfig.objects.port = ports.objects;
+        systemConfig.states.port = ports.states;
         dbConnection.setSystemConfig(systemConfig);
         debug('  => done!');
     }
