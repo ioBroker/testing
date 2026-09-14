@@ -11,6 +11,12 @@ import { DEFAULT_TEST_PORTS, type TestPorts } from './ports';
 
 const debug = debugModule('testing:integration:ControllerSetup');
 
+/** Options for {@link ControllerSetup.setupSystemConfig} */
+export interface SystemConfigOptions {
+    /** The ports to move the DBs to (default: 19001 / 19000) */
+    ports?: Readonly<TestPorts>;
+}
+
 export class ControllerSetup {
     public constructor(
         private adapterDir: string,
@@ -261,9 +267,10 @@ export class ControllerSetup {
      * Changes the objects and states db to use alternative ports
      *
      * @param dbConnection The DB connection whose system config is changed
-     * @param ports The ports to move the DBs to (default: 19001 / 19000)
+     * @param options Further options, e.g. the ports to move the DBs to
      */
-    public setupSystemConfig(dbConnection: DBConnection, ports: Readonly<TestPorts> = DEFAULT_TEST_PORTS): void {
+    public setupSystemConfig(dbConnection: DBConnection, options: SystemConfigOptions = {}): void {
+        const ports = options.ports ?? DEFAULT_TEST_PORTS;
         // Keep this line verbatim: the ioBroker repochecker expects it in the adapter-tests job log (W3053).
         debug(`Moving databases to different ports...`);
         debug(`  => objects ${ports.objects}, states ${ports.states}`);

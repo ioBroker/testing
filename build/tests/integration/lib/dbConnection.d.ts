@@ -6,19 +6,25 @@ export interface DBConnection {
     on(event: 'objectChange', handler: ioBroker.ObjectChangeHandler): this;
     on(event: 'stateChange', handler: ioBroker.StateChangeHandler): this;
 }
+/** Options for the {@link DBConnection} */
+export interface DBConnectionOptions {
+    /** The ports the objects and states DBs listen on (default: 19001 / 19000) */
+    ports?: Readonly<TestPorts>;
+}
 /** The DB connection capsules access to the states and objects DB */
 export declare class DBConnection extends EventEmitter {
     private appName;
     private testDir;
     private logger;
-    readonly ports: Readonly<TestPorts>;
     /**
      * @param appName The branded name of "iobroker"
      * @param testDir The directory the integration tests are executed in
      * @param logger Logger object
-     * @param ports The ports the objects and states DBs listen on (default: 19001 / 19000)
+     * @param options Further options, e.g. the ports the objects and states DBs listen on
      */
-    constructor(appName: string, testDir: string, logger: ioBroker.Logger, ports?: Readonly<TestPorts>);
+    constructor(appName: string, testDir: string, logger: ioBroker.Logger, options?: DBConnectionOptions);
+    /** The ports the objects and states DBs listen on */
+    readonly ports: Readonly<TestPorts>;
     private readonly testDataDir;
     private readonly testControllerDir;
     private _objectsServer;

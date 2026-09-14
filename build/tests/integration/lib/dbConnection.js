@@ -49,22 +49,23 @@ class DBConnection extends node_events_1.default {
     appName;
     testDir;
     logger;
-    ports;
     /**
      * @param appName The branded name of "iobroker"
      * @param testDir The directory the integration tests are executed in
      * @param logger Logger object
-     * @param ports The ports the objects and states DBs listen on (default: 19001 / 19000)
+     * @param options Further options, e.g. the ports the objects and states DBs listen on
      */
-    constructor(appName, testDir, logger, ports = ports_1.DEFAULT_TEST_PORTS) {
+    constructor(appName, testDir, logger, options = {}) {
         super();
         this.appName = appName;
         this.testDir = testDir;
         this.logger = logger;
-        this.ports = ports;
+        this.ports = options.ports ?? ports_1.DEFAULT_TEST_PORTS;
         this.testControllerDir = (0, tools_1.getTestControllerDir)(this.appName, testDir);
         this.testDataDir = (0, tools_1.getTestDataDir)(appName, testDir);
     }
+    /** The ports the objects and states DBs listen on */
+    ports;
     testDataDir;
     testControllerDir;
     // TODO: These could use some better type definitions

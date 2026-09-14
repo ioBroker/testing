@@ -6,7 +6,7 @@ import { ControllerSetup } from './lib/controllerSetup';
 import { DBConnection } from './lib/dbConnection';
 import { TestHarness } from './lib/harness';
 import { createLogger } from './lib/logger';
-import { resolveTestPorts, type TestPorts } from './lib/ports';
+import { assertPortsAvailable, resolveTestPorts, type TestPorts } from './lib/ports';
 
 export interface TestAdapterOptions {
     allowedExitCodes?: (number | string)[];
@@ -84,6 +84,8 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
         if (await controllerSetup.isJsControllerRunning()) {
             throw new Error('JS-Controller is already running! Stop it for the first test run and try again!');
         }
+        // Fail right away when another test run already uses the DB ports - before the long installation
+        await assertPortsAvailable(ports);
 
         const adapterSetup = new AdapterSetup(adapterDir, testDir);
 
@@ -96,9 +98,9 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
         // the databases if JS Controller is installed
         await adapterSetup.installAdapterInTestDir();
 
-        const dbConnection = new DBConnection(appName, testDir, createLogger(options.loglevel ?? 'debug'), ports);
+        const dbConnection = new DBConnection(appName, testDir, createLogger(options.loglevel ?? 'debug'), { ports });
         await dbConnection.start();
-        controllerSetup.setupSystemConfig(dbConnection, ports);
+        controllerSetup.setupSystemConfig(dbConnection, { ports });
         await controllerSetup.disableAdminInstances(dbConnection);
 
         await adapterSetup.deleteOldInstances(dbConnection);
@@ -121,7 +123,7 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
     async function resetDbAndStartHarness(this: Mocha.Context): Promise<void> {
         this.timeout(30000);
 
-        dbConnection = new DBConnection(appName, testDir, createLogger(options.loglevel ?? 'debug'), ports);
+        dbConnection = new DBConnection(appName, testDir, createLogger(options.loglevel ?? 'debug'), { ports });
 
         // Clean up before every single test
         await Promise.all([

@@ -65,6 +65,8 @@ function testAdapter(adapterDir, options = {}) {
         if (await controllerSetup.isJsControllerRunning()) {
             throw new Error('JS-Controller is already running! Stop it for the first test run and try again!');
         }
+        // Fail right away when another test run already uses the DB ports - before the long installation
+        await (0, ports_1.assertPortsAvailable)(ports);
         const adapterSetup = new adapterSetup_1.AdapterSetup(adapterDir, testDir);
         // Installation happens in two steps:
         // First we need to set up JS Controller, so the databases etc. can be created
@@ -73,9 +75,9 @@ function testAdapter(adapterDir, options = {}) {
         // Only then we can install the adapter, because some (including VIS) try to access
         // the databases if JS Controller is installed
         await adapterSetup.installAdapterInTestDir();
-        const dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)(options.loglevel ?? 'debug'), ports);
+        const dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)(options.loglevel ?? 'debug'), { ports });
         await dbConnection.start();
-        controllerSetup.setupSystemConfig(dbConnection, ports);
+        controllerSetup.setupSystemConfig(dbConnection, { ports });
         await controllerSetup.disableAdminInstances(dbConnection);
         await adapterSetup.deleteOldInstances(dbConnection);
         await adapterSetup.addAdapterInstance();
@@ -92,7 +94,7 @@ function testAdapter(adapterDir, options = {}) {
     }
     async function resetDbAndStartHarness() {
         this.timeout(30000);
-        dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)(options.loglevel ?? 'debug'), ports);
+        dbConnection = new dbConnection_1.DBConnection(appName, testDir, (0, logger_1.createLogger)(options.loglevel ?? 'debug'), { ports });
         // Clean up before every single test
         await Promise.all([
             controllerSetup.clearDBDir(),

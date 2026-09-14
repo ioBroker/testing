@@ -273,9 +273,10 @@ class ControllerSetup {
      * Changes the objects and states db to use alternative ports
      *
      * @param dbConnection The DB connection whose system config is changed
-     * @param ports The ports to move the DBs to (default: 19001 / 19000)
+     * @param options Further options, e.g. the ports to move the DBs to
      */
-    setupSystemConfig(dbConnection, ports = ports_1.DEFAULT_TEST_PORTS) {
+    setupSystemConfig(dbConnection, options = {}) {
+        const ports = options.ports ?? ports_1.DEFAULT_TEST_PORTS;
         // Keep this line verbatim: the ioBroker repochecker expects it in the adapter-tests job log (W3053).
         debug(`Moving databases to different ports...`);
         debug(`  => objects ${ports.objects}, states ${ports.states}`);

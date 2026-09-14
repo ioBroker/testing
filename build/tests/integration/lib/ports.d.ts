@@ -23,3 +23,11 @@ export declare const STATES_PORT_ENV = "IOBROKER_TESTING_STATES_PORT";
  * @returns the ports to use
  */
 export declare function resolveTestPorts(options?: Partial<TestPorts>, env?: NodeJS.ProcessEnv): TestPorts;
+/**
+ * Makes sure nothing listens on the DB ports yet. Without this check, a DB server on a port that is
+ * already in use never comes up, and the test run only fails once the hook times out.
+ *
+ * @param ports the ports the objects and states DBs are going to use
+ * @param host the address the DBs listen on
+ */
+export declare function assertPortsAvailable(ports: Readonly<TestPorts>, host?: string): Promise<void>;

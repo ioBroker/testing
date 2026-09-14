@@ -41,13 +41,13 @@ describe('ControllerSetup.setupSystemConfig()', () => {
 
     it('writes the given ports into the system config', () => {
         const db = new DBConnection('iobroker', testDir, createLogger('error'));
-        new ControllerSetup(adapterDir, testDir).setupSystemConfig(db, { objects: 29001, states: 29000 });
+        new ControllerSetup(adapterDir, testDir).setupSystemConfig(db, { ports: { objects: 29001, states: 29000 } });
         expect(systemConfigPorts()).to.deep.equal({ objects: 29001, states: 29000 });
     });
 
     it('keeps the rest of the system config untouched', () => {
         const db = new DBConnection('iobroker', testDir, createLogger('error'));
-        new ControllerSetup(adapterDir, testDir).setupSystemConfig(db, { objects: 29001, states: 29000 });
+        new ControllerSetup(adapterDir, testDir).setupSystemConfig(db, { ports: { objects: 29001, states: 29000 } });
         const config = fs.readJSONSync(path.join(getTestDataDir('iobroker', testDir), 'iobroker.json'));
         expect(config.objects.type).to.equal('file');
         expect(config.states.host).to.equal('127.0.0.1');
@@ -62,8 +62,7 @@ describe('DBConnection ports', () => {
 
     it('carries the ports it was created with', () => {
         const db = new DBConnection('iobroker', path.join(os.tmpdir(), 'unused'), createLogger('error'), {
-            objects: 29001,
-            states: 29000,
+            ports: { objects: 29001, states: 29000 },
         });
         expect(db.ports).to.deep.equal({ objects: 29001, states: 29000 });
     });

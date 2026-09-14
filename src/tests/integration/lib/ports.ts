@@ -1,3 +1,5 @@
+import { createServer } from 'node:net';
+
 /** The TCP ports the objects and states DBs of the test controller listen on */
 export interface TestPorts {
     /** Port of the objects DB */
@@ -25,7 +27,8 @@ function parsePort(value: string | number | undefined, name: string): number | u
     if (value === undefined || value === '') {
         return undefined;
     }
-    const port = typeof value === 'number' ? value : Number(value);
+    // Strings must be plain decimal numbers - Number() alone would also accept e.g. "0x7530" or "1e4"
+    const port = typeof value === 'number' ? value : /^\d+$/.test(value) ? Number(value) : NaN;
     if (!Number.isInteger(port) || port < 1 || port > 65535) {
         throw new Error(`${name} must be an integer between 1 and 65535, got ${JSON.stringify(value)}`);
     }
@@ -56,4 +59,44 @@ export function resolveTestPorts(options: Partial<TestPorts> = {}, env: NodeJS.P
         throw new Error(`The objects and states DBs need different ports, but both would use ${objects}`);
     }
     return { objects, states };
+}
+
+/**
+ * Tries to listen on a port and closes the server again right away
+ *
+ * @param port the port to try
+ * @param host the address to listen on
+ * @returns the error if listening failed, otherwise undefined
+ */
+function tryListen(port: number, host: string): Promise<NodeJS.ErrnoException | undefined> {
+    return new Promise(resolve => {
+        const server = createServer();
+        server.once('error', (err: NodeJS.ErrnoException) => resolve(err));
+        server.listen(port, host, () => server.close(() => resolve(undefined)));
+    });
+}
+
+/**
+ * Makes sure nothing listens on the DB ports yet. Without this check, a DB server on a port that is
+ * already in use never comes up, and the test run only fails once the hook times out.
+ *
+ * @param ports the ports the objects and states DBs are going to use
+ * @param host the address the DBs listen on
+ */
+export async function assertPortsAvailable(ports: Readonly<TestPorts>, host = '127.0.0.1'): Promise<void> {
+    for (const [db, port] of [
+        ['objects', ports.objects],
+        ['states', ports.states],
+    ] as const) {
+        const error = await tryListen(port, host);
+        if (error) {
+            const reason =
+                error.code === 'EADDRINUSE' ? 'is already in use' : `cannot be used (${error.code ?? error.message})`;
+            throw new Error(
+                `Port ${port} for the ${db} DB ${reason}. Is another integration test run active on this machine? ` +
+                    `Stop it or give this run other ports via the "ports" option or the environment variables ` +
+                    `${OBJECTS_PORT_ENV} / ${STATES_PORT_ENV}.`,
+            );
+        }
+    }
 }
