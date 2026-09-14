@@ -19,6 +19,13 @@ const IO_PACKAGE_SCHEMA_URL =
 const SCHEMA_DOWNLOAD_TIMEOUT_MS = 10000;
 
 /**
+ * The key under which the release-script (`@alcalzone/release-script-plugin-iobroker`) collects the news of the
+ * next version in `common.news` while its number does not exist yet. On release it is replaced by the version
+ * number, so it never reaches a published package
+ */
+const NEWS_PLACEHOLDER = 'NEXT';
+
+/**
  * Downloads a JSON schema
  *
  * @param url where to download the schema from
@@ -127,6 +134,24 @@ async function validateJsonConfig(
     }
 }
 
+/**
+ * `common.news` is keyed by version numbers, but between two releases it also carries the release-script's
+ * `NEXT` placeholder (see {@link NEWS_PLACEHOLDER}). The schema describes the published file, so the placeholder
+ * is added here, validated like every other entry: `en` required, only known languages, strings.
+ *
+ * @param schema the io-package.json schema. It will be modified in place
+ */
+export function adaptSchemaForNewsPlaceholder(schema: Record<string, any>): void {
+    const news = schema.properties?.common?.properties?.news;
+    // Today the schema has exactly one pattern (the semver key); the placeholder reuses its entry
+    const entry = news?.patternProperties && Object.values(news.patternProperties)[0];
+    if (!entry) {
+        console.debug(`io-package.json schema has no pattern for common.news, ${NEWS_PLACEHOLDER} stays unknown`);
+        return;
+    }
+    news.patternProperties[`^${NEWS_PLACEHOLDER}$`] = entry;
+}
+
 /** Compile the io-package.json schema and cache the result */
 async function getIoPackageValidator(): Promise<ValidateFunction> {
     if (jsonValidators.ioPackage) {
@@ -134,6 +159,7 @@ async function getIoPackageValidator(): Promise<ValidateFunction> {
     }
 
     const schema = await downloadSchema(IO_PACKAGE_SCHEMA_URL, 'io-package.json');
+    adaptSchemaForNewsPlaceholder(schema);
 
     try {
         // The schema is not written for Ajv's strict mode: with it, every run would log dozens of warnings.

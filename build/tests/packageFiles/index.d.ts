@@ -1,5 +1,13 @@
 import { type ErrorObject } from 'ajv';
 /**
+ * `common.news` is keyed by version numbers, but between two releases it also carries the release-script's
+ * `NEXT` placeholder (see {@link NEWS_PLACEHOLDER}). The schema describes the published file, so the placeholder
+ * is added here, validated like every other entry: `en` required, only known languages, strings.
+ *
+ * @param schema the io-package.json schema. It will be modified in place
+ */
+export declare function adaptSchemaForNewsPlaceholder(schema: Record<string, any>): void;
+/**
  * Turns the errors of a schema validation into one readable line per error
  *
  * @param errors the errors of the validate function
