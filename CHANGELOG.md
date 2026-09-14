@@ -7,6 +7,9 @@
 ## **WORK IN PROGRESS**
 * (@krobipd) Added: the ports of the test controller's objects and states DBs can be set — `ports: { objects, states }` in the integration test options, or the environment variables `IOBROKER_TESTING_OBJECTS_PORT` / `IOBROKER_TESTING_STATES_PORT` — so two adapter test runs can share one machine; until now both always used 19001/19000 and the second run collided with the first
 
+## 6.2.1 (2026-09-10)
+* (@GermanBluefox) Added the check of JSON config files
+
 ## 6.1.0 (2026-09-06)
 * (@GermanBluefox) The test harness now captures the log output of the adapter under test. It can be checked with the new methods `harness.getLogs()`, `harness.hasLog()` and `harness.clearLogs()`
 * (@GermanBluefox) **BREAKING**: `harness.changeAdapterConfig()` now automatically encrypts the `native` properties that are listed in the instance object's `encryptedNative`. Tests that encrypted such values themselves must pass them in plain text now

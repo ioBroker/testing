@@ -1,6 +1,6 @@
 {
   "name": "@iobroker/testing",
-  "version": "6.1.0",
+  "version": "6.2.1",
   "description": "Shared utilities for adapter and module testing in ioBroker",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -38,9 +38,9 @@
   "author": "AlCalzone",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/AlCalzone/testing/issues"
+    "url": "https://github.com/ioBroker/testing/issues"
   },
-  "homepage": "https://github.com/AlCalzone/testing#readme",
+  "homepage": "https://github.com/ioBroker/testing#readme",
   "devDependencies": {
     "@alcalzone/release-script": "^5.2.1",
     "@alcalzone/release-script-plugin-license": "^5.2.2",
@@ -63,6 +63,8 @@
     "@types/mocha": "^10.0.10",
     "@types/sinon": "^22.0.0",
     "@types/sinon-chai": "^3.2.12",
+    "ajv": "^8.20.0",
+    "axios": "^1.20.0",
     "alcalzone-shared": "~5.0.0",
     "chai": "^4.5.0",
     "chai-as-promised": "^7.1.2",
