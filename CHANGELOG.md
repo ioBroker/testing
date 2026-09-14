@@ -7,6 +7,7 @@
 ## **WORK IN PROGRESS**
 * (@krobipd) Added: the ports of the test controller's objects and states DBs can be set — `ports: { objects, states }` in the integration test options, or the environment variables `IOBROKER_TESTING_OBJECTS_PORT` / `IOBROKER_TESTING_STATES_PORT` — so two adapter test runs can share one machine; until now both always used 19001/19000 and the second run collided with the first
 * (@GermanBluefox) The integration tests now fail right away with a clear message when the port of the objects or states DB is already in use, instead of hanging until the timeout
+* (@GermanBluefox) Added the check of `io-package.json` against its JSON schema (the same one the repochecker uses). It can be turned off with `tests.packageFiles(dir, { ignoreIoPackageValidation: true })`
 
 ## 6.2.1 (2026-09-10)
 * (@GermanBluefox) Added the check of JSON config files

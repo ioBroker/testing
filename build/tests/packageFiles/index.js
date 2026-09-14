@@ -36,6 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.formatSchemaErrors = formatSchemaErrors;
 exports.validatePackageFiles = validatePackageFiles;
 const typeguards_1 = require("alcalzone-shared/typeguards");
 const chai_1 = require("chai");
@@ -47,8 +48,27 @@ const axios_1 = __importDefault(require("axios"));
 const jsonValidators = {};
 /** URL to the JSON config schema */
 const JSON_CONFIG_SCHEMA_URL = 'https://raw.githubusercontent.com/ioBroker/json-config/main/schemas/jsonConfig.json';
-/** Timeout for downloading the JSON config schema, so a hanging request cannot block the test run */
-const JSON_CONFIG_SCHEMA_TIMEOUT_MS = 10000;
+/** URL to the io-package.json schema. The ioBroker repochecker validates against the same schema */
+const IO_PACKAGE_SCHEMA_URL = 'https://raw.githubusercontent.com/ioBroker/ioBroker.js-controller/master/schemas/io-package.json';
+/** Timeout for downloading a JSON schema, so a hanging request cannot block the test run */
+const SCHEMA_DOWNLOAD_TIMEOUT_MS = 10000;
+/**
+ * Downloads a JSON schema
+ *
+ * @param url where to download the schema from
+ * @param name what to call the schema in messages
+ */
+async function downloadSchema(url, name) {
+    try {
+        console.debug(`retrieving json schema from ${url}`);
+        const schemaRes = await axios_1.default.get(url, { timeout: SCHEMA_DOWNLOAD_TIMEOUT_MS });
+        return schemaRes.data;
+    }
+    catch (e) {
+        console.error(`Could not get ${name} schema: ${e.message}`);
+        throw new Error(`Could not get ${name} schema`);
+    }
+}
 /**
  * A JSON tab (`common.adminTab.link`) has the same format as `jsonConfig.json`, with two differences:
  * its root may have a `command` (message that is sent to the instance when the tab is opened),
@@ -84,16 +104,7 @@ async function getJsonValidator(type) {
     if (jsonValidators[subType]) {
         return jsonValidators[subType];
     }
-    let schema;
-    try {
-        console.debug(`retrieving json schema from ${JSON_CONFIG_SCHEMA_URL}`);
-        const schemaRes = await axios_1.default.get(JSON_CONFIG_SCHEMA_URL, { timeout: JSON_CONFIG_SCHEMA_TIMEOUT_MS });
-        schema = schemaRes.data;
-    }
-    catch (e) {
-        console.error(`Could not get jsonConfig schema: ${e.message}`);
-        throw new Error(`Could not get jsonConfig schema`);
-    }
+    const schema = await downloadSchema(JSON_CONFIG_SCHEMA_URL, 'jsonConfig');
     if (type === 'tab') {
         adaptSchemaForTab(schema);
     }
@@ -139,6 +150,46 @@ async function validateJsonConfig(adapterDir, type = 'config', tabFile) {
     const validate = await getJsonValidator(type);
     if (!validate(config)) {
         throw new Error(`Invalid ${type} schema for ${adapterDir}: ${JSON.stringify(validate.errors, null, 2)}`);
+    }
+}
+/** Compile the io-package.json schema and cache the result */
+async function getIoPackageValidator() {
+    if (jsonValidators.ioPackage) {
+        return jsonValidators.ioPackage;
+    }
+    const schema = await downloadSchema(IO_PACKAGE_SCHEMA_URL, 'io-package.json');
+    try {
+        // The schema is not written for Ajv's strict mode: with it, every run would log dozens of warnings.
+        // All errors are collected, so the adapter developer can fix them in one go
+        const ajv = new ajv_1.Ajv({ allErrors: true, strict: false });
+        jsonValidators.ioPackage = ajv.compile(schema);
+        return jsonValidators.ioPackage;
+    }
+    catch (e) {
+        console.debug(`Could not compile io-package.json schema: ${e.message}`);
+        throw new Error(`Could not compile io-package.json schema`);
+    }
+}
+/**
+ * Turns the errors of a schema validation into one readable line per error
+ *
+ * @param errors the errors of the validate function
+ */
+function formatSchemaErrors(errors) {
+    const lines = (errors ?? []).map(error => {
+        let line = `  - ${error.instancePath || '/'}: ${error.message}`;
+        if (error.keyword === 'additionalProperties') {
+            line += ` "${error.params.additionalProperty}"`;
+        }
+        return line;
+    });
+    // Schemas with if/then or anyOf can report the same problem several times
+    return [...new Set(lines)].join('\n');
+}
+async function validateIoPackage(ioPackage) {
+    const validate = await getIoPackageValidator();
+    if (!validate(ioPackage)) {
+        throw new Error(`io-package.json does not match the schema ${IO_PACKAGE_SCHEMA_URL}:\n${formatSchemaErrors(validate.errors)}`);
     }
 }
 /**
@@ -303,6 +354,9 @@ function validatePackageFiles(adapterDir, options) {
                 'native',
             ];
             requiredProperties.forEach(prop => ensurePropertyExists(prop, iopackContent));
+            if (!options?.ignoreIoPackageValidation) {
+                it('io-package.json matches its schema', () => validateIoPackage(iopackContent)).timeout(SCHEMA_DOWNLOAD_TIMEOUT_MS + 5000);
+            }
             it(`The title does not contain "adapter" or "iobroker"`, () => {
                 if (!iopackContent.title) {
                     return;

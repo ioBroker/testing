@@ -3,16 +3,37 @@ import { AssertionError, expect } from 'chai';
 import * as fs from 'fs';
 import JSON5 from 'json5';
 import * as path from 'path';
-import { Ajv, type ValidateFunction } from 'ajv';
+import { Ajv, type ErrorObject, type ValidateFunction } from 'ajv';
 import axios from 'axios';
 
-const jsonValidators: { config?: ValidateFunction; tab?: ValidateFunction } = {};
+const jsonValidators: { config?: ValidateFunction; tab?: ValidateFunction; ioPackage?: ValidateFunction } = {};
 
 /** URL to the JSON config schema */
 const JSON_CONFIG_SCHEMA_URL = 'https://raw.githubusercontent.com/ioBroker/json-config/main/schemas/jsonConfig.json';
 
-/** Timeout for downloading the JSON config schema, so a hanging request cannot block the test run */
-const JSON_CONFIG_SCHEMA_TIMEOUT_MS = 10000;
+/** URL to the io-package.json schema. The ioBroker repochecker validates against the same schema */
+const IO_PACKAGE_SCHEMA_URL =
+    'https://raw.githubusercontent.com/ioBroker/ioBroker.js-controller/master/schemas/io-package.json';
+
+/** Timeout for downloading a JSON schema, so a hanging request cannot block the test run */
+const SCHEMA_DOWNLOAD_TIMEOUT_MS = 10000;
+
+/**
+ * Downloads a JSON schema
+ *
+ * @param url where to download the schema from
+ * @param name what to call the schema in messages
+ */
+async function downloadSchema(url: string, name: string): Promise<Record<string, any>> {
+    try {
+        console.debug(`retrieving json schema from ${url}`);
+        const schemaRes = await axios.get(url, { timeout: SCHEMA_DOWNLOAD_TIMEOUT_MS });
+        return schemaRes.data as Record<string, any>;
+    } catch (e) {
+        console.error(`Could not get ${name} schema: ${(e as Error).message}`);
+        throw new Error(`Could not get ${name} schema`);
+    }
+}
 
 /**
  * A JSON tab (`common.adminTab.link`) has the same format as `jsonConfig.json`, with two differences:
@@ -52,15 +73,7 @@ async function getJsonValidator(type: 'config' | 'tab' | 'custom'): Promise<Vali
         return jsonValidators[subType];
     }
 
-    let schema: Record<string, any>;
-    try {
-        console.debug(`retrieving json schema from ${JSON_CONFIG_SCHEMA_URL}`);
-        const schemaRes = await axios.get(JSON_CONFIG_SCHEMA_URL, { timeout: JSON_CONFIG_SCHEMA_TIMEOUT_MS });
-        schema = schemaRes.data as Record<string, any>;
-    } catch (e) {
-        console.error(`Could not get jsonConfig schema: ${(e as Error).message}`);
-        throw new Error(`Could not get jsonConfig schema`);
-    }
+    const schema = await downloadSchema(JSON_CONFIG_SCHEMA_URL, 'jsonConfig');
 
     if (type === 'tab') {
         adaptSchemaForTab(schema);
@@ -114,11 +127,66 @@ async function validateJsonConfig(
     }
 }
 
+/** Compile the io-package.json schema and cache the result */
+async function getIoPackageValidator(): Promise<ValidateFunction> {
+    if (jsonValidators.ioPackage) {
+        return jsonValidators.ioPackage;
+    }
+
+    const schema = await downloadSchema(IO_PACKAGE_SCHEMA_URL, 'io-package.json');
+
+    try {
+        // The schema is not written for Ajv's strict mode: with it, every run would log dozens of warnings.
+        // All errors are collected, so the adapter developer can fix them in one go
+        const ajv = new Ajv({ allErrors: true, strict: false });
+        jsonValidators.ioPackage = ajv.compile(schema);
+        return jsonValidators.ioPackage;
+    } catch (e) {
+        console.debug(`Could not compile io-package.json schema: ${(e as Error).message}`);
+        throw new Error(`Could not compile io-package.json schema`);
+    }
+}
+
+/**
+ * Turns the errors of a schema validation into one readable line per error
+ *
+ * @param errors the errors of the validate function
+ */
+export function formatSchemaErrors(errors: ErrorObject[] | null | undefined): string {
+    const lines = (errors ?? []).map(error => {
+        let line = `  - ${error.instancePath || '/'}: ${error.message}`;
+        if (error.keyword === 'additionalProperties') {
+            line += ` "${error.params.additionalProperty}"`;
+        }
+        return line;
+    });
+    // Schemas with if/then or anyOf can report the same problem several times
+    return [...new Set(lines)].join('\n');
+}
+
+async function validateIoPackage(ioPackage: Record<string, any>): Promise<void> {
+    const validate = await getIoPackageValidator();
+
+    if (!validate(ioPackage)) {
+        throw new Error(
+            `io-package.json does not match the schema ${IO_PACKAGE_SCHEMA_URL}:\n${formatSchemaErrors(validate.errors)}`,
+        );
+    }
+}
+
+/** Options for {@link validatePackageFiles} */
+export interface PackageFilesOptions {
+    /** Do not validate `admin/jsonConfig.json(5)`, `admin/jsonCustom.json(5)` and JSON tab files against the jsonConfig schema */
+    ignoreJsonConfigValidation?: boolean;
+    /** Do not validate `io-package.json` against the io-package.json schema of JS-Controller */
+    ignoreIoPackageValidation?: boolean;
+}
+
 /**
  * Tests if the adapter files are valid.
  * This is meant to be executed in a mocha context.
  */
-export function validatePackageFiles(adapterDir: string, options?: { ignoreJsonConfigValidation?: boolean }): void {
+export function validatePackageFiles(adapterDir: string, options?: PackageFilesOptions): void {
     const packageJsonPath = path.join(adapterDir, 'package.json');
     const ioPackageJsonPath = path.join(adapterDir, 'io-package.json');
 
@@ -311,6 +379,12 @@ export function validatePackageFiles(adapterDir: string, options?: { ignoreJsonC
                 'native',
             ];
             requiredProperties.forEach(prop => ensurePropertyExists(prop, iopackContent));
+
+            if (!options?.ignoreIoPackageValidation) {
+                it('io-package.json matches its schema', () => validateIoPackage(iopackContent)).timeout(
+                    SCHEMA_DOWNLOAD_TIMEOUT_MS + 5000,
+                );
+            }
 
             it(`The title does not contain "adapter" or "iobroker"`, () => {
                 if (!iopackContent.title) {

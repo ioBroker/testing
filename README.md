@@ -26,6 +26,24 @@ tests.packageFiles(path.join(__dirname, ".."));
 // This should be the adapter's root directory
 ```
 
+Some files are also checked against JSON schemas, which are downloaded when the tests run:
+
+-   `io-package.json` against the [io-package.json schema](https://github.com/ioBroker/ioBroker.js-controller/blob/master/schemas/io-package.json) of JS-Controller. The ioBroker repochecker uses the same schema.
+-   `admin/jsonConfig.json(5)`, `admin/jsonCustom.json(5)` and the JSON file of an admin tab against the [jsonConfig schema](https://github.com/ioBroker/json-config/blob/main/schemas/jsonConfig.json).
+
+Each of these checks can be turned off, e.g. when no internet connection is available:
+
+```ts
+tests.packageFiles(path.join(__dirname, ".."), {
+	// Do not validate io-package.json against its schema
+	ignoreIoPackageValidation: true,
+	// Do not validate the JSON config files against the jsonConfig schema
+	ignoreJsonConfigValidation: true,
+});
+```
+
+Turning off the io-package.json check does not make the repochecker accept an invalid `io-package.json`; it still reports the schema errors.
+
 ### Adapter startup (Integration test)
 
 Run the following snippet in a `mocha` test file to test the adapter startup process against a real JS-Controller instance:
