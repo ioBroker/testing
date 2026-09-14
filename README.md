@@ -28,7 +28,7 @@ tests.packageFiles(path.join(__dirname, ".."));
 
 Some files are also checked against JSON schemas, which are downloaded when the tests run:
 
--   `io-package.json` against the [io-package.json schema](https://github.com/ioBroker/ioBroker.js-controller/blob/master/schemas/io-package.json) of JS-Controller. The ioBroker repochecker uses the same schema.
+-   `io-package.json` against the [io-package.json schema](https://github.com/ioBroker/ioBroker.js-controller/blob/master/schemas/io-package.json) of JS-Controller. The ioBroker repochecker uses the same schema. Between two releases, `common.news` may carry the `NEXT` placeholder of the [release-script](https://github.com/AlCalzone/release-script), which is validated like a version entry.
 -   `admin/jsonConfig.json(5)`, `admin/jsonCustom.json(5)` and the JSON file of an admin tab against the [jsonConfig schema](https://github.com/ioBroker/json-config/blob/main/schemas/jsonConfig.json).
 
 Each of these checks can be turned off, e.g. when no internet connection is available:

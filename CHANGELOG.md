@@ -4,6 +4,9 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
+## **WORK IN PROGRESS**
+* (@krobipd) The io-package.json check accepts the release-script's `NEXT` placeholder in `common.news` (it is replaced by the version number on release), so `npm test` no longer fails between two releases
+
 ## 6.2.2 (2026-09-14)
 * (@krobipd) Added: the ports of the test controller's objects and states DBs can be set — `ports: { objects, states }` in the integration test options, or the environment variables `IOBROKER_TESTING_OBJECTS_PORT` / `IOBROKER_TESTING_STATES_PORT` — so two adapter test runs can share one machine; until now both always used 19001/19000 and the second run collided with the first
 * (@GermanBluefox) The integration tests now fail right away with a clear message when the port of the objects or states DB is already in use, instead of hanging until the timeout
