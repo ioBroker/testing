@@ -67,3 +67,59 @@ describe('DBConnection ports', () => {
         expect(db.ports).to.deep.equal({ objects: 29001, states: 29000 });
     });
 });
+
+describe('ControllerSetup.disableDiagnosticReporting()', () => {
+    function fakeDb(systemConfig: Record<string, any> | null | undefined): {
+        db: DBConnection;
+        written: Array<{ id: string; obj: any }>;
+    } {
+        const written: Array<{ id: string; obj: any }> = [];
+        const db = {
+            getObject: (id: string) => Promise.resolve(id === 'system.config' ? systemConfig : null),
+            setObject: (id: string, obj: any) => {
+                written.push({ id, obj });
+                return Promise.resolve({ id });
+            },
+        } as unknown as DBConnection;
+        return { db, written };
+    }
+
+    let tmp: string;
+    let setup: ControllerSetup;
+
+    beforeEach(() => {
+        tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'testing-diag-'));
+        const adapterDir = path.join(tmp, 'ioBroker.demo');
+        fs.outputJSONSync(path.join(adapterDir, 'package.json'), { name: 'iobroker.demo', version: '0.0.1' });
+        fs.outputJSONSync(path.join(adapterDir, 'io-package.json'), { common: { name: 'demo' } });
+        setup = new ControllerSetup(adapterDir, path.join(tmp, 'test'));
+    });
+
+    afterEach(() => {
+        fs.removeSync(tmp);
+    });
+
+    it('sets system.config.common.diag to "none" and keeps the rest of the object', async () => {
+        const { db, written } = fakeDb({
+            _id: 'system.config',
+            type: 'config',
+            common: { diag: 'extended', language: 'en' },
+        });
+        await setup.disableDiagnosticReporting(db);
+        expect(written).to.have.length(1);
+        expect(written[0].id).to.equal('system.config');
+        expect(written[0].obj.common).to.deep.equal({ diag: 'none', language: 'en' });
+    });
+
+    it('writes nothing when diagnostic reporting is already off', async () => {
+        const { db, written } = fakeDb({ _id: 'system.config', type: 'config', common: { diag: 'none' } });
+        await setup.disableDiagnosticReporting(db);
+        expect(written).to.have.length(0);
+    });
+
+    it('writes nothing when there is no system.config object', async () => {
+        const { db, written } = fakeDb(null);
+        await setup.disableDiagnosticReporting(db);
+        expect(written).to.have.length(0);
+    });
+});

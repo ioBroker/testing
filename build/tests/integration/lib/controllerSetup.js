@@ -317,5 +317,22 @@ class ControllerSetup {
         }
         debug('  => done!');
     }
+    /**
+     * Disables diagnostic data reporting of the test installation (`system.config.common.diag = 'none'`),
+     * like `@iobroker/dev-server` and `@iobroker/legacy-testing` do for their instances.
+     * `@iobroker/plugin-sentry` then stays inactive, so errors raised during a local test run
+     * are not reported to the adapter's Sentry project. On CI systems the plugin already switches itself off (`CI`).
+     *
+     * @param dbConnection The DB connection whose system config object is changed
+     */
+    async disableDiagnosticReporting(dbConnection) {
+        debug('Disabling diagnostic data reporting...');
+        const systemConfig = await dbConnection.getObject('system.config');
+        if (systemConfig?.common && systemConfig.common.diag !== 'none') {
+            systemConfig.common.diag = 'none';
+            await dbConnection.setObject('system.config', systemConfig);
+        }
+        debug('  => done!');
+    }
 }
 exports.ControllerSetup = ControllerSetup;
