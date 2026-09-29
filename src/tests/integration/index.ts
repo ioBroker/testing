@@ -102,6 +102,7 @@ export function testAdapter(adapterDir: string, options: TestAdapterOptions = {}
         await dbConnection.start();
         controllerSetup.setupSystemConfig(dbConnection, { ports });
         await controllerSetup.disableAdminInstances(dbConnection);
+        await controllerSetup.disableDiagnosticReporting(dbConnection);
 
         await adapterSetup.deleteOldInstances(dbConnection);
         await adapterSetup.addAdapterInstance();

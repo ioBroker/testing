@@ -4,6 +4,9 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
+## **WORK IN PROGRESS**
+* (@krobipd) The test installation now has diagnostic data reporting turned off (`system.config.common.diag = 'none'`), like `@iobroker/dev-server` and `@iobroker/legacy-testing`. Until now, whether `@iobroker/plugin-sentry` reported errors of a local integration test run (e.g. `DB closed` on shutdown) to the adapter's Sentry project depended on the plugin state the controller setup happened to leave behind; on CI systems the plugin already switches itself off
+
 ## 6.2.2 (2026-09-14)
 * (@krobipd) Added: the ports of the test controller's objects and states DBs can be set — `ports: { objects, states }` in the integration test options, or the environment variables `IOBROKER_TESTING_OBJECTS_PORT` / `IOBROKER_TESTING_STATES_PORT` — so two adapter test runs can share one machine; until now both always used 19001/19000 and the second run collided with the first
 * (@GermanBluefox) The integration tests now fail right away with a clear message when the port of the objects or states DB is already in use, instead of hanging until the timeout

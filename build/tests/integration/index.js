@@ -79,6 +79,7 @@ function testAdapter(adapterDir, options = {}) {
         await dbConnection.start();
         controllerSetup.setupSystemConfig(dbConnection, { ports });
         await controllerSetup.disableAdminInstances(dbConnection);
+        await controllerSetup.disableDiagnosticReporting(dbConnection);
         await adapterSetup.deleteOldInstances(dbConnection);
         await adapterSetup.addAdapterInstance();
         await dbConnection.stop();
