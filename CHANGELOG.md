@@ -4,7 +4,7 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
-## **WORK IN PROGRESS**
+## 6.3.0 (2026-09-29)
 * (@krobipd) The test installation now has diagnostic data reporting turned off (`system.config.common.diag = 'none'`), like `@iobroker/dev-server` and `@iobroker/legacy-testing`. Until now, whether `@iobroker/plugin-sentry` reported errors of a local integration test run (e.g. `DB closed` on shutdown) to the adapter's Sentry project depended on the plugin state the controller setup happened to leave behind; on CI systems the plugin already switches itself off
 
 ## 6.2.2 (2026-09-14)
