@@ -122,4 +122,17 @@ describe('ControllerSetup.disableDiagnosticReporting()', () => {
         await setup.disableDiagnosticReporting(db);
         expect(written).to.have.length(0);
     });
+
+    it('does not throw when the system config cannot be read', async () => {
+        const written: Array<{ id: string; obj: any }> = [];
+        const db = {
+            getObject: () => Promise.reject(new Error('Connection is closed.')),
+            setObject: (id: string, obj: any) => {
+                written.push({ id, obj });
+                return Promise.resolve({ id });
+            },
+        } as unknown as DBConnection;
+        await setup.disableDiagnosticReporting(db);
+        expect(written).to.have.length(0);
+    });
 });

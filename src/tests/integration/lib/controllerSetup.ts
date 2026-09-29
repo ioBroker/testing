@@ -326,7 +326,15 @@ export class ControllerSetup {
      */
     public async disableDiagnosticReporting(dbConnection: DBConnection): Promise<void> {
         debug('Disabling diagnostic data reporting...');
-        const systemConfig = await dbConnection.getObject('system.config');
+        let systemConfig;
+        try {
+            systemConfig = await dbConnection.getObject('system.config');
+        } catch (e) {
+            // A system config that cannot even be read must not abort the whole test preparation.
+            // The sentry plugin treats this case as "reporting disabled" anyways.
+            debug(`  => could not read the system config: ${e as Error}`);
+            return;
+        }
         if (systemConfig?.common && systemConfig.common.diag !== 'none') {
             systemConfig.common.diag = 'none';
             await dbConnection.setObject('system.config', systemConfig);
