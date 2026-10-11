@@ -132,6 +132,13 @@ export class ControllerSetup {
                 // @alcalzone/esbuild-register is needed to run TypeScript adapters
                 '@alcalzone/esbuild-register': '^2.5.1-1',
             },
+            // npm >= 12 blocks dependency install scripts by default:
+            // - js-controller needs its install script ("setup first") to create the database
+            // - esbuild (used by @alcalzone/esbuild-register) downloads its binary
+            allowScripts: {
+                [`${this.appName}.js-controller`]: true,
+                esbuild: true,
+            },
             description: '',
         };
         await writeJSON(path.join(this.testDir, 'package.json'), packageJson, {
