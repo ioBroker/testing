@@ -4,7 +4,7 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
-## **WORK IN PROGRESS**
+## 6.3.1 (2026-10-13)
 * (Garfonso) Fixed: with npm >= 12 the test installation stayed empty, because npm blocks the install scripts of js-controller (`setup first`) and esbuild. Both are now listed in `allowScripts` of the generated `package.json`
 
 ## 6.3.0 (2026-09-29)
