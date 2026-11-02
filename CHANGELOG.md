@@ -5,7 +5,7 @@
 	## **WORK IN PROGRESS**
 -->
 ## **WORK IN PROGRESS**
-* (@hombach) Fixed: `@iobroker/testing` no longer pulls `esbuild@0.11` (GHSA-67mh-4wv8-2f99) into every adapter. `@alcalzone/esbuild-register` is removed from the dependencies, as it is only needed inside the integration test directory, where it is already installed. There, an npm `overrides` entry now forces `esbuild@^0.25.0` for `@alcalzone/esbuild-register`
+* (@hombach) Fixed: `@iobroker/testing` no longer pulls `esbuild@0.11` (GHSA-67mh-4wv8-2f99) into every adapter. `@alcalzone/esbuild-register` is removed from the dependencies. TypeScript adapters are now started with [`tsx`](https://tsx.is) (`node --import tsx`) instead of `@alcalzone/esbuild-register`. `tsx` is installed in the integration test directory only and depends on a current `esbuild`
 
 ## 6.3.1 (2026-10-13)
 * (Garfonso) Fixed: with npm >= 12 the test installation stayed empty, because npm blocks the install scripts of js-controller (`setup first`) and esbuild. Both are now listed in `allowScripts` of the generated `package.json`

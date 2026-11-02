@@ -47,7 +47,7 @@ This is the core of the library. `testAdapter()` in `integration/index.ts` build
 3. **`shutdownTests` (after)** — stops the controller and adapter.
 
 The collaborating classes in `integration/lib/`:
-- **`TestHarness`** (`harness.ts`) — an `EventEmitter` that is the object user tests interact with. Spawns the adapter in a child process (`node`, or `node -r @alcalzone/esbuild-register` for `.ts` main files), monitors its `alive`/exit state, and exposes `startAdapter`, `startAdapterAndWait`, `stopAdapter`, `changeAdapterConfig`, `sendTo` (message-box emulation via `enableSendTo`), and direct `.objects` / `.states` DB access.
+- **`TestHarness`** (`harness.ts`) — an `EventEmitter` that is the object user tests interact with. Spawns the adapter in a child process (`node`, or `node --import tsx` for `.ts` main files), monitors its `alive`/exit state, and exposes `startAdapter`, `startAdapterAndWait`, `stopAdapter`, `changeAdapterConfig`, `sendTo` (message-box emulation via `enableSendTo`), and direct `.objects` / `.states` DB access.
 - **`DBConnection`** (`dbConnection.ts`) — wraps the objects and states DB servers + clients. Supports both `file` and `jsonl` DB types, and handles backup/restore used for test isolation.
 - **`ControllerSetup`** / **`AdapterSetup`** — install and configure JS-Controller and the adapter into the temp test dir; `executeCommand` in `src/lib/` runs the npm/install subprocesses.
 

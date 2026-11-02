@@ -154,21 +154,17 @@ describe('ControllerSetup.createTestDirPackageJson()', () => {
         fs.removeSync(tmp);
     });
 
-    it('installs the requested JS-Controller version and esbuild-register', () => {
+    it('installs the requested JS-Controller version and tsx', () => {
         const packageJson = new ControllerSetup(adapterDir, testDir).createTestDirPackageJson('7.2.2');
         expect(packageJson.dependencies).to.deep.equal({
             'iobroker.js-controller': '7.2.2',
-            '@alcalzone/esbuild-register': '^2.5.1-1',
+            tsx: '^4.20.0',
         });
     });
 
-    it('forces a fixed esbuild version (GHSA-67mh-4wv8-2f99) for esbuild-register only', () => {
+    it('does not need npm overrides', () => {
         const packageJson = new ControllerSetup(adapterDir, testDir).createTestDirPackageJson('dev');
-        expect(packageJson.overrides).to.deep.equal({
-            '@alcalzone/esbuild-register': {
-                esbuild: '^0.25.0',
-            },
-        });
+        expect(packageJson).not.to.have.property('overrides');
     });
 
     it('allows the install scripts of js-controller and esbuild', () => {

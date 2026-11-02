@@ -135,20 +135,12 @@ class ControllerSetup {
             license: 'ISC',
             dependencies: {
                 [`${this.appName}.js-controller`]: controllerVersion,
-                // @alcalzone/esbuild-register is needed to run TypeScript adapters
-                '@alcalzone/esbuild-register': '^2.5.1-1',
-            },
-            // @alcalzone/esbuild-register@2.5.1-1 (the latest version) depends on esbuild@^0.11.5,
-            // which is affected by GHSA-67mh-4wv8-2f99. Force a fixed esbuild version, but only
-            // for esbuild-register, so an esbuild dependency of the adapter itself is not touched
-            overrides: {
-                '@alcalzone/esbuild-register': {
-                    esbuild: '^0.25.0',
-                },
+                // tsx is needed to run TypeScript adapters
+                tsx: '^4.20.0',
             },
             // npm >= 12 blocks dependency install scripts by default:
             // - js-controller needs its install script ("setup first") to create the database
-            // - esbuild (used by @alcalzone/esbuild-register) downloads its binary
+            // - esbuild (used by tsx) downloads its binary
             allowScripts: {
                 [`${this.appName}.js-controller`]: true,
                 esbuild: true,
