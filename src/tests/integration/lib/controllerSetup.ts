@@ -92,6 +92,38 @@ export class ControllerSetup {
         debug('  => done!');
     }
 
+    /**
+     * Creates the contents of the package.json in the test directory
+     *
+     * @param controllerVersion The version (or dist-tag) of JS-Controller to install
+     */
+    public createTestDirPackageJson(controllerVersion: string): Record<string, any> {
+        return {
+            name: path.basename(this.testDir),
+            version: '1.0.0',
+            main: 'index.js',
+            scripts: {
+                test: 'echo "Error: no test specified" && exit 1',
+            },
+            keywords: [],
+            author: '',
+            license: 'ISC',
+            dependencies: {
+                [`${this.appName}.js-controller`]: controllerVersion,
+                // tsx is needed to run TypeScript adapters
+                tsx: '^4.20.0',
+            },
+            // npm >= 12 blocks dependency install scripts by default:
+            // - js-controller needs its install script ("setup first") to create the database
+            // - esbuild (used by tsx) downloads its binary
+            allowScripts: {
+                [`${this.appName}.js-controller`]: true,
+                esbuild: true,
+            },
+            description: '',
+        };
+    }
+
     public async prepareTestDir(controllerVersion?: string): Promise<void> {
         const nodeMajorVersion = parseInt(process.versions.node.split('.')[0], 10);
 
@@ -117,30 +149,7 @@ export class ControllerSetup {
         }
 
         // Write the package.json
-        const packageJson = {
-            name: path.basename(this.testDir),
-            version: '1.0.0',
-            main: 'index.js',
-            scripts: {
-                test: 'echo "Error: no test specified" && exit 1',
-            },
-            keywords: [],
-            author: '',
-            license: 'ISC',
-            dependencies: {
-                [`${this.appName}.js-controller`]: controllerVersion,
-                // @alcalzone/esbuild-register is needed to run TypeScript adapters
-                '@alcalzone/esbuild-register': '^2.5.1-1',
-            },
-            // npm >= 12 blocks dependency install scripts by default:
-            // - js-controller needs its install script ("setup first") to create the database
-            // - esbuild (used by @alcalzone/esbuild-register) downloads its binary
-            allowScripts: {
-                [`${this.appName}.js-controller`]: true,
-                esbuild: true,
-            },
-            description: '',
-        };
+        const packageJson = this.createTestDirPackageJson(controllerVersion);
         await writeJSON(path.join(this.testDir, 'package.json'), packageJson, {
             spaces: 2,
         });
