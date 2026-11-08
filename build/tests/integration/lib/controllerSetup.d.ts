@@ -32,6 +32,12 @@ export declare class ControllerSetup {
      * This is necessary when switching JS-Controller versions, so no stale files and states are left behind.
      */
     private clearTestDir;
+    /**
+     * Creates the contents of the package.json in the test directory
+     *
+     * @param controllerVersion The version (or dist-tag) of JS-Controller to install
+     */
+    createTestDirPackageJson(controllerVersion: string): Record<string, any>;
     prepareTestDir(controllerVersion?: string): Promise<void>;
     /**
      * Tests if JS-Controller is already installed

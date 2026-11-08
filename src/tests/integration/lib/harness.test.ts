@@ -1,6 +1,7 @@
 import { expect, use } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs-extra';
+import childProcess from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -59,6 +60,58 @@ describe('TestHarness', () => {
 
     afterEach(async () => {
         await fs.remove(testDir);
+    });
+
+    describe('startAdapter()', () => {
+        let spawn: sinon.SinonStub;
+        let installedAdapterDir: string;
+
+        beforeEach(async () => {
+            const adapterDir = path.join(testDir, 'source');
+            const runtimeDir = path.join(testDir, 'runtime');
+            installedAdapterDir = path.join(runtimeDir, 'node_modules', 'iobroker.test-adapter');
+            await fs.copy(path.join(testDir, 'package.json'), path.join(adapterDir, 'package.json'));
+            await fs.copy(path.join(testDir, 'io-package.json'), path.join(adapterDir, 'io-package.json'));
+            await fs.copy(adapterDir, installedAdapterDir);
+            harness = new TestHarness(adapterDir, runtimeDir, dbConnection as unknown as DBConnection);
+
+            // No real process or controller is needed to verify the startup contract.
+            const process = Object.assign(new EventEmitter(), {
+                stdout: new EventEmitter(),
+                stderr: new EventEmitter(),
+            });
+            spawn = sinon.stub(childProcess, 'spawn').returns(process as unknown as childProcess.ChildProcess);
+        });
+
+        afterEach(() => {
+            spawn?.restore();
+        });
+
+        it('starts an installed TypeScript entry with tsx and the installed adapter working directory', async () => {
+            const main = path.join('src', 'main.ts');
+            await fs.writeJson(path.join(installedAdapterDir, 'io-package.json'), {
+                common: { name: 'test-adapter', main },
+            });
+            await fs.outputFile(path.join(installedAdapterDir, main), 'export {};');
+
+            await harness.startAdapter();
+
+            sinon.assert.calledOnce(spawn);
+            expect(spawn.firstCall.args[0]).to.equal(process.platform === 'win32' ? 'node.exe' : 'node');
+            expect(spawn.firstCall.args[1]).to.deep.equal(['--import', 'tsx', main, '--console']);
+            expect(spawn.firstCall.args[2].cwd).to.equal(installedAdapterDir);
+        });
+
+        it('keeps JavaScript startup arguments unchanged without a TypeScript loader', async () => {
+            await fs.outputFile(path.join(installedAdapterDir, 'main.js'), 'module.exports = {};');
+
+            await harness.startAdapter();
+
+            sinon.assert.calledOnce(spawn);
+            expect(spawn.firstCall.args[0]).to.equal(process.platform === 'win32' ? 'node.exe' : 'node');
+            expect(spawn.firstCall.args[1]).to.deep.equal(['main.js', '--console']);
+            expect(spawn.firstCall.args[2].cwd).to.equal(installedAdapterDir);
+        });
     });
 
     describe('encryptValue() / decryptValue()', () => {
