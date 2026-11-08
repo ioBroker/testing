@@ -4,7 +4,7 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
-## **WORK IN PROGRESS**
+## 6.3.2 (2026-11-08)
 * (@hombach) Fixed: `@iobroker/testing` no longer pulls `esbuild@0.11` (GHSA-67mh-4wv8-2f99) into every adapter. `@alcalzone/esbuild-register` is removed from the dependencies. TypeScript adapters are now started with [`tsx`](https://tsx.is) (`node --import tsx`) instead of `@alcalzone/esbuild-register`. `tsx` is installed in the integration test directory only and depends on a current `esbuild`
 
 ## 6.3.1 (2026-10-13)
