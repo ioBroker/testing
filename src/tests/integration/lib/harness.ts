@@ -3,6 +3,7 @@ import { extend } from 'alcalzone-shared/objects';
 import { type ChildProcess, spawn } from 'node:child_process';
 import debugModule from 'debug';
 import { EventEmitter } from 'node:events';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import { getAdapterExecutionMode, getAdapterName, getAppName, locateAdapterMainFile } from '../../../lib/adapterTools';
 import type { DBConnection } from './dbConnection';
@@ -128,6 +129,8 @@ export class TestHarness extends EventEmitter {
     private appName: string;
     private testControllerDir: string;
     private testAdapterDir: string;
+    /** The environment the adapter process was started with */
+    private adapterEnv: NodeJS.ProcessEnv = process.env;
 
     /** Gives direct access to the Objects DB */
     public get objects(): any {
@@ -232,11 +235,12 @@ export class TestHarness extends EventEmitter {
             ? ['--import', 'tsx', mainFileRelative, '--console']
             : [mainFileRelative, '--console'];
 
+        this.adapterEnv = { ...process.env, ...env };
         this._adapterProcess = spawn(command, args, {
             cwd: this.testAdapterDir,
             // stdout and stderr are piped, so the log messages can be captured
             stdio: ['inherit', 'pipe', 'pipe'],
-            env: { ...process.env, ...env },
+            env: this.adapterEnv,
         })
             .on('close', onClose)
             .on('exit', onClose);
@@ -311,15 +315,31 @@ export class TestHarness extends EventEmitter {
 
             // Tell adapter to stop
             try {
+                // Since js-controller 8.0.0-alpha.23 the adapter only accepts a sigKill from the controller of its own host
                 await this.dbConnection.setState(`system.adapter.${this.adapterName}.0.sigKill`, {
                     val: -1,
-                    from: 'system.host.testing',
+                    from: `system.host.${this.getAdapterHostName()}`,
                 });
             } catch {
                 // DB connection may be closed already, kill the process
                 this._adapterProcess?.kill('SIGTERM');
             }
         });
+    }
+
+    /**
+     * Returns the host name the adapter process runs on, resolved like `tools.getHostName()` of the JS-Controller:
+     * `IOB_HOSTNAME`, then `system.hostname` of the system config, then the host name of the OS
+     */
+    private getAdapterHostName(): string {
+        if (this.adapterEnv.IOB_HOSTNAME) {
+            return this.adapterEnv.IOB_HOSTNAME;
+        }
+        try {
+            return this.dbConnection.getSystemConfig()?.system?.hostname || os.hostname();
+        } catch {
+            return os.hostname();
+        }
     }
 
     /**

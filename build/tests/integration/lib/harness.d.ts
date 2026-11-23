@@ -44,6 +44,8 @@ export declare class TestHarness extends EventEmitter {
     private appName;
     private testControllerDir;
     private testAdapterDir;
+    /** The environment the adapter process was started with */
+    private adapterEnv;
     /** Gives direct access to the Objects DB */
     get objects(): any;
     /** Gives direct access to the States DB */
@@ -79,6 +81,11 @@ export declare class TestHarness extends EventEmitter {
     didAdapterStop(): boolean;
     /** Stops the adapter process */
     stopAdapter(): Promise<void> | undefined;
+    /**
+     * Returns the host name the adapter process runs on, resolved like `tools.getHostName()` of the JS-Controller:
+     * `IOB_HOSTNAME`, then `system.hostname` of the system config, then the host name of the OS
+     */
+    private getAdapterHostName;
     /**
      * Updates the adapter config. The changes can be a subset of the target object.
      * The `native` properties that are listed in the instance object's `encryptedNative`

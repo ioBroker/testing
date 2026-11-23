@@ -43,6 +43,7 @@ const objects_1 = require("alcalzone-shared/objects");
 const node_child_process_1 = require("node:child_process");
 const debug_1 = __importDefault(require("debug"));
 const node_events_1 = require("node:events");
+const os = __importStar(require("node:os"));
 const path = __importStar(require("node:path"));
 const adapterTools_1 = require("../../../lib/adapterTools");
 const tools_1 = require("./tools");
@@ -134,6 +135,8 @@ class TestHarness extends node_events_1.EventEmitter {
     appName;
     testControllerDir;
     testAdapterDir;
+    /** The environment the adapter process was started with */
+    adapterEnv = process.env;
     /** Gives direct access to the Objects DB */
     get objects() {
         if (!this.dbConnection.objectsClient) {
@@ -227,11 +230,12 @@ class TestHarness extends node_events_1.EventEmitter {
         const args = isTypeScript
             ? ['--import', 'tsx', mainFileRelative, '--console']
             : [mainFileRelative, '--console'];
+        this.adapterEnv = { ...process.env, ...env };
         this._adapterProcess = (0, node_child_process_1.spawn)(command, args, {
             cwd: this.testAdapterDir,
             // stdout and stderr are piped, so the log messages can be captured
             stdio: ['inherit', 'pipe', 'pipe'],
-            env: { ...process.env, ...env },
+            env: this.adapterEnv,
         })
             .on('close', onClose)
             .on('exit', onClose);
@@ -291,9 +295,10 @@ class TestHarness extends node_events_1.EventEmitter {
             this._adapterProcess.removeAllListeners().on('close', onClose).on('exit', onClose);
             // Tell adapter to stop
             try {
+                // Since js-controller 8.0.0-alpha.23 the adapter only accepts a sigKill from the controller of its own host
                 await this.dbConnection.setState(`system.adapter.${this.adapterName}.0.sigKill`, {
                     val: -1,
-                    from: 'system.host.testing',
+                    from: `system.host.${this.getAdapterHostName()}`,
                 });
             }
             catch {
@@ -301,6 +306,21 @@ class TestHarness extends node_events_1.EventEmitter {
                 this._adapterProcess?.kill('SIGTERM');
             }
         });
+    }
+    /**
+     * Returns the host name the adapter process runs on, resolved like `tools.getHostName()` of the JS-Controller:
+     * `IOB_HOSTNAME`, then `system.hostname` of the system config, then the host name of the OS
+     */
+    getAdapterHostName() {
+        if (this.adapterEnv.IOB_HOSTNAME) {
+            return this.adapterEnv.IOB_HOSTNAME;
+        }
+        try {
+            return this.dbConnection.getSystemConfig()?.system?.hostname || os.hostname();
+        }
+        catch {
+            return os.hostname();
+        }
     }
     /**
      * Updates the adapter config. The changes can be a subset of the target object.

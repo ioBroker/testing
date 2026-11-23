@@ -32,6 +32,15 @@ class MockDBConnection extends EventEmitter {
         this.objects.set(id, obj);
         return Promise.resolve({ id });
     };
+
+    public readonly states = new Map<string, any>();
+    public setState = (id: string, state: any): Promise<string> => {
+        this.states.set(id, state);
+        return Promise.resolve(id);
+    };
+
+    public systemConfig: any = { system: {} };
+    public getSystemConfig = (): any => this.systemConfig;
 }
 
 describe('TestHarness', () => {
@@ -111,6 +120,82 @@ describe('TestHarness', () => {
             expect(spawn.firstCall.args[0]).to.equal(process.platform === 'win32' ? 'node.exe' : 'node');
             expect(spawn.firstCall.args[1]).to.deep.equal(['main.js', '--console']);
             expect(spawn.firstCall.args[2].cwd).to.equal(installedAdapterDir);
+        });
+    });
+
+    describe('stopAdapter()', () => {
+        let spawn: sinon.SinonStub;
+        let adapterProcess: EventEmitter & { kill: sinon.SinonStub };
+        let savedHostname: string | undefined;
+
+        beforeEach(async () => {
+            const adapterDir = path.join(testDir, 'source');
+            const runtimeDir = path.join(testDir, 'runtime');
+            const installedAdapterDir = path.join(runtimeDir, 'node_modules', 'iobroker.test-adapter');
+            await fs.copy(path.join(testDir, 'package.json'), path.join(adapterDir, 'package.json'));
+            await fs.copy(path.join(testDir, 'io-package.json'), path.join(adapterDir, 'io-package.json'));
+            await fs.copy(adapterDir, installedAdapterDir);
+            await fs.outputFile(path.join(installedAdapterDir, 'main.js'), 'module.exports = {};');
+            harness = new TestHarness(adapterDir, runtimeDir, dbConnection as unknown as DBConnection);
+
+            adapterProcess = Object.assign(new EventEmitter(), {
+                stdout: new EventEmitter(),
+                stderr: new EventEmitter(),
+                kill: sinon.stub(),
+            });
+            spawn = sinon.stub(childProcess, 'spawn').returns(adapterProcess as unknown as childProcess.ChildProcess);
+
+            savedHostname = process.env.IOB_HOSTNAME;
+            delete process.env.IOB_HOSTNAME;
+        });
+
+        afterEach(() => {
+            spawn?.restore();
+            if (savedHostname === undefined) {
+                delete process.env.IOB_HOSTNAME;
+            } else {
+                process.env.IOB_HOSTNAME = savedHostname;
+            }
+        });
+
+        /** Stops the adapter and returns the sigKill state the harness wrote */
+        async function stop(): Promise<any> {
+            const stopped = harness.stopAdapter();
+            // let the harness write the sigKill state, then the adapter exits
+            await new Promise(resolve => setImmediate(resolve));
+            adapterProcess.emit('exit', 11, null);
+            await stopped;
+            return dbConnection.states.get('system.adapter.test-adapter.0.sigKill');
+        }
+
+        it('sends the sigKill from the host name of the OS, so the adapter accepts it', async () => {
+            await harness.startAdapter();
+            const sigKill = await stop();
+            expect(sigKill).to.deep.equal({ val: -1, from: `system.host.${os.hostname()}` });
+            expect(harness.didAdapterStop()).to.be.true;
+        });
+
+        it('uses system.hostname of the system config like the JS-Controller', async () => {
+            dbConnection.systemConfig = { system: { hostname: 'configured-host' } };
+            await harness.startAdapter();
+            const sigKill = await stop();
+            expect(sigKill.from).to.equal('system.host.configured-host');
+        });
+
+        it('prefers IOB_HOSTNAME passed to the adapter process', async () => {
+            dbConnection.systemConfig = { system: { hostname: 'configured-host' } };
+            await harness.startAdapter({ IOB_HOSTNAME: 'env-host' });
+            const sigKill = await stop();
+            expect(sigKill.from).to.equal('system.host.env-host');
+        });
+
+        it('falls back to the host name of the OS when the system config cannot be read', async () => {
+            dbConnection.getSystemConfig = () => {
+                throw new Error('ENOENT');
+            };
+            await harness.startAdapter();
+            const sigKill = await stop();
+            expect(sigKill.from).to.equal(`system.host.${os.hostname()}`);
         });
     });
 

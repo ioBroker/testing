@@ -4,6 +4,9 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
+## **WORK IN PROGRESS**
+* (@GermanBluefox) Fixed: `harness.stopAdapter()` hung with js-controller >= 8.0.0-alpha.23, because since then the adapter only accepts a `sigKill` from the controller of its own host (ioBroker/ioBroker.js-controller#3568) and the harness sent it from `system.host.testing`. The `sigKill` now comes from the host name the adapter process resolves (`IOB_HOSTNAME`, `system.hostname` of the system config, the host name of the OS), so the adapter stops right away instead of being killed after the stop timeout (#757)
+
 ## 6.3.2 (2026-11-08)
 * (@hombach) Fixed: `@iobroker/testing` no longer pulls `esbuild@0.11` (GHSA-67mh-4wv8-2f99) into every adapter. `@alcalzone/esbuild-register` is removed from the dependencies. TypeScript adapters are now started with [`tsx`](https://tsx.is) (`node --import tsx`) instead of `@alcalzone/esbuild-register`. `tsx` is installed in the integration test directory only and depends on a current `esbuild`
 
