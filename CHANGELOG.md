@@ -4,7 +4,7 @@
 	PLACEHOLDER for the next version:
 	## **WORK IN PROGRESS**
 -->
-## **WORK IN PROGRESS**
+## 6.3.3 (2026-11-23)
 * (@GermanBluefox) Fixed: `harness.stopAdapter()` hung with js-controller >= 8.0.0-alpha.23, because since then the adapter only accepts a `sigKill` from the controller of its own host (ioBroker/ioBroker.js-controller#3568) and the harness sent it from `system.host.testing`. The `sigKill` now comes from the host name the adapter process resolves (`IOB_HOSTNAME`, `system.hostname` of the system config, the host name of the OS), so the adapter stops right away instead of being killed after the stop timeout (#757)
 
 ## 6.3.2 (2026-11-08)
